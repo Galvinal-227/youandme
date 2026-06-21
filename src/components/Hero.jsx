@@ -7,6 +7,7 @@ function Hero() {
   const photoContainerRef = useRef(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [fontIndex, setFontIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const backgroundImages = [
     "/image1.jpeg",
@@ -52,23 +53,27 @@ function Hero() {
     "'Fjalla One', sans-serif",
   ];
 
-  // Ganti foto setiap 3 detik
+  // Ganti foto setiap 2 detik (lebih cepat)
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
-    }, 3000);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
+        setIsTransitioning(false);
+      }, 300);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
-  // Ganti font setiap 3 detik
+  // Ganti font setiap 1.5 detik (lebih cepat)
   useEffect(() => {
     const fontInterval = setInterval(() => {
       setFontIndex((prevIndex) => (prevIndex + 1) % fonts.length);
-    }, 3000);
+    }, 1500);
     return () => clearInterval(fontInterval);
   }, []);
 
-  // Animasi GSAP (scroll dan fade in)
+  // Animasi GSAP
   useEffect(() => {
     if (photoContainerRef.current) {
       gsap.to(photoContainerRef.current, {
@@ -130,7 +135,7 @@ function Hero() {
         className="absolute inset-0 flex items-center justify-center z-0"
       >
         
-        {/* SVG Kiri - Tanpa efek kedip */}
+        {/* SVG Kiri */}
         <div className="hero-svg-left absolute left-4 md:left-28 top-1/2 -translate-y-1/2 z-20 opacity-0">
           <svg 
             width="100" 
@@ -144,32 +149,41 @@ function Hero() {
               opacity: 0.8,
             }}
           >
-            <path d="M9.1 64.3V55.3H2.38419e-07V1.90735e-06H10.1V54.3H18.1V36.1H27.3V9.1H37.3V36.1H46.5V54.3H54.6V1.90735e-06H64.6V55.3H55.6V64.3H45.5V55.3H36.3V37.1H28.3V55.3H19.1V64.3H9.1ZM82.7328 64.3V55.3H73.6328V27.2H82.7328V18.1H110.933V27.2H120.133V54.3H129.233V64.3H119.133V55.3H110.933V64.3H82.7328ZM83.7328 54.3H109.933V28.1H83.7328V54.3ZM138.281 64.3V54.3H174.581V46.2H147.381V37.1H138.281V27.2H147.381V18.1H184.781V28.1H148.381V36.1H175.581V45.2H184.781V55.3H175.581V64.3H138.281ZM196.875 64.3V18.1H206.975V64.3H196.875ZM196.875 10.1V1.90735e-06H206.975V10.1H196.875ZM226.19 64.3V55.3H217.09V27.2H226.19V18.1H254.39V27.2H263.59V54.3H272.69V64.3H262.59V55.3H254.39V64.3H226.19ZM227.19 54.3H253.39V28.1H227.19V54.3ZM291.83 64.3V55.3H282.83V28.1H273.73V18.1H282.83V1.90735e-06H292.83V18.1H320.23V28.1H292.83V54.3H319.23V45.2H329.33V55.3H320.23V64.3H291.83ZM348.553 64.3V55.3H339.453V18.1H349.553V54.3H375.753V18.1H385.953V55.3H376.753V64.3H348.553ZM397.07 64.3V54.3H433.37V46.2H406.17V37.1H397.07V27.2H406.17V18.1H443.57V28.1H407.17V36.1H434.37V45.2H443.57V55.3H434.37V64.3H397.07Z" fill="#FFD700" fillOpacity="0.6"/>
+            <path d="M9.1 64.3V55.3H2.38419e-07V1.90735e-06H10.1V54.3H18.1V36.1H27.3V9.1H37.3V36.1H46.5V54.3H54.6V1.90735e-06H64.6V55.3H55.6V64.3H45.5V55.3H36.3V37.1H28.3V55.3H19.1V64.3H9.1ZM82.7328 64.3V55.3H73.6328V27.2H82.7328V18.1H110.933V27.2H120.133V54.3H129.233V64.3H119.133V55.3H110.933V64.3H82.7328ZM83.7328 54.3H109.933V28.1H83.7328V54.3ZM138.281 64.3V54.3H174.581V46.2H147.381V37.1H138.281V27.2H147.381V18.1H184.781V28.1H148.381V36.1H175.581V45.2H184.781V55.3H175.581V64.3H138.281ZM196.875 64.3V18.1H206.975V64.3H196.875ZM196.875 10.1V1.90735e-06H206.975V10.1H196.875ZM226.19 64.3V55.3H217.09V27.2H226.19V18.1H254.39V27.2H263.59V54.3H272.69V64.3H262.59V55.3H254.39V64.3H226.19ZM227.19 54.3H253.39V28.1H227.19V54.3ZM291.83 64.3V55.3H282.83V28.1H273.73V18.1H282.83V1.90735e-06H292.83V18.1H320.23V28.1H292.83V54.3H319.23V45.2H329.33V55.3H320.23V64.3H291.83ZM348.553 64.3V55.3H339.453V18.1H349.553V54.3H375.753V18.1H385.953V55.3H376.753V64.3H348.553ZM397.07 64.3V54.3V46.2H406.17V37.1H397.07V27.2H406.17V18.1H443.57V28.1H407.17V36.1H434.37V45.2H443.57V55.3H434.37V64.3H397.07Z" fill="#FFD700" fillOpacity="0.6"/>
           </svg>
         </div>
 
-        {/* Container Foto - Tanpa efek proyektor */}
+        {/* Container Foto - Efek transisi lebih smooth */}
         <div className="projector-photo-container relative w-full max-w-2xl md:max-w-3xl h-full max-h-[70vh] md:max-h-[80vh] mx-auto my-auto">
           
           {backgroundImages.map((img, index) => (
             <div
               key={index}
-              className="projector-photo absolute inset-0 transition-opacity duration-1000 ease-in-out rounded-1xl overflow-hidden shadow-2xl"
+              className={`projector-photo absolute inset-0 rounded-1xl overflow-hidden shadow-2xl transition-all duration-700 ease-in-out ${
+                currentImageIndex === index 
+                  ? 'opacity-100 scale-100 blur-[2px]' 
+                  : 'opacity-0 scale-105 blur-[4px]'
+              }`}
               style={{
                 backgroundImage: `url('${img}')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                opacity: currentImageIndex === index ? 1 : 0,
                 zIndex: currentImageIndex === index ? 1 : 0,
-                filter: 'blur(2px)',
-                transform: 'scale(1.02)',
+                transform: currentImageIndex === index ? 'scale(1.02)' : 'scale(1.08)',
               }}
             />
           ))}
+          
+          {/* Efek vignette ringan biar aesthetic */}
+          <div className="absolute inset-0 pointer-events-none z-10 rounded-1xl"
+            style={{
+              background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%)',
+            }}
+          />
         </div>
 
-        {/* SVG Kanan - Tanpa efek kedip */}
+        {/* SVG Kanan */}
         <div className="hero-svg-right absolute right-4 md:right-28 top-1/2 -translate-y-1/2 z-20 opacity-0">
           <svg 
             width="100" 
@@ -196,9 +210,11 @@ function Hero() {
           
           <h1 
             key={fontIndex}
-            className="hero-title text-6xl md:text-7xl lg:text-8xl font-light tracking-wider transition-all duration-200"
+            className="hero-title text-6xl md:text-7xl lg:text-8xl font-light tracking-wider transition-all duration-300 ease-in-out"
             style={{ 
               fontFamily: fonts[fontIndex],
+              transform: 'scale(1)',
+              transition: 'all 0.3s ease-in-out'
             }}
           >
             You And Me
@@ -208,9 +224,10 @@ function Hero() {
           
           <p 
             key={fontIndex + 100}
-            className="hero-subtitle text-gray-300 text-sm uppercase tracking-wider mt-8 transition-all duration-200"
+            className="hero-subtitle text-gray-300 text-sm uppercase tracking-wider mt-8 transition-all duration-300 ease-in-out"
             style={{ 
               fontFamily: fonts[fontIndex],
+              transition: 'all 0.3s ease-in-out'
             }}
           >
             moments captured in time
