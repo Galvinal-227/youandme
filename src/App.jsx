@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
+import Ultah from './components/Ultah'; // Import Ultah
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,7 +47,7 @@ function App() {
     }
   }, [showSplash]);
 
-  // 🔥 INTERSECTION OBSERVER UNTUK FADE-ON-SCROLL
+  // INTERSECTION OBSERVER UNTUK FADE-ON-SCROLL
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -89,6 +90,107 @@ function App() {
       
       {showMusicPlayer && (
         <MusicPlayer 
+          musicPlaying={musicPlaying}
+          setMusicPlaying={setMusicPlaying}
+          audioError={audioError}
+          setAudioError={setAudioError}
+          selectedSong={selectedSong}
+        />
+      )}
+      
+      <div id="hero">
+        <Hero />
+      </div>
+      
+      <div id="gallery" className="fade-on-scroll">
+        <Gallery />
+      </div>
+      
+      <div id="story" className="fade-on-scroll">
+        <Story />
+      </div>
+
+      <div id="ultah" className="fade-on-scroll">
+        <Ultah />
+      </div>
+
+      <div id="profile" className="fade-on-scroll">
+        <Profile />
+      </div>
+
+      <div id="love-message" className="love-message py-32 px-4 relative fade-on-scroll">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="mb-6">
+            <div className="w-12 h-px bg-white/20 mx-auto mb-6"></div>
+            <FaRegHeart className="text-gray-500 text-3xl mx-auto animate-pulse" />
+            <div className="w-12 h-px bg-white/20 mx-auto mt-6"></div>
+          </div>
+          <p className="text-gray-300 text-lg font-light leading-relaxed">
+            Every picture tells a story. <br />
+            This is ours.
+          </p>
+          <p className="text-gray-500 text-sm mt-6 uppercase tracking-wider">
+            forever & always
+          </p>
+        </div>
+      </div>
+      
+      <div id="footer" className="fade-on-scroll">
+        <Footer />
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Pixelify+Sans:wght@400..700&family=Share+Tech&display=swap');
+        
+        ::-webkit-scrollbar {
+          width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #333;
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+        body {
+          background-color: black;
+          font-family: 'Jost', sans-serif;
+          overflow-x: hidden;
+        }
+        
+        .fade-on-scroll {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        
+        .fade-on-scroll.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        @keyframes pulse {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(4px); }
+        }
+        .animate-pulse {
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+        .current-lyric {
+          text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+        .love-message {
+          background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default App;        <MusicPlayer 
           musicPlaying={musicPlaying}
           setMusicPlaying={setMusicPlaying}
           audioError={audioError}
