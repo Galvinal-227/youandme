@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { FaHome, FaImages, FaHeart, FaInfoCircle, FaUserFriends } from 'react-icons/fa';
+import { FaHome, FaImages, FaHeart, FaInfoCircle, FaUserFriends, FaGift } from 'react-icons/fa';
 
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -72,8 +72,9 @@ function Navbar() {
               <NavLink onClick={() => scrollToSection('hero')} icon={<FaHome />} text="Home" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('gallery')} icon={<FaImages />} text="Gallery" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('story')} icon={<FaHeart />} text="Story" isScrolled={isScrolled} />
-              <NavLink onClick={() => scrollToSection('footer')} icon={<FaInfoCircle />} text="Info" isScrolled={isScrolled} />
+              <NavLink onClick={() => scrollToSection('ultah')} icon={<FaGift />} text="Ultah" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('profile')} icon={<FaUserFriends />} text="Profile" isScrolled={isScrolled} />
+              <NavLink onClick={() => scrollToSection('footer')} icon={<FaInfoCircle />} text="Info" isScrolled={isScrolled} />
             </div>
 
             {/* Mobile Menu Button - Hanya tampil di mobile */}
@@ -85,6 +86,93 @@ function Navbar() {
               <span className={`w-6 h-px bg-white transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
               <span className={`w-6 h-px bg-white transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
             </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Menu - Background lebih terang dengan blur */}
+      <div 
+        className={`fixed inset-0 z-40 md:hidden transition-all duration-500 ${
+          isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        }`}
+        style={{ 
+          top: '0px',
+          background: 'rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        {/* Tambahan overlay untuk efek glassmorphism yang lebih terang */}
+        <div className="absolute inset-0 bg-white/5"></div>
+        
+        <div className="relative flex flex-col items-center justify-center h-full gap-8 px-4">
+          <MobileNavLink onClick={() => scrollToSection('hero')} icon={<FaHome />} text="Home" />
+          <MobileNavLink onClick={() => scrollToSection('gallery')} icon={<FaImages />} text="Gallery" />
+          <MobileNavLink onClick={() => scrollToSection('story')} icon={<FaHeart />} text="Story" />
+          <MobileNavLink onClick={() => scrollToSection('ultah')} icon={<FaGift />} text="Ultah" />
+          <MobileNavLink onClick={() => scrollToSection('profile')} icon={<FaUserFriends />} text="Profile" />
+          <MobileNavLink onClick={() => scrollToSection('footer')} icon={<FaInfoCircle />} text="Info" />
+          
+          {/* Decorative line */}
+          <div className="w-12 h-px bg-white/10 mt-4"></div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function NavLink({ onClick, icon, text, isScrolled }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const firstLetter = text.charAt(0);
+  const restLetters = text.slice(1);
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative transition-colors duration-300 text-sm uppercase tracking-wider ${
+        isScrolled ? 'text-white' : 'text-gray-400 hover:text-white'
+      }`}
+    >
+      <span className="flex items-center gap-2">
+        {icon && <span className={!isScrolled ? 'text-gray-400' : 'text-white/80'}>{icon}</span>}
+        <span>
+          <span className="text-white">{firstLetter}</span>
+          <span className={!isScrolled && !isHovered ? 'text-gray-400' : 'text-white'}>{restLetters}</span>
+        </span>
+      </span>
+      {!isScrolled && (
+        <span className={`absolute -bottom-1 left-0 h-px bg-white/50 transition-all duration-300 ${isHovered ? 'w-full' : 'w-0'}`}></span>
+      )}
+    </button>
+  );
+}
+
+function MobileNavLink({ onClick, icon, text }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const firstLetter = text.charAt(0);
+  const restLetters = text.slice(1);
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="flex items-center gap-4 text-white/80 hover:text-white text-xl uppercase tracking-wider transition-all duration-300 hover:scale-105"
+    >
+      <span className="text-white/60">{icon}</span>
+      <span>
+        <span className="text-white">{firstLetter}</span>
+        <span className={isHovered ? 'text-white' : 'text-white/60'}>{restLetters}</span>
+      </span>
+    </button>
+  );
+}
+
+export default Navbar;            </button>
           </div>
         </div>
       </nav>
