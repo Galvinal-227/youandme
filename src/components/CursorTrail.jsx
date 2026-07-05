@@ -1,86 +1,121 @@
 // components/CursorTrail.jsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 const CursorTrail = () => {
-  const trailRef = useRef([]);
-  const dotsRef = useRef([]);
-
   useEffect(() => {
-    const dots = [];
-    const numDots = 20;
+    const symbols = ['♥', '❤', '♡', '✦', '✧'];
+    const colors = ['#ff4d7a', '#ffd700', '#ff6b8a', '#64c8ff', '#ff8fa3'];
     
-    for (let i = 0; i < numDots; i++) {
-      const dot = document.createElement('div');
-      const size = 8 - (i / numDots) * 6;
-      dot.style.cssText = `
-        position: fixed;
-        pointer-events: none;
-        z-index: 9999;
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255,100,150,0.9), rgba(255,50,100,0.3));
+    // Buat container untuk trail
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    `;
+    document.body.appendChild(container);
+
+    const particles = [];
+    const numParticles = 15;
+
+    for (let i = 0; i < numParticles; i++) {
+      const el = document.createElement('div');
+      const size = 14 - (i / numParticles) * 8;
+      el.style.cssText = `
+        position: absolute;
+        font-size: ${size}px;
         opacity: 0;
-        transition: all 0.08s cubic-bezier(0.2, 0.9, 0.4, 1);
-        box-shadow: 0 0 15px rgba(255,100,150,0.4);
-        will-change: transform, opacity, left, top;
-        filter: blur(0.5px);
+        transition: all 0.1s ease;
+        pointer-events: none;
+        user-select: none;
+        will-change: transform, opacity;
+        filter: drop-shadow(0 0 4px rgba(255,100,150,0.3));
       `;
-      document.body.appendChild(dot);
-      dots.push(dot);
+      el.textContent = symbols[i % symbols.length];
+      el.style.color = colors[i % colors.length];
+      container.appendChild(el);
+      particles.push({
+        el: el,
+        x: 0,
+        y: 0,
+        targetX: 0,
+        targetY: 0,
+        size: size,
+        opacity: 0.9 - (i / numParticles) * 0.8,
+        index: i
+      });
     }
-    dotsRef.current = dots;
 
     let mouseX = 0, mouseY = 0;
     let currentIndex = 0;
-    let positions = [];
 
     const handleMouseMove = (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
       
-      const dot = dots[currentIndex];
-      dot.style.left = (mouseX - 4) + 'px';
-      dot.style.top = (mouseY - 4) + 'px';
-      dot.style.opacity = '1';
-      dot.style.transform = 'scale(1)';
+      // Update target untuk particle berikutnya
+      const p = particles[currentIndex];
+      p.targetX = mouseX;
+      p.targetY = mouseY;
       
-      currentIndex = (currentIndex + 1) % numDots;
+      // Aktifkan particle
+      p.el.style.opacity = p.opacity;
+      p.el.style.transform = 'scale(1) rotate(0deg)';
+      
+      currentIndex = (currentIndex + 1) % numParticles;
     };
 
-    const animateTrail = () => {
-      for (let i = 0; i < dots.length; i++) {
-        const dot = dots[i];
-        const progress = i / dots.length;
-        const opacity = 0.9 - progress * 0.85;
-        const scale = 1 - progress * 0.7;
-        const size = 8 - progress * 6;
+    const animate = () => {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         
-        dot.style.opacity = Math.max(0, opacity);
-        dot.style.transform = `scale(${Math.max(0.2, scale)})`;
-        dot.style.width = `${Math.max(2, size)}px`;
-        dot.style.height = `${Math.max(2, size)}px`;
+        // Smooth follow
+        p.x += (p.targetX - p.x) * 0.12;
+        p.y += (p.targetY - p.y) * 0.12;
         
-        // Warna berubah dari pink ke putih
-        const alpha = opacity * 0.8;
-        dot.style.background = `radial-gradient(circle, rgba(255,150,200,${alpha}), rgba(255,50,100,${alpha * 0.5}))`;
-        dot.style.boxShadow = `0 0 ${20 * (1 - progress)}px rgba(255,100,150,${alpha * 0.5})`;
+        // Update posisi
+        p.el.style.left = (p.x - 10) + 'px';
+        p.el.style.top = (p.y - 10) + 'px';
+        
+        // Efek fade dan scale berdasarkan jarak dari mouse
+        const dx = p.x - mouseX;
+        const dy = p.y - mouseY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const maxDist = 300;
+        const fade = Math.max(0, 1 - (dist / maxDist));
+        
+        const opacity = p.opacity * fade * 0.9;
+        const scale = 0.3 + 0.7 * fade;
+        const rotation = dist * 0.5;
+        
+        p.el.style.opacity = opacity;
+        p.el.style.transform = `scale(${scale}) rotate(${rotation}deg)`;
+        
+        // Ukuran mengecil seiring jarak
+        const sizeFactor = 0.4 + 0.6 * fade;
+        p.el.style.fontSize = (p.size * sizeFactor) + 'px';
       }
-      requestAnimationFrame(animateTrail);
+      
+      requestAnimationFrame(animate);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
-    animateTrail();
+    animate();
 
-    // Mouse leave - fade out semua dot
+    // Mouse leave - fade out
     const handleMouseLeave = () => {
-      dots.forEach(dot => {
-        dot.style.opacity = '0';
+      particles.forEach(p => {
+        p.el.style.opacity = '0';
       });
     };
 
     const handleMouseEnter = () => {
-      // Biar langsung aktif lagi
+      // Reset
     };
 
     document.addEventListener('mouseleave', handleMouseLeave);
@@ -90,7 +125,7 @@ const CursorTrail = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
-      dots.forEach(dot => dot.remove());
+      container.remove();
     };
   }, []);
 
