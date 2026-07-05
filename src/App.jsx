@@ -11,6 +11,7 @@ import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import Ultah from './components/Ultah';
+import CursorTrail from './components/CursorTrail';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -84,6 +85,9 @@ function App() {
 
   return (
     <div className="main-content opacity-0 bg-black overflow-x-hidden">
+      {/* Cursor Trail - muncul di semua halaman */}
+      <CursorTrail />
+      
       <Navbar />
       
       {showMusicPlayer && (
@@ -153,10 +157,19 @@ function App() {
         ::-webkit-scrollbar-thumb:hover {
           background: #555;
         }
+        
+        * {
+          cursor: none !important;
+        }
+        
         body {
           background-color: black;
           font-family: 'Jost', sans-serif;
           overflow-x: hidden;
+        }
+        
+        a, button, input, textarea, [role="button"] {
+          cursor: none !important;
         }
         
         .fade-on-scroll {
