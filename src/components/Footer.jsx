@@ -4,7 +4,7 @@ import {
   FaHandPaper, FaList, FaCheck, FaTicketAlt, FaBrain,
   FaHeart, FaRegHeart, FaStar, FaRedo, FaTrophy, FaClock,
   FaGem, FaSun, FaMoon, FaCloud, FaLeaf, FaFeather,
-  FaDove, FaRing
+  FaDove, FaRing, FaStarHalfAlt, FaRegStar, FaSmile, FaFrown, FaMeh
 } from 'react-icons/fa';
 import { 
   GiSelfLove, GiRose, GiLovers, 
@@ -46,13 +46,33 @@ function Footer() {
     const saved = localStorage.getItem('memoryLoveGameBestScore');
     return saved ? parseInt(saved) : null;
   });
+
+  // State untuk Rating
+  const [showRating, setShowRating] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [ratingMessage, setRatingMessage] = useState('');
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
   
   const dropInterval = useRef(null);
   const riseInterval = useRef(null);
   const timerRef = useRef(null);
   const holePosition = 85;
 
-  // Daftar hadiah dengan nomor - PAKE REACT ICON
+  // Load rating dari localStorage
+  useEffect(() => {
+    const ratings = JSON.parse(localStorage.getItem('loveGalleryRatings') || '[]');
+    if (ratings.length > 0) {
+      const total = ratings.reduce((sum, r) => sum + r.rating, 0);
+      setAverageRating(total / ratings.length);
+      setTotalRatings(ratings.length);
+    }
+  }, []);
+
+  // Daftar hadiah dengan nomor
   const prizeList = [
     { number: 1, name: 'ZONK', icon: <FaTimes className="text-red-500/40 text-2xl" />, type: 'zonk' },
     { number: 2, name: 'ZONK', icon: <FaTimes className="text-red-500/40 text-2xl" />, type: 'zonk' },
@@ -76,7 +96,7 @@ function Footer() {
     { number: 20, name: 'SURAT CINTA', icon: <GiLoveLetter className="text-pink-400 text-2xl" />, type: 'jackpot' },
   ];
 
-  // Daftar ikon cinta untuk Memory Match - SEMUA PASTI TERSEDIA
+  // Daftar ikon cinta untuk Memory Match
   const loveIcons = [
     { id: 1, name: 'Hati', icon: FaHeart, color: '#FF4757' },
     { id: 2, name: 'Mawar', icon: GiRose, color: '#FF6B81' },
@@ -415,6 +435,39 @@ function Footer() {
     return claimedPrizes.includes(number);
   };
 
+  // ============ RATING FUNCTIONS ============
+  const handleRatingSubmit = () => {
+    if (rating === 0) {
+      setRatingMessage('Pilih rating dulu ya! ❤️');
+      return;
+    }
+    
+    const ratings = JSON.parse(localStorage.getItem('loveGalleryRatings') || '[]');
+    ratings.push({
+      rating: rating,
+      comment: ratingComment,
+      date: new Date().toISOString(),
+      user: 'Syafa'
+    });
+    localStorage.setItem('loveGalleryRatings', JSON.stringify(ratings));
+    
+    // Update stats
+    const total = ratings.reduce((sum, r) => sum + r.rating, 0);
+    setAverageRating(total / ratings.length);
+    setTotalRatings(ratings.length);
+    
+    setRatingSubmitted(true);
+    setRatingMessage('Terima kasih ratingnya! ❤️');
+    
+    setTimeout(() => {
+      setShowRating(false);
+      setRatingSubmitted(false);
+      setRating(0);
+      setRatingComment('');
+      setRatingMessage('');
+    }, 2000);
+  };
+
   // Cleanup intervals
   useEffect(() => {
     return () => {
@@ -502,6 +555,18 @@ function Footer() {
               >
                 <FaBrain className="text-[10px]" />
                 <span>Memory Love</span>
+              </button>
+              <button
+                onClick={() => setShowRating(true)}
+                className="text-white/40 hover:text-white text-sm transition-colors flex items-center justify-center gap-1"
+              >
+                <FaStar className="text-[10px] text-yellow-400/60" />
+                <span>Beri Rating</span>
+                {totalRatings > 0 && (
+                  <span className="text-[10px] text-white/20">
+                    ({averageRating.toFixed(1)})
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -819,7 +884,7 @@ function Footer() {
               </div>
               
               <h2 className="text-2xl text-white font-light tracking-wide mb-2">
-                 Sempurna! 
+                Sempurna!
               </h2>
               <p className="text-white/40 text-sm mb-6">
                 Kamu berhasil mencocokkan semua simbol cinta!
@@ -985,6 +1050,109 @@ function Footer() {
                   <p className="text-white/70 text-sm mt-1 tracking-wide">Galvin</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RATING MODAL */}
+      {showRating && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/90" onClick={() => setShowRating(false)}></div>
+          
+          <div className="relative z-10 max-w-md w-full bg-black border border-white/20 shadow-2xl rounded-2xl">
+            <button onClick={() => setShowRating(false)} className="absolute top-4 right-4 text-white/40 hover:text-white/70 z-20">
+              <FaTimes size={18} />
+            </button>
+            
+            <div className="p-8 text-center">
+              {!ratingSubmitted ? (
+                <>
+                  <div className="mb-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500/20 to-pink-500/5 border border-pink-500/30 flex items-center justify-center mx-auto">
+                      <FaHeart className="text-pink-400 text-3xl" />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-white/80 text-lg font-light tracking-wide mb-2">
+                    Rate Gallery Ini
+                  </h3>
+                  <p className="text-white/30 text-sm mb-6">
+                    Seberapa suka kamu dengan gallery ini?
+                  </p>
+                  
+                  {/* Rating Stars */}
+                  <div className="flex justify-center gap-2 mb-6">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setRating(star)}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        className="text-4xl transition-all duration-200 hover:scale-110"
+                      >
+                        {star <= (hoverRating || rating) ? (
+                          <FaStar className="text-yellow-400" />
+                        ) : (
+                          <FaRegStar className="text-white/30" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Rating Label */}
+                  <div className="text-white/40 text-sm mb-4">
+                    {rating === 1 && <span><FaFrown className="inline mr-1 text-red-400/60" /> Kurang suka</span>}
+                    {rating === 2 && <span><FaMeh className="inline mr-1 text-yellow-400/60" /> Lumayan</span>}
+                    {rating === 3 && <span><FaSmile className="inline mr-1 text-yellow-400/60" /> Suka</span>}
+                    {rating === 4 && <span><FaHeart className="inline mr-1 text-pink-400/60" /> Sangat suka</span>}
+                    {rating === 5 && <span><FaStar className="inline mr-1 text-yellow-400" /> Sempurna!</span>}
+                    {rating === 0 && 'Klik bintangnya ya~'}
+                  </div>
+                  
+                  {/* Comment */}
+                  <textarea
+                    value={ratingComment}
+                    onChange={(e) => setRatingComment(e.target.value)}
+                    placeholder="Tulis pesan untuk Syafa (opsional)..."
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white/70 text-sm placeholder-white/20 focus:outline-none focus:border-white/30 transition-all resize-none"
+                    rows="3"
+                  />
+                  
+                  {/* Error Message */}
+                  {ratingMessage && (
+                    <p className="text-pink-400/60 text-xs mt-2">{ratingMessage}</p>
+                  )}
+                  
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleRatingSubmit}
+                    className="w-full mt-4 border border-white/20 hover:border-white/50 bg-white/5 hover:bg-white/10 py-3 rounded-lg text-white/70 hover:text-white text-sm tracking-wider transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <FaHeart className="text-pink-400/60" />
+                    Kirim Rating
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="py-8">
+                    <div className="text-6xl mb-4">
+                      {rating >= 4 ? <FaHeart className="text-pink-400 mx-auto" /> : <FaSmile className="text-yellow-400 mx-auto" />}
+                    </div>
+                    <h3 className="text-white/80 text-xl font-light tracking-wide mb-2">
+                      Terima Kasih! <FaHeart className="inline text-pink-400 text-xl" />
+                    </h3>
+                    <p className="text-white/30 text-sm">
+                      Rating {rating} bintang
+                    </p>
+                    <div className="flex justify-center gap-1 mt-2">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar key={i} className={i < rating ? 'text-yellow-400' : 'text-white/20'} />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
