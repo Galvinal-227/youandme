@@ -7,22 +7,24 @@ const CursorTrail = () => {
 
   useEffect(() => {
     const dots = [];
-    const numDots = 15;
+    const numDots = 20;
     
-    // Buat dot elements
     for (let i = 0; i < numDots; i++) {
       const dot = document.createElement('div');
+      const size = 8 - (i / numDots) * 6;
       dot.style.cssText = `
         position: fixed;
         pointer-events: none;
         z-index: 9999;
-        width: 6px;
-        height: 6px;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(255,100,150,0.8), rgba(255,50,100,0.2));
-        transition: all 0.1s ease;
+        background: radial-gradient(circle, rgba(255,100,150,0.9), rgba(255,50,100,0.3));
         opacity: 0;
-        box-shadow: 0 0 10px rgba(255,100,150,0.3);
+        transition: all 0.08s cubic-bezier(0.2, 0.9, 0.4, 1);
+        box-shadow: 0 0 15px rgba(255,100,150,0.4);
+        will-change: transform, opacity, left, top;
+        filter: blur(0.5px);
       `;
       document.body.appendChild(dot);
       dots.push(dot);
@@ -31,57 +33,63 @@ const CursorTrail = () => {
 
     let mouseX = 0, mouseY = 0;
     let currentIndex = 0;
+    let positions = [];
 
     const handleMouseMove = (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
       
-      // Aktifkan dot pertama
       const dot = dots[currentIndex];
-      dot.style.left = mouseX - 3 + 'px';
-      dot.style.top = mouseY - 3 + 'px';
-      dot.style.opacity = '0.8';
+      dot.style.left = (mouseX - 4) + 'px';
+      dot.style.top = (mouseY - 4) + 'px';
+      dot.style.opacity = '1';
       dot.style.transform = 'scale(1)';
       
       currentIndex = (currentIndex + 1) % numDots;
     };
 
-    // Animasi trail
     const animateTrail = () => {
-      const positions = [];
-      for (let i = 0; i < dotsRef.current.length; i++) {
-        const dot = dotsRef.current[i];
-        if (dot.style.opacity === '0') continue;
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+        const progress = i / dots.length;
+        const opacity = 0.9 - progress * 0.85;
+        const scale = 1 - progress * 0.7;
+        const size = 8 - progress * 6;
         
-        const x = parseFloat(dot.style.left);
-        const y = parseFloat(dot.style.top);
-        positions.push({ x, y, opacity: parseFloat(dot.style.opacity) });
-      }
-      
-      // Update opacity dan scale untuk efek trail
-      for (let i = 0; i < dotsRef.current.length; i++) {
-        const dot = dotsRef.current[i];
-        const index = (i - 1 + dotsRef.current.length) % dotsRef.current.length;
-        const prev = positions[index];
+        dot.style.opacity = Math.max(0, opacity);
+        dot.style.transform = `scale(${Math.max(0.2, scale)})`;
+        dot.style.width = `${Math.max(2, size)}px`;
+        dot.style.height = `${Math.max(2, size)}px`;
         
-        if (prev) {
-          const opacity = 0.8 - (i / dotsRef.current.length) * 0.7;
-          const scale = 1 - (i / dotsRef.current.length) * 0.6;
-          dot.style.opacity = Math.max(0, opacity);
-          dot.style.transform = `scale(${Math.max(0.3, scale)})`;
-          dot.style.width = `${6 * (1 - i / dotsRef.current.length * 0.5)}px`;
-          dot.style.height = `${6 * (1 - i / dotsRef.current.length * 0.5)}px`;
-        }
+        // Warna berubah dari pink ke putih
+        const alpha = opacity * 0.8;
+        dot.style.background = `radial-gradient(circle, rgba(255,150,200,${alpha}), rgba(255,50,100,${alpha * 0.5}))`;
+        dot.style.boxShadow = `0 0 ${20 * (1 - progress)}px rgba(255,100,150,${alpha * 0.5})`;
       }
-      
       requestAnimationFrame(animateTrail);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     animateTrail();
 
+    // Mouse leave - fade out semua dot
+    const handleMouseLeave = () => {
+      dots.forEach(dot => {
+        dot.style.opacity = '0';
+      });
+    };
+
+    const handleMouseEnter = () => {
+      // Biar langsung aktif lagi
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseenter', handleMouseEnter);
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseenter', handleMouseEnter);
       dots.forEach(dot => dot.remove());
     };
   }, []);
