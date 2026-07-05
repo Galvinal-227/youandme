@@ -11,7 +11,6 @@ import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import Ultah from './components/Ultah';
-import CursorTrail from './components/CursorTrail';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -84,9 +83,6 @@ function App() {
   }
 
   return (
-    <div className="main-content opacity-0 bg-black overflow-x-hidden">
-      {/* Cursor Trail - muncul di semua halaman */}
-      <CursorTrail />
       
       <Navbar />
       
@@ -135,7 +131,7 @@ function App() {
             forever & always
           </p>
         </div>
-      </div>
+      
       
       <div id="footer" className="fade-on-scroll">
         <Footer />
