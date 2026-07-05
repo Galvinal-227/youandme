@@ -83,7 +83,7 @@ function App() {
   }
 
   return (
-      
+    <div className="main-content opacity-0 bg-black overflow-x-hidden">
       <Navbar />
       
       {showMusicPlayer && (
@@ -131,7 +131,7 @@ function App() {
             forever & always
           </p>
         </div>
-      
+      </div>
       
       <div id="footer" className="fade-on-scroll">
         <Footer />
@@ -154,18 +154,11 @@ function App() {
           background: #555;
         }
         
-        * {
-          cursor: none !important;
-        }
-        
         body {
           background-color: black;
           font-family: 'Jost', sans-serif;
           overflow-x: hidden;
-        }
-        
-        a, button, input, textarea, [role="button"] {
-          cursor: none !important;
+          cursor: default;
         }
         
         .fade-on-scroll {
