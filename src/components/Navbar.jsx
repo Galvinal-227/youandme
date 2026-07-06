@@ -6,7 +6,6 @@ function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isDark, setIsDark] = useState(false);
   
   const navRef = useRef(null);
   const pillRef = useRef(null);
@@ -32,7 +31,6 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    // Update pill position on mount and resize
     const updatePill = () => {
       const activeBtn = navItemsRef.current[activeIndex];
       if (activeBtn && pillRef.current) {
@@ -55,11 +53,6 @@ function Navbar() {
       setActiveIndex(index);
       setIsMobileMenuOpen(false);
     }
-  };
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
   };
 
   const handleMouseMove = (e) => {
@@ -101,7 +94,7 @@ function Navbar() {
                 onClick={() => scrollToSection('hero', 0)}
                 className="logo-btn"
               >
-                <span className="text-xl md:text-2xl font-light tracking-wider">
+                <span className="text-xl md:text-2xl font-light tracking-wider text-white">
                   <span className="text-white">W</span>
                   <span className="text-white/60">syf</span>
                 </span>
@@ -136,30 +129,6 @@ function Navbar() {
               <span className={`w-6 h-px bg-white transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
               <span className={`w-6 h-px bg-white transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
             </button>
-
-            {/* Theme Toggle */}
-            <button 
-              onClick={toggleTheme}
-              className="theme-btn ml-2"
-              aria-label="Toggle theme"
-            >
-              <div className="theme-icon-wrapper">
-                <svg className="sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5"></circle>
-                  <line x1="12" y1="1" x2="12" y2="3"></line>
-                  <line x1="12" y1="21" x2="12" y2="23"></line>
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                  <line x1="1" y1="12" x2="3" y2="12"></line>
-                  <line x1="21" y1="12" x2="23" y2="12"></line>
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <svg className="moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-              </div>
-            </button>
           </div>
         </div>
       </nav>
@@ -171,7 +140,7 @@ function Navbar() {
         }`}
         style={{ 
           top: '0px',
-          background: 'rgba(0, 0, 0, 0.5)',
+          background: 'rgba(0, 0, 0, 0.85)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
         }}
@@ -196,38 +165,21 @@ function Navbar() {
 
       <style jsx>{`
         /* =========================================
-           LIQUID GLASS NAVBAR STYLES
+           DARK LIQUID GLASS NAVBAR STYLES
            ========================================= */
         :root {
-          --glass-bg: rgba(255, 255, 255, 0.15);
-          --glass-border: rgba(255, 255, 255, 0.4);
-          --glass-shadow: rgba(0, 0, 0, 0.1);
-          --glass-highlight: rgba(255, 255, 255, 0.8);
-          --glass-caustic: rgba(255, 255, 255, 0.4);
-          --reflection-start: rgba(255, 255, 255, 0.6);
+          --glass-bg: rgba(20, 20, 25, 0.6);
+          --glass-border: rgba(255, 255, 255, 0.08);
+          --glass-shadow: rgba(0, 0, 0, 0.9);
+          --glass-highlight: rgba(255, 255, 255, 0.08);
+          --glass-caustic: rgba(255, 255, 255, 0.03);
+          --reflection-start: rgba(255, 255, 255, 0.06);
           --reflection-end: rgba(255, 255, 255, 0.0);
-          --glare-color: rgba(255, 255, 255, 0.5);
-          --pill-bg: rgba(255, 255, 255, 0.7);
-          --pill-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8);
-          --icon-color: rgba(0, 0, 0, 0.5);
-          --icon-active: rgba(0, 0, 0, 0.95);
-          --divider: rgba(0, 0, 0, 0.15);
-        }
-
-        [data-theme="dark"] {
-          --glass-bg: rgba(30, 30, 35, 0.45);
-          --glass-border: rgba(255, 255, 255, 0.15);
-          --glass-shadow: rgba(0, 0, 0, 0.8);
-          --glass-highlight: rgba(255, 255, 255, 0.25);
-          --glass-caustic: rgba(255, 255, 255, 0.05);
-          --reflection-start: rgba(255, 255, 255, 0.15);
-          --reflection-end: rgba(255, 255, 255, 0.0);
-          --glare-color: rgba(255, 255, 255, 0.15);
-          --pill-bg: rgba(60, 60, 65, 0.8);
-          --pill-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.2);
-          --icon-color: rgba(255, 255, 255, 0.5);
+          --glare-color: rgba(255, 255, 255, 0.08);
+          --pill-bg: rgba(60, 60, 65, 0.5);
+          --pill-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05);
+          --icon-color: rgba(255, 255, 255, 0.4);
           --icon-active: #ffffff;
-          --divider: rgba(255, 255, 255, 0.15);
         }
 
         .liquid-nav {
@@ -362,68 +314,6 @@ function Navbar() {
           outline: none;
         }
 
-        .theme-btn {
-          position: relative;
-          background: transparent;
-          border: none;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          color: var(--icon-color);
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-          z-index: 3;
-          outline: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: color 0.3s ease;
-          flex-shrink: 0;
-        }
-
-        .theme-btn:hover,
-        .theme-btn:active {
-          color: var(--icon-active);
-        }
-
-        .theme-icon-wrapper {
-          position: relative;
-          width: 20px;
-          height: 20px;
-          pointer-events: none;
-          transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
-        }
-
-        .theme-btn:active .theme-icon-wrapper {
-          transform: scale(0.8);
-        }
-
-        .theme-icon-wrapper svg {
-          position: absolute;
-          top: 0;
-          left: 0;
-          transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.4s ease;
-          stroke-width: 2.2;
-        }
-
-        .sun {
-          opacity: 1;
-          transform: rotate(0deg) scale(1);
-        }
-        .moon {
-          opacity: 0;
-          transform: rotate(-90deg) scale(0);
-        }
-
-        [data-theme="dark"] .sun {
-          opacity: 0;
-          transform: rotate(90deg) scale(0);
-        }
-        [data-theme="dark"] .moon {
-          opacity: 1;
-          transform: rotate(0deg) scale(1);
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
           .liquid-nav {
@@ -438,11 +328,6 @@ function Navbar() {
           }
           
           .active-pill {
-            height: 38px;
-          }
-          
-          .theme-btn {
-            width: 38px;
             height: 38px;
           }
           
