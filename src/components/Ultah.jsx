@@ -222,22 +222,21 @@ function AboutSection() {
       </div>
 
       <div className="reveal relative h-[300px] md:h-[380px] max-w-[340px] md:max-w-none mx-auto w-full">
-        <Polaroid className="absolute top-0 left-0 -rotate-6 z-[2]" caption="momen favorit #1" />
-        <Polaroid className="absolute bottom-0 right-0 rotate-6 z-[1]" caption="momen favorit #2" />
+        <Polaroid className="absolute top-0 left-0 -rotate-6 z-[2]" image="/image1.jpeg" caption="momen favorit #1" />
+        <Polaroid className="absolute bottom-0 right-0 rotate-6 z-[1]" image="/image2.jpeg" caption="momen favorit #2" />
       </div>
     </section>
   );
 }
 
-function Polaroid({ className, caption }) {
+function Polaroid({ className, image, caption }) {
   return (
     <figure className={`polaroid w-[58%] bg-[#f6ecdf] p-3 pb-10 rounded-sm shadow-2xl text-[#33192a] ${className}`}>
-      <div
-        className="aspect-square flex items-center justify-center text-xs italic rounded-sm"
-        style={{ background: 'linear-gradient(135deg,#3a2130,#5c3345)', color: 'rgba(246,236,224,0.4)' }}
-      >
-        taruh foto kalian di sini
-      </div>
+      <img 
+        src={image} 
+        alt={caption}
+        className="aspect-square w-full object-cover rounded-sm"
+      />
       <figcaption className="font-caveat text-lg text-center mt-2">{caption}</figcaption>
     </figure>
   );
