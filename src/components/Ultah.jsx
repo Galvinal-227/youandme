@@ -77,10 +77,10 @@ function IntroScreen({ onOpen }) {
   const introRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleOpen = () => {
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+    // If opening, wait for animation then proceed
     if (!isOpen) {
-      setIsOpen(true);
-      // Wait for animation to complete before showing main content
       setTimeout(() => {
         onOpen();
       }, 1200);
@@ -93,302 +93,245 @@ function IntroScreen({ onOpen }) {
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
       style={{ background: 'radial-gradient(circle at 50% 30%, #241228 0%, #170b16 70%)' }}
     >
-      <div className="intro-label font-caveat text-[#e8b978] text-2xl mb-4">untuk Syafa</div>
+      <div className="intro-label font-caveat text-[#e8b978] text-2xl mb-8">untuk Syafa</div>
 
-      <div className="envlope-wrapper" style={{ height: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      <section style={{ 
+        textAlign: 'center', 
+        perspective: '1000px', 
+        perspectiveOrigin: '50% 50%', 
+        width: '100%', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        padding: '20px' 
+      }}>
         <div 
-          id="envelope" 
-          className={isOpen ? 'open' : 'close'}
-          onClick={handleOpen}
+          className={`envelope ${isOpen ? 'open' : ''}`}
+          onClick={handleToggle}
           style={{
-            position: 'relative',
-            width: '280px',
-            height: '180px',
-            borderBottomLeftRadius: '6px',
-            borderBottomRightRadius: '6px',
+            animation: 'spin 10s infinite linear',
+            backgroundColor: '#dfded9',
+            width: '400px',
+            height: '225px',
+            boxShadow: '-10px 10px 20px 0px rgba(0, 0, 0, 0.25)',
             margin: '0 auto',
-            backgroundColor: '#004d73',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-            transition: 'box-shadow 0.2s',
+            position: 'relative',
+            transformStyle: 'preserve-3d',
+            borderRadius: '4px',
             cursor: 'pointer',
+            userSelect: 'none',
           }}
         >
-          {/* Front flap */}
-          <div className="front flap" style={{
-            position: 'absolute',
-            width: 0,
-            height: 0,
-            zIndex: 5,
+          {/* Front face (belakang amplop) */}
+          <div className="front" style={{
+            transform: 'translateZ(-1px) rotateY(180deg)',
+            backgroundColor: '#dbdad6',
+            width: '400px',
+            height: '225px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backfaceVisibility: 'visible',
+            borderRadius: '4px',
             pointerEvents: 'none',
-            borderLeft: '140px solid transparent',
-            borderRight: '140px solid transparent',
-            borderBottom: '82px solid transparent',
-            borderTop: '98px solid #004d73',
-            transformOrigin: 'top',
-            transition: 'transform 0.4s ease, z-index 0.6s',
-            willChange: 'transform',
-            transform: isOpen ? 'rotateX(180deg)' : 'rotateX(0deg)',
-            zIndex: isOpen ? 1 : 5,
-          }}></div>
-
-          {/* Pocket */}
-          <div className="front pocket" style={{
+            zIndex: 1,
             position: 'absolute',
-            width: 0,
-            height: 0,
-            zIndex: 3,
-            pointerEvents: 'none',
-            borderLeft: '140px solid #0077B2',
-            borderRight: '140px solid #0077B2',
-            borderBottom: '90px solid #006699',
-            borderTop: '90px solid transparent',
-            borderBottomLeftRadius: '6px',
-            borderBottomRightRadius: '6px',
-          }}></div>
+            top: 0,
+            left: 0,
+          }}>
+            <h1 style={{
+              fontFamily: "'Seaweed Script', cursive",
+              fontSize: '3.2rem',
+              margin: 0,
+              color: '#2c3e50',
+              textShadow: '1px 2px 4px rgba(0,0,0,0.1)',
+              letterSpacing: '2px',
+              fontWeight: 400,
+            }}>Danny</h1>
+          </div>
 
-          {/* Letter */}
-          <div className="letter" style={{
-            position: 'relative',
-            backgroundColor: '#ffffff',
-            width: '90%',
-            margin: '0 auto',
-            height: '90%',
-            top: '5%',
-            borderRadius: '6px',
-            boxShadow: '0 2px 26px rgba(0, 0, 0, 0.12)',
+          {/* Inner segitiga atas */}
+          <div className="inner" style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
             zIndex: 2,
-            transition: 'transform 0.4s ease, z-index 0.6s',
-            willChange: 'transform',
-            pointerEvents: 'none',
-            transform: isOpen ? 'translateY(-60px)' : 'translateY(0px)',
-            transitionDelay: isOpen ? '0.6s' : '0s',
           }}>
             <div style={{
+              borderLeft: '200px solid transparent',
+              borderRight: '200px solid transparent',
+              borderTop: '150px solid #ebeae5',
               position: 'absolute',
+              content: '',
               top: 0,
-              bottom: 0,
               left: 0,
-              right: 0,
-              backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0) 25%, rgba(215,227,239,0.70) 55%, rgba(215,227,239,1) 100%)',
-              borderRadius: '6px',
-              pointerEvents: 'none',
-            }}></div>
-            
-            {/* Letter lines */}
-            <div className="words line1" style={{
-              position: 'absolute',
-              left: '10%',
-              width: '20%',
-              height: '7%',
-              top: '15%',
-              backgroundColor: '#EEEFF0',
-              borderRadius: '4px',
-              pointerEvents: 'none',
-            }}></div>
-            <div className="words line2" style={{
-              position: 'absolute',
-              left: '10%',
-              width: '80%',
-              height: '14%',
-              top: '30%',
-              backgroundColor: '#EEEFF0',
-              borderRadius: '4px',
-              pointerEvents: 'none',
-            }}></div>
-            <div className="words line3" style={{
-              position: 'absolute',
-              left: '10%',
-              width: '80%',
-              height: '14%',
-              top: '50%',
-              backgroundColor: '#EEEFF0',
-              borderRadius: '4px',
-              pointerEvents: 'none',
-            }}></div>
-            <div className="words line4" style={{
-              position: 'absolute',
-              left: '10%',
-              width: '80%',
-              height: '14%',
-              top: '70%',
-              backgroundColor: '#EEEFF0',
-              borderRadius: '4px',
-              pointerEvents: 'none',
             }}></div>
           </div>
 
-          {/* Hearts */}
-          <div className="hearts" style={{
+          {/* Bottom segitiga bawah */}
+          <div className="bottom" style={{
             position: 'absolute',
-            top: '90px',
-            left: 0,
-            right: 0,
-            zIndex: 2,
+            height: '225px',
+            width: '100%',
             pointerEvents: 'none',
+            zIndex: 2,
           }}>
-            <div className="heart a1" style={{
+            <div style={{
+              borderLeft: '200px solid transparent',
+              borderRight: '200px solid transparent',
+              borderBottom: '150px solid #ebeae5',
               position: 'absolute',
-              bottom: 0,
-              pointerEvents: 'none',
-              opacity: isOpen ? 1 : 0,
-              left: '20%',
-              transform: 'scale(0.6)',
-              animation: isOpen ? 'slideUp 4s linear 1, sideSway 2s ease-in-out 4 alternate' : 'none',
-              animationDelay: '0.7s',
-              animationFillMode: 'forwards',
-            }}>
-              <div style={{
-                position: 'absolute',
-                content: '',
-                left: '50px',
-                top: 0,
-                width: '50px',
-                height: '80px',
-                background: '#D00000',
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(-45deg)',
-                transformOrigin: '0 100%',
-                pointerEvents: 'none',
-              }}></div>
-              <div style={{
-                position: 'absolute',
-                content: '',
-                left: 0,
-                top: 0,
-                width: '50px',
-                height: '80px',
-                background: '#D00000',
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(45deg)',
-                transformOrigin: '100% 100%',
-                pointerEvents: 'none',
-              }}></div>
-            </div>
-            <div className="heart a2" style={{
+              content: '',
+              top: '74px',
+              left: 0,
+            }}></div>
+            <div style={{
+              borderLeft: '170px solid transparent',
+              borderRight: '170px solid transparent',
+              borderBottom: '120px solid #dbdad6',
               position: 'absolute',
-              bottom: 0,
-              pointerEvents: 'none',
-              opacity: isOpen ? 1 : 0,
-              left: '55%',
-              transform: 'scale(1)',
-              animation: isOpen ? 'slideUp 5s linear 1, sideSway 4s ease-in-out 2 alternate' : 'none',
-              animationDelay: '0.7s',
-              animationFillMode: 'forwards',
-            }}>
-              <div style={{
-                position: 'absolute',
-                content: '',
-                left: '50px',
-                top: 0,
-                width: '50px',
-                height: '80px',
-                background: '#D00000',
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(-45deg)',
-                transformOrigin: '0 100%',
-                pointerEvents: 'none',
-              }}></div>
-              <div style={{
-                position: 'absolute',
-                content: '',
-                left: 0,
-                top: 0,
-                width: '50px',
-                height: '80px',
-                background: '#D00000',
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(45deg)',
-                transformOrigin: '100% 100%',
-                pointerEvents: 'none',
-              }}></div>
-            </div>
-            <div className="heart a3" style={{
+              margin: '0 auto',
+              textAlign: 'center',
+              left: '30px',
+              content: '',
+              top: '105px',
+            }}></div>
+          </div>
+
+          {/* Flap (bisa dibuka/tutup) */}
+          <div className="flap" style={{
+            transformOrigin: 'top center',
+            width: 0,
+            height: 0,
+            position: 'relative',
+            transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            pointerEvents: 'none',
+            top: 0,
+            left: 0,
+            zIndex: isOpen ? 0 : 3,
+            transform: isOpen ? 'rotateX(170deg)' : 'rotateX(10deg)',
+            backfaceVisibility: 'visible',
+          }}>
+            <div style={{
+              borderLeft: '200px solid transparent',
+              borderRight: '200px solid transparent',
+              borderTop: '150px solid #f0efeb',
               position: 'absolute',
-              bottom: 0,
-              pointerEvents: 'none',
-              opacity: isOpen ? 1 : 0,
-              left: '10%',
-              transform: 'scale(0.8)',
-              animation: isOpen ? 'slideUp 7s linear 1, sideSway 2s ease-in-out 6 alternate' : 'none',
-              animationDelay: '0.7s',
-              animationFillMode: 'forwards',
-            }}>
-              <div style={{
-                position: 'absolute',
-                content: '',
-                left: '50px',
-                top: 0,
-                width: '50px',
-                height: '80px',
-                background: '#D00000',
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(-45deg)',
-                transformOrigin: '0 100%',
-                pointerEvents: 'none',
-              }}></div>
-              <div style={{
-                position: 'absolute',
-                content: '',
-                left: 0,
-                top: 0,
-                width: '50px',
-                height: '80px',
-                background: '#D00000',
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(45deg)',
-                transformOrigin: '100% 100%',
-                pointerEvents: 'none',
-              }}></div>
-            </div>
+              content: '',
+              top: 0,
+              left: 0,
+              backfaceVisibility: 'visible',
+            }}></div>
+            <div style={{
+              borderLeft: '170px solid transparent',
+              borderRight: '170px solid transparent',
+              borderTop: '120px solid #ebeae5',
+              position: 'absolute',
+              margin: '0 auto',
+              textAlign: 'center',
+              left: '30px',
+              content: '',
+              top: 0,
+              backfaceVisibility: 'visible',
+            }}></div>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="intro-hint mt-6 text-xs tracking-[0.28em] uppercase text-[#b79aa0]">ketuk amplop untuk membuka</div>
 
       <style>{`
-        @keyframes slideUp {
-          0% { top: 0; }
-          100% { top: -600px; }
+        @keyframes spin {
+          0% { transform: rotateY(0deg); }
+          100% { transform: rotateY(360deg); }
         }
-        @keyframes sideSway {
-          0% { margin-left: 0px; }
-          100% { margin-left: 50px; }
-        }
-        @media (max-width: 400px) {
-          #envelope {
-            width: 240px !important;
-            height: 154px !important;
+
+        /* Responsive styles */
+        @media (max-width: 480px) {
+          .envelope {
+            width: 280px !important;
+            height: 158px !important;
+            transform: scale(0.9) !important;
           }
-          #envelope .flap {
+          .front {
+            width: 280px !important;
+            height: 158px !important;
+          }
+          .front h1 {
+            font-size: 2.4rem !important;
+          }
+          .inner div,
+          .bottom div:first-child {
+            border-left-width: 140px !important;
+            border-right-width: 140px !important;
+            border-top-width: 105px !important;
+          }
+          .bottom div:first-child {
+            top: 52px !important;
+            border-bottom-width: 105px !important;
+          }
+          .bottom div:last-child {
             border-left-width: 120px !important;
             border-right-width: 120px !important;
-            border-bottom-width: 70px !important;
+            border-bottom-width: 84px !important;
+            left: 20px !important;
+            top: 74px !important;
+          }
+          .flap div:first-child {
+            border-left-width: 140px !important;
+            border-right-width: 140px !important;
+            border-top-width: 105px !important;
+          }
+          .flap div:last-child {
+            border-left-width: 120px !important;
+            border-right-width: 120px !important;
             border-top-width: 84px !important;
+            left: 20px !important;
           }
-          #envelope .pocket {
-            border-left-width: 120px !important;
-            border-right-width: 120px !important;
-            border-bottom-width: 77px !important;
-            border-top-width: 77px !important;
+        }
+
+        @media (max-width: 380px) {
+          .envelope {
+            width: 220px !important;
+            height: 124px !important;
+            transform: scale(0.8) !important;
           }
-          #envelope .hearts {
-            top: 77px !important;
+          .front {
+            width: 220px !important;
+            height: 124px !important;
           }
-          #envelope .heart::before,
-          #envelope .heart::after {
-            width: 40px !important;
-            height: 64px !important;
-            left: 40px !important;
+          .front h1 {
+            font-size: 1.8rem !important;
           }
-          #envelope .heart::after {
-            left: 0 !important;
+          .inner div,
+          .bottom div:first-child {
+            border-left-width: 110px !important;
+            border-right-width: 110px !important;
+            border-top-width: 82px !important;
           }
-          #envelope .a1 { left: 15% !important; transform: scale(0.5) !important; }
-          #envelope .a2 { left: 55% !important; transform: scale(0.8) !important; }
-          #envelope .a3 { left: 8% !important; transform: scale(0.6) !important; }
-          #envelope.open .letter {
-            transform: translateY(-50px) !important;
+          .bottom div:first-child {
+            top: 40px !important;
+            border-bottom-width: 82px !important;
+          }
+          .bottom div:last-child {
+            border-left-width: 94px !important;
+            border-right-width: 94px !important;
+            border-bottom-width: 66px !important;
+            left: 16px !important;
+            top: 58px !important;
+          }
+          .flap div:first-child {
+            border-left-width: 110px !important;
+            border-right-width: 110px !important;
+            border-top-width: 82px !important;
+          }
+          .flap div:last-child {
+            border-left-width: 94px !important;
+            border-right-width: 94px !important;
+            border-top-width: 66px !important;
+            left: 16px !important;
           }
         }
       `}</style>
