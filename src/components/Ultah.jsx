@@ -325,7 +325,7 @@ function LetterSection() {
           Terima kasih untuk semua sabar, semua peluk, dan semua cara kamu bikin hidupku lebih baik. Selamat ulang
           tahun, sayangku. Semoga tahun ini penuh hal baik, dan semoga aku masih boleh ada di sampingmu, merayakannya.
         </p>
-        <div className="font-caveat text-2xl text-right text-[#cf6f7a] mt-6">— [nama kamu]</div>
+        <div className="font-caveat text-2xl text-right text-[#cf6f7a] mt-6">— Galvin</div>
         <div
           className="absolute rounded-full"
           style={{
