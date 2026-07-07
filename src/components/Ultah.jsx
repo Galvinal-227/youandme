@@ -146,7 +146,7 @@ function IntroScreen({ onOpen }) {
               textShadow: '1px 2px 4px rgba(0,0,0,0.1)',
               letterSpacing: '2px',
               fontWeight: 400,
-            }}>Danny</h1>
+            }}>Syafaa</h1>
           </div>
 
           {/* Inner segitiga atas */}
