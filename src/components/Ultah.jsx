@@ -117,7 +117,7 @@ function IntroScreen({ onOpen }) {
             aria-label="Buka surat"
             className="wax-seal absolute z-20 flex items-center justify-center rounded-full border-none cursor-pointer"
             style={{
-              top: '22%', left: '50%', width: 58, height: 58, transform: 'translate(-50%,-50%)',
+              top: '22%', left: '50%', width: 50, height: 58, transform: 'translate(-50%,-50%)',
               background: 'radial-gradient(circle at 35% 30%, #e2828f, #cf6f7a 60%, #9c4650 100%)',
               boxShadow: '0 8px 20px rgba(0,0,0,.45), inset 0 2px 4px rgba(255,255,255,.25)',
             }}
