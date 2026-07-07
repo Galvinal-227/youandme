@@ -3,36 +3,22 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import Lenis from '@studio-freight/lenis';
-import { FaPlay, FaPause, FaHeart } from 'react-icons/fa';
-import { FiArrowDown, FiStar, FiImage } from 'react-icons/fi';
+import { FaPlay, FaPause, FaHeart, FaQuoteLeft } from 'react-icons/fa';
+import { FiArrowDown, FiImage } from 'react-icons/fi';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Target: 22 Januari 2027 00:00:00 WIB (UTC+7)
-const TARGET_DATE = new Date('2027-01-21T17:00:00Z').getTime();
-const NEXT_BDAY_DATE = new Date('2028-01-21T17:00:00Z').getTime();
-
 export default function Ultah() {
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const [showMain, setShowMain] = useState(false);
   const containerRef = useRef(null);
-  
-  useEffect(() => {
-    // Check if time is already passed on load
-    const now = new Date().getTime();
-    if (now >= TARGET_DATE) {
-      triggerUnlockAnimation();
-    }
-  }, []);
 
   const triggerUnlockAnimation = () => {
-    setIsUnlocked(true);
-    // Sequence: Fade out countdown, flash white, zoom in, reveal main
+    // Sequence: Fade out intro, flash white, zoom in, reveal main
     const tl = gsap.timeline({
       onComplete: () => setShowMain(true)
     });
     
-    tl.to('.countdown-content', { opacity: 0, scale: 0.9, duration: 1, ease: 'power2.inOut' })
+    tl.to('.intro-content', { opacity: 0, scale: 0.9, duration: 1, ease: 'power2.inOut' })
       .to('.flash-overlay', { opacity: 1, duration: 0.8, ease: 'power2.in' })
       .to('.opening-screen', { scale: 1.5, duration: 1, ease: 'power3.inOut' }, '<')
       .to('.flash-overlay', { opacity: 0, duration: 1, ease: 'power2.out' });
@@ -40,65 +26,50 @@ export default function Ultah() {
 
   return (
     <div ref={containerRef} className="relative w-full min-h-screen bg-black text-white overflow-hidden font-sans selection:bg-purple-500/30">
-      {!showMain && <OpeningScreen onComplete={triggerUnlockAnimation} isUnlocked={isUnlocked} />}
+      {!showMain && <OpeningScreen onComplete={triggerUnlockAnimation} />}
       {showMain && <MainWebsite />}
     </div>
   );
 }
 
-function OpeningScreen({ onComplete, isUnlocked }) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+function OpeningScreen({ onComplete }) {
+  const screenRef = useRef(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const difference = TARGET_DATE - now;
-
-      if (difference <= 0) {
-        clearInterval(timer);
-        if (!isUnlocked) onComplete();
-      } else {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000)
-        });
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isUnlocked, onComplete]);
+  useGSAP(() => {
+    gsap.from('.intro-title', { y: 30, opacity: 0, duration: 1.5, ease: 'power3.out' });
+    gsap.from('.intro-btn', { y: 20, opacity: 0, duration: 1, delay: 0.8, ease: 'power2.out' });
+    gsap.to('.pulse-glow', {
+      scale: 1.2,
+      opacity: 0.5,
+      repeat: -1,
+      yoyo: true,
+      duration: 1.5,
+      ease: 'sine.inOut'
+    });
+  }, { scope: screenRef });
 
   return (
-    <div className="opening-screen fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
+    <div ref={screenRef} className="opening-screen fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 opacity-50" />
       <Particles count={30} className="opacity-40" />
       
-      <div className="countdown-content relative z-10 flex flex-col items-center text-center px-4">
-        <h1 className="text-3xl md:text-5xl font-light tracking-widest text-white/90 mb-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+      <div className="intro-content relative z-10 flex flex-col items-center text-center px-4">
+        <h1 className="intro-title text-3xl md:text-5xl font-light tracking-widest text-white/90 mb-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
           A Special Moment Is Coming...
         </h1>
-        <div className="flex gap-4 md:gap-8">
-          <TimeUnit value={timeLeft.days} label="Days" />
-          <TimeUnit value={timeLeft.hours} label="Hours" />
-          <TimeUnit value={timeLeft.minutes} label="Minutes" />
-          <TimeUnit value={timeLeft.seconds} label="Seconds" />
-        </div>
+        
+        <button 
+          onClick={onComplete}
+          className="intro-btn group relative flex items-center justify-center w-24 h-24 rounded-full bg-white/5 border border-white/20 hover:bg-white/10 transition-colors"
+        >
+          <div className="pulse-glow absolute inset-0 rounded-full bg-pink-500/30 blur-md pointer-events-none" />
+          <FaHeart className="text-3xl text-pink-500 group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_10px_rgba(236,72,153,0.8)]" />
+        </button>
+        <span className="intro-btn mt-6 text-sm tracking-widest uppercase text-white/50">Sentuh untuk Membuka</span>
       </div>
 
       <div className="flash-overlay absolute inset-0 bg-white opacity-0 z-50 pointer-events-none" />
-    </div>
-  );
-}
-
-function TimeUnit({ value, label }) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="text-4xl md:text-6xl lg:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 w-16 md:w-24 h-16 md:h-24 flex items-center justify-center">
-        {String(value).padStart(2, '0')}
-      </div>
-      <span className="text-xs md:text-sm uppercase tracking-widest text-white/50 mt-2">{label}</span>
     </div>
   );
 }
@@ -151,7 +122,6 @@ function MainWebsite() {
       <LoveLetterSection />
       <ReasonsSection />
       <QuotesSection />
-      <CountdownNextYear />
       <EndingSection />
     </div>
   );
@@ -205,8 +175,7 @@ function HeroSection() {
 
   return (
     <section ref={heroRef} className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Audio Placeholder - Since no file is provided, it's just setup */}
-      <audio ref={audioRef} loop src="#" />
+      <audio ref={audioRef} loop src="/music.mp3" />
 
       {/* Background Elements */}
       <div className="hero-bg absolute inset-0 z-0">
@@ -323,7 +292,7 @@ function GallerySection() {
             <div className="absolute inset-0 flex items-center justify-center text-white/20">
               <FiImage size={40} />
             </div>
-            {/* Placeholder overlay to mimic an image */}
+            {/* Placeholder overlay to mimic an image hover effect */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 flex items-end p-4">
               <span className="text-white font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Momen {i}</span>
             </div>
@@ -418,65 +387,27 @@ function QuotesSection() {
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      gsap.to('.quote-text', { opacity: 0, y: -20, duration: 0.5, onComplete: () => {
-        setQuoteIndex((prev) => (prev + 1) % quotes.length);
-        gsap.fromTo('.quote-text', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
-      }});
-    }, 4000);
-    return () => clearInterval(interval);
+    let ctx = gsap.context(() => {
+      const interval = setInterval(() => {
+        gsap.to('.quote-text', { opacity: 0, y: -20, duration: 0.5, onComplete: () => {
+          setQuoteIndex((prev) => (prev + 1) % quotes.length);
+          gsap.fromTo('.quote-text', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+        }});
+      }, 4000);
+      return () => clearInterval(interval);
+    });
+    return () => ctx.revert();
   }, [quotes.length]);
 
   return (
     <section className="w-full py-32 px-4 flex justify-center text-center bg-gradient-to-b from-transparent to-purple-900/10">
       <div className="max-w-2xl">
         <h2 className="text-5xl text-purple-500/30 mb-6 flex justify-center"><FaQuoteLeft /></h2>
-        <p className="quote-text text-2xl md:text-4xl font-serif italic text-white/80 h-24">
+        <p className="quote-text text-2xl md:text-4xl font-serif italic text-white/80 h-24 flex items-center justify-center">
           {quotes[quoteIndex]}
         </p>
       </div>
     </section>
-  );
-}
-
-function CountdownNextYear() {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const difference = NEXT_BDAY_DATE - now;
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000)
-        });
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <section className="w-full py-24 px-4 flex flex-col items-center border-t border-white/5">
-      <h3 className="text-sm tracking-[0.3em] uppercase text-white/40 mb-8">Menuju Ulang Tahun Berikutnya</h3>
-      <div className="flex gap-6 md:gap-12">
-        <NextTimeUnit value={timeLeft.days} label="D" />
-        <NextTimeUnit value={timeLeft.hours} label="H" />
-        <NextTimeUnit value={timeLeft.minutes} label="M" />
-        <NextTimeUnit value={timeLeft.seconds} label="S" />
-      </div>
-    </section>
-  );
-}
-
-function NextTimeUnit({ value, label }) {
-  return (
-    <div className="flex items-baseline gap-1">
-      <span className="text-3xl md:text-5xl font-mono font-light">{String(value).padStart(2, '0')}</span>
-      <span className="text-purple-400 font-bold">{label}</span>
-    </div>
   );
 }
 
@@ -511,7 +442,7 @@ function EndingSection() {
   }, { scope: sectionRef });
 
   return (
-    <section ref={sectionRef} className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black">
+    <section ref={sectionRef} className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black border-t border-white/5">
       <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 to-black z-0" />
       
       {/* Confetti Generation */}
@@ -538,7 +469,7 @@ function EndingSection() {
         />
       ))}
 
-      <div className="z-20 text-center">
+      <div className="z-20 text-center px-4">
         <h1 className="ending-text opacity-0 scale-50 text-5xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/30 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
           I Love You<br/>Forever <span className="text-pink-500 inline-block drop-shadow-[0_0_20px_rgba(236,72,153,0.8)]">❤️</span>
         </h1>
