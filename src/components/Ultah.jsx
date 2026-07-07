@@ -402,7 +402,7 @@ function HeroSection() {
           color: 'transparent',
         }}
       >
-        Syafa
+        Sayangggggg
       </div>
       <p className="reveal text-[#b79aa0] max-w-[32ch] text-base md:text-lg">
         Semoga hari ini seringan tawamu dan sehangat pelukmu. Ini surat kecil, dari aku, untukmu.
@@ -547,7 +547,7 @@ function LetterSection() {
         </p>
 
         <div className="font-caveat text-2xl text-right text-[#cf6f7a] mt-6">
-          — Dari mas yang paling sayang sama adek.
+          — Galvin.
         </div>
 
         <div
@@ -609,7 +609,7 @@ function FinaleSection({ onReplay }) {
           color: 'transparent',
         }}
       >
-        I Love You
+        I Love You Sayanggg
       </div>
       <div className="reveal font-caveat text-[#e8b978] mt-1 relative z-10" style={{ fontSize: 'clamp(2rem,6vw,3.4rem)' }}>
         Syafa
@@ -621,7 +621,7 @@ function FinaleSection({ onReplay }) {
         onClick={onReplay}
         className="relative z-10 mt-10 px-8 py-3.5 rounded-full border border-[#e8b978]/40 text-sm tracking-[0.15em] uppercase transition-all duration-500 hover:bg-[#e8b978] hover:text-[#170b16]"
       >
-        Putar ulang
+        Kembali?
       </button>
     </section>
   );
