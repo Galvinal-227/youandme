@@ -1,375 +1,302 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import Lenis from '@studio-freight/lenis';
-import { FaPlay, FaPause, FaHeart, FaQuoteLeft } from 'react-icons/fa';
-import { FiArrowDown, FiImage } from 'react-icons/fi';
+import Lenis from 'lenis';
+import { FaHeart } from 'react-icons/fa';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Ultah() {
   const [showMain, setShowMain] = useState(false);
-  const containerRef = useRef(null);
+  const container = useRef(null);
 
-  const triggerUnlockAnimation = () => {
-    // Sequence: Fade out intro, flash white, zoom in, reveal main
+  return (
+    <div ref={container} className="bg-[#170b16] text-[#f6ecdf] min-h-screen selection:bg-[#cf6f7a] selection:text-[#170b16] relative overflow-x-hidden">
+      <Starfield />
+      {!showMain ? (
+        <IntroScreen onOpen={() => setShowMain(true)} />
+      ) : (
+        <MainContent onReplay={() => setShowMain(false)} />
+      )}
+      <GlobalStyles />
+    </div>
+  );
+}
+
+/* ============================= STARFIELD ============================= */
+function Starfield() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let raf;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = Array.from({ length: Math.min(120, Math.floor(window.innerWidth / 10)) }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.4 + 0.3,
+        s: Math.random() * 0.02 + 0.005,
+        a: Math.random() * Math.PI * 2,
+      }));
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#f6ecdf';
+      stars.forEach((st) => {
+        st.a += st.s;
+        const op = reduceMotion ? 0.5 : ((Math.sin(st.a) + 1) / 2) * 0.7 + 0.15;
+        ctx.globalAlpha = op;
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    }
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
+}
+
+/* ============================= INTRO / ENVELOPE ============================= */
+function IntroScreen({ onOpen }) {
+  const introRef = useRef(null);
+
+  const handleOpen = () => {
     const tl = gsap.timeline({
-      onComplete: () => setShowMain(true)
+      onComplete: () => onOpen(),
     });
-    
-    tl.to('.intro-content', { opacity: 0, scale: 0.9, duration: 1, ease: 'power2.inOut' })
-      .to('.flash-overlay', { opacity: 1, duration: 0.8, ease: 'power2.in' })
-      .to('.opening-screen', { scale: 1.5, duration: 1, ease: 'power3.inOut' }, '<')
-      .to('.flash-overlay', { opacity: 0, duration: 1, ease: 'power2.out' });
+    tl.to('.envelope-flap', { rotateX: -165, duration: 0.9, ease: 'power3.inOut' })
+      .to('.letter-peek', { y: -160, duration: 0.9, ease: 'power3.in' }, '-=0.25')
+      .to('.envelope-scene', { scale: 1.15, opacity: 0, duration: 0.6, ease: 'power1.in' }, '-=0.3')
+      .to('.intro-label, .intro-hint', { opacity: 0, duration: 0.4 }, '-=0.6');
   };
 
   return (
-    <div ref={containerRef} className="relative w-full min-h-screen bg-black text-white overflow-hidden font-sans selection:bg-purple-500/30">
-      {!showMain && <OpeningScreen onComplete={triggerUnlockAnimation} />}
-      {showMain && <MainWebsite />}
-    </div>
-  );
-}
+    <div
+      ref={introRef}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+      style={{ background: 'radial-gradient(circle at 50% 30%, #241228 0%, #170b16 70%)' }}
+    >
+      <div className="intro-label font-caveat text-[#e8b978] text-2xl mb-4">untuk Syafa</div>
 
-function OpeningScreen({ onComplete }) {
-  const screenRef = useRef(null);
+      <div className="envelope-scene relative" style={{ perspective: '1400px', width: 'min(78vw,300px)', height: 'min(52vw,200px)' }}>
+        <div className="envelope-body absolute inset-0 rounded-md border border-[#e8b978]/35 overflow-hidden shadow-2xl"
+             style={{ background: 'linear-gradient(160deg,#2b1730,#241228)' }}>
+          <div className="letter-peek absolute left-[8%] right-[8%] flex items-start justify-center pt-3 rounded-sm"
+               style={{ bottom: '-6%', height: '70%', background: '#f6ecdf' }}>
+            <span className="font-caveat text-[#33192a] text-lg">Buka aku ya...</span>
+          </div>
+        </div>
 
-  useGSAP(() => {
-    gsap.from('.intro-title', { y: 30, opacity: 0, duration: 1.5, ease: 'power3.out' });
-    gsap.from('.intro-btn', { y: 20, opacity: 0, duration: 1, delay: 0.8, ease: 'power2.out' });
-    gsap.to('.pulse-glow', {
-      scale: 1.2,
-      opacity: 0.5,
-      repeat: -1,
-      yoyo: true,
-      duration: 1.5,
-      ease: 'sine.inOut'
-    });
-  }, { scope: screenRef });
-
-  return (
-    <div ref={screenRef} className="opening-screen fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 opacity-50" />
-      <Particles count={30} className="opacity-40" />
-      
-      <div className="intro-content relative z-10 flex flex-col items-center text-center px-4">
-        <h1 className="intro-title text-3xl md:text-5xl font-light tracking-widest text-white/90 mb-12 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-          A Special Moment Is Coming...
-        </h1>
-        
-        <button 
-          onClick={onComplete}
-          className="intro-btn group relative flex items-center justify-center w-24 h-24 rounded-full bg-white/5 border border-white/20 hover:bg-white/10 transition-colors"
-        >
-          <div className="pulse-glow absolute inset-0 rounded-full bg-pink-500/30 blur-md pointer-events-none" />
-          <FaHeart className="text-3xl text-pink-500 group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_10px_rgba(236,72,153,0.8)]" />
-        </button>
-        <span className="intro-btn mt-6 text-sm tracking-widest uppercase text-white/50">Sentuh untuk Membuka</span>
+        <div className="envelope-flap absolute top-0 left-0 w-full z-10"
+             style={{
+               height: '56%',
+               background: 'linear-gradient(160deg,#a9895f,#2b1730)',
+               clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+               transformOrigin: 'top center',
+               transformStyle: 'preserve-3d',
+               backfaceVisibility: 'hidden',
+             }}>
+          <button
+            onClick={handleOpen}
+            aria-label="Buka surat"
+            className="wax-seal absolute z-20 flex items-center justify-center rounded-full border-none cursor-pointer"
+            style={{
+              top: '22%', left: '50%', width: 58, height: 58, transform: 'translate(-50%,-50%)',
+              background: 'radial-gradient(circle at 35% 30%, #e2828f, #cf6f7a 60%, #9c4650 100%)',
+              boxShadow: '0 8px 20px rgba(0,0,0,.45), inset 0 2px 4px rgba(255,255,255,.25)',
+            }}
+          >
+            <FaHeart size={20} className="text-[#f6ecdf]" />
+          </button>
+        </div>
       </div>
 
-      <div className="flash-overlay absolute inset-0 bg-white opacity-0 z-50 pointer-events-none" />
+      <div className="intro-hint mt-6 text-xs tracking-[0.28em] uppercase text-[#b79aa0]">ketuk segel untuk membuka</div>
     </div>
   );
 }
 
-function MainWebsite() {
-  const mainRef = useRef(null);
-  
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-    });
+/* ============================= MAIN CONTENT ============================= */
+function MainContent({ onReplay }) {
+  const heroRefs = useRef([]);
 
+  useEffect(() => {
+    const lenis = new Lenis({ duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
-
     return () => lenis.destroy();
   }, []);
 
   useGSAP(() => {
-    // Global Scroll Progress
-    gsap.to('.scroll-progress', {
-      scaleX: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: mainRef.current, start: 'top top', end: 'bottom bottom', scrub: true }
+    gsap.utils.toArray('#hero .reveal').forEach((el, i) => {
+      gsap.fromTo(el, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: i * 0.15, ease: 'power3.out' });
     });
-
-    // Section Transitions
-    gsap.utils.toArray('section').forEach((section, i) => {
-      gsap.fromTo(section, 
-        { opacity: 0.3, scale: 0.95 },
-        { 
-          opacity: 1, scale: 1, duration: 1, ease: 'power2.out',
-          scrollTrigger: { trigger: section, start: 'top 80%', end: 'top 20%', scrub: true }
-        }
+    gsap.utils.toArray('section:not(#hero) .reveal').forEach((el) => {
+      gsap.fromTo(
+        el,
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 82%' } }
       );
     });
-  }, { scope: mainRef });
+    gsap.fromTo(
+      '.letter-paper',
+      { rotateX: -12, opacity: 0, transformPerspective: 800 },
+      { rotateX: 0, opacity: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '#letter', start: 'top 75%' } }
+    );
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
+  }, []);
 
   return (
-    <div ref={mainRef} className="relative w-full bg-black text-white">
-      <div className="scroll-progress fixed top-0 left-0 h-1 w-full bg-gradient-to-r from-purple-500 to-pink-500 origin-left scale-x-0 z-50" />
+    <main className="relative z-[1]">
       <HeroSection />
-      <StorySection />
-      <GallerySection />
-      <LoveLetterSection />
+      <AboutSection />
       <ReasonsSection />
-      <QuotesSection />
-      <EndingSection />
-    </div>
+      <LetterSection />
+      <FinaleSection onReplay={onReplay} />
+      <footer className="text-center py-12 text-[#b79aa0] text-xs tracking-wider">
+        dibuat dengan hati, khusus untuk Syafa 🤍
+      </footer>
+    </main>
   );
 }
 
 function HeroSection() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
-  const heroRef = useRef(null);
-
-  const toggleMusic = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) audioRef.current.pause();
-    else audioRef.current.play().catch(e => console.log('Audio play failed:', e));
-    setIsPlaying(!isPlaying);
-  };
-
-  useGSAP(() => {
-    const tl = gsap.timeline();
-    tl.from('.hero-bg', { opacity: 0, duration: 2, ease: 'power2.inOut' })
-      .from('.hero-title span', { y: 100, opacity: 0, stagger: 0.1, duration: 1, ease: 'back.out(1.7)' }, '-=1')
-      .from('.hero-name', { scale: 0.8, opacity: 0, duration: 1, ease: 'power3.out' }, '-=0.5')
-      .from('.hero-subtitle', { y: 20, opacity: 0, duration: 0.8 }, '-=0.5')
-      .from('.hero-btns', { y: 20, opacity: 0, duration: 0.8 }, '-=0.4');
-
-    gsap.to('.floating-element', {
-      y: -20,
-      rotation: 5,
-      yoyo: true,
-      repeat: -1,
-      duration: 3,
-      ease: 'sine.inOut',
-      stagger: 0.5
-    });
-
-    // Mouse Parallax
-    const handleMouseMove = (e) => {
-      const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth - 0.5) * 40;
-      const y = (clientY / window.innerHeight - 0.5) * 40;
-      gsap.to('.parallax-bg', { x, y, duration: 1, ease: 'power2.out' });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, { scope: heroRef });
-
-  const scrollToStory = () => {
-    const story = document.getElementById('story');
-    if (story) story.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <section ref={heroRef} className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
-      <audio ref={audioRef} loop src="/music.mp3" />
-
-      {/* Background Elements */}
-      <div className="hero-bg absolute inset-0 z-0">
-        <div className="parallax-bg absolute inset-[-10%] bg-black">
-          <div className="absolute top-[20%] left-[10%] w-96 h-96 bg-purple-600/30 rounded-full blur-[128px]" />
-          <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-pink-600/20 rounded-full blur-[128px]" />
-          <Particles count={50} />
-        </div>
+    <section id="hero" className="min-h-screen flex flex-col items-center justify-center text-center px-6">
+      <h1 className="reveal font-fraunces italic uppercase text-[#b79aa0] text-sm md:text-base tracking-widest">
+        Selamat Ulang Tahun,
+      </h1>
+      <div
+        className="reveal font-caveat font-bold leading-none my-2"
+        style={{
+          fontSize: 'clamp(4rem,16vw,10rem)',
+          background: 'linear-gradient(180deg,#f6ecdf 40%, #cf6f7a 130%)',
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+          color: 'transparent',
+        }}
+      >
+        Syafa
       </div>
+      <p className="reveal text-[#b79aa0] max-w-[32ch] text-base md:text-lg">
+        Semoga hari ini seringan tawamu dan sehangat pelukmu. Ini surat kecil, dari aku, untukmu.
+      </p>
+      <div className="scroll-cue mt-16" />
+    </section>
+  );
+}
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-4">
-        <h1 className="hero-title text-5xl md:text-7xl lg:text-9xl font-bold tracking-tighter mb-4 flex overflow-hidden">
-          {'Happy Birthday'.split(' ').map((word, i) => (
-            <span key={i} className="inline-block mr-4 md:mr-8 drop-shadow-2xl">{word}</span>
-          ))}
-          <span className="floating-element text-pink-500 drop-shadow-[0_0_20px_rgba(236,72,153,0.8)]">❤️</span>
-        </h1>
-        
-        <h2 className="hero-name text-4xl md:text-6xl font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-6 drop-shadow-lg">
-          My Love
+function AboutSection() {
+  return (
+    <section id="about" className="px-6 py-28 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-16 md:gap-24 items-center">
+      <div className="reveal">
+        <span className="font-caveat text-[#e8b978] text-xl block mb-2">tentang kamu</span>
+        <h2 className="font-fraunces font-semibold text-4xl md:text-5xl mb-6">
+          Hal-hal kecil<br />yang jadi besar
         </h2>
-        
-        <p className="hero-subtitle text-lg md:text-xl text-white/70 max-w-2xl font-light mb-12">
-          Setiap detik bersamamu adalah puisi yang tak pernah selesai kutulis. Hari ini, mari kita rayakan keindahanmu.
+        <p className="text-[#b79aa0] text-lg leading-relaxed max-w-[46ch]">
+          Kamu punya cara sendiri membuat hari biasa terasa spesial — cara ketawa, cara peduli, cara diam-diam
+          memperhatikan hal yang orang lain lewatkan.{' '}
+          <em>(Ganti paragraf ini dengan cerita nyata kalian berdua — momen, kebiasaan lucunya, atau alasan spesifik kamu sayang dia.)</em>
         </p>
+        <p className="font-caveat text-[#e8b978] text-xl mt-5">— dan aku bersyukur bisa jadi bagian dari harinya.</p>
+      </div>
 
-        <div className="hero-btns flex flex-col sm:flex-row gap-6">
-          <button onClick={scrollToStory} className="group relative px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-            <span className="relative z-10 flex items-center gap-2">Mulai Perjalanan <FiArrowDown className="group-hover:translate-y-1 transition-transform" /></span>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-200 to-pink-200 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-          
-          <button onClick={toggleMusic} className="group px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white font-semibold rounded-full hover:bg-white/10 transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2">
-            {isPlaying ? <FaPause /> : <FaPlay />}
-            <span>Putar Musik</span>
-          </button>
-        </div>
+      <div className="reveal relative h-[300px] md:h-[380px] max-w-[340px] md:max-w-none mx-auto w-full">
+        <Polaroid className="absolute top-0 left-0 -rotate-6 z-[2]" caption="momen favorit #1" />
+        <Polaroid className="absolute bottom-0 right-0 rotate-6 z-[1]" caption="momen favorit #2" />
       </div>
     </section>
   );
 }
 
-function StorySection() {
-  const sectionRef = useRef(null);
-
-  const stories = [
-    { year: 'Awal', title: 'Pertemuan Pertama', desc: 'Momen di mana semesta seolah berhenti.' },
-    { year: 'Proses', title: 'Tumbuh Bersama', desc: 'Mengenal tawa, air mata, dan saling menguatkan.' },
-    { year: 'Hari Ini', title: 'Merayakanmu', desc: 'Melihatmu bertambah usia dengan penuh cinta.' }
-  ];
-
-  useGSAP(() => {
-    const cards = gsap.utils.toArray('.story-card');
-    cards.forEach((card, i) => {
-      gsap.from(card, {
-        scrollTrigger: { trigger: card, start: 'top 85%' },
-        x: i % 2 === 0 ? -50 : 50,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
-      });
-    });
-  }, { scope: sectionRef });
-
+function Polaroid({ className, caption }) {
   return (
-    <section id="story" ref={sectionRef} className="w-full py-32 px-4 md:px-12 lg:px-24 relative">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl md:text-5xl font-bold mb-16 text-center">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">Jejak Perjalanan Kita</span>
-        </h2>
-        
-        <div className="relative border-l border-white/20 ml-4 md:ml-0 md:pl-8 space-y-12">
-          {stories.map((story, i) => (
-            <div key={i} className="story-card relative pl-8 md:pl-0">
-              <div className="absolute -left-10 md:-left-[41px] top-0 w-5 h-5 rounded-full bg-black border-2 border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-              <div className="bg-white/5 backdrop-blur-lg border border-white/10 p-6 md:p-8 rounded-2xl hover:bg-white/10 hover:border-purple-500/50 transition-colors group">
-                <span className="text-purple-400 font-mono text-sm tracking-widest block mb-2">{story.year}</span>
-                <h3 className="text-2xl font-semibold mb-3 group-hover:text-pink-400 transition-colors">{story.title}</h3>
-                <p className="text-white/60 leading-relaxed">{story.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+    <figure className={`polaroid w-[58%] bg-[#f6ecdf] p-3 pb-10 rounded-sm shadow-2xl text-[#33192a] ${className}`}>
+      <div
+        className="aspect-square flex items-center justify-center text-xs italic rounded-sm"
+        style={{ background: 'linear-gradient(135deg,#3a2130,#5c3345)', color: 'rgba(246,236,224,0.4)' }}
+      >
+        taruh foto kalian di sini
       </div>
-    </section>
+      <figcaption className="font-caveat text-lg text-center mt-2">{caption}</figcaption>
+    </figure>
   );
 }
 
-function GallerySection() {
-  const sectionRef = useRef(null);
-
-  useGSAP(() => {
-    gsap.from('.gallery-item', {
-      scrollTrigger: { trigger: sectionRef.current, start: 'top 70%' },
-      y: 50,
-      opacity: 0,
-      stagger: 0.15,
-      duration: 1,
-      ease: 'back.out(1.5)'
-    });
-  }, { scope: sectionRef });
-
-  return (
-    <section ref={sectionRef} className="w-full py-32 px-4 md:px-12 relative overflow-hidden">
-      <div className="absolute inset-0 bg-purple-900/10 blur-[100px] rounded-full w-full h-full" />
-      <h2 className="text-3xl md:text-5xl font-bold mb-16 text-center z-10 relative">
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-purple-400">Bingkai Kenangan</span>
-      </h2>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-6xl mx-auto relative z-10">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="gallery-item group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer">
-            <div className="absolute inset-0 flex items-center justify-center text-white/20">
-              <FiImage size={40} />
-            </div>
-            {/* Placeholder overlay to mimic an image hover effect */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 flex items-end p-4">
-              <span className="text-white font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Momen {i}</span>
-            </div>
-            <div className="absolute inset-0 bg-purple-500/10 mix-blend-overlay group-hover:bg-transparent transition-all duration-500" />
-            <div className="absolute inset-0 border-2 border-transparent group-hover:border-purple-500/50 rounded-xl transition-all duration-500 z-20 shadow-[inset_0_0_20px_rgba(168,85,247,0)] group-hover:shadow-[inset_0_0_20px_rgba(168,85,247,0.3)]" />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function LoveLetterSection() {
-  const sectionRef = useRef(null);
-  const text = "Sayang, di hari spesialmu ini, aku cuma ingin mengingatkan betapa berharganya dirimu. Dunia ini jauh lebih indah sejak ada kamu di dalamnya. Terima kasih sudah menjadi terang dalam gelapku, penenang dalam kalutku. Selamat ulang tahun, cintaku.";
-
-  useGSAP(() => {
-    const words = gsap.utils.toArray('.letter-word');
-    gsap.from(words, {
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 60%',
-        end: 'bottom 80%',
-        scrub: 1
-      },
-      opacity: 0.1,
-      y: 10,
-      stagger: 0.1,
-      duration: 1
-    });
-  }, { scope: sectionRef });
-
-  return (
-    <section ref={sectionRef} className="w-full py-40 px-4 relative flex justify-center items-center">
-      <div className="absolute w-[80%] h-[80%] bg-pink-600/10 blur-[120px] rounded-full z-0" />
-      
-      <div className="relative z-10 max-w-3xl bg-white/5 backdrop-blur-2xl border border-white/20 p-8 md:p-16 rounded-3xl shadow-2xl">
-        <FaHeart className="text-pink-500 text-3xl mb-8 mx-auto animate-pulse shadow-[0_0_15px_rgba(236,72,153,0.5)] rounded-full" />
-        <p className="text-xl md:text-3xl leading-relaxed md:leading-loose font-serif text-center flex flex-wrap justify-center gap-x-2">
-          {text.split(' ').map((word, i) => (
-            <span key={i} className="letter-word text-white/90">{word}</span>
-          ))}
-        </p>
-      </div>
-    </section>
-  );
-}
+const REASONS = [
+  'Cara kamu tertawa sampai lupa jaga image.',
+  'Kamu selalu ingat hal kecil yang aku sendiri lupa.',
+  'Cara kamu peduli, bahkan waktu kamu capek sendiri.',
+  'Rasanya rumah, setiap kali cerita apapun ke kamu.',
+  'Kamu percaya sama aku, bahkan waktu aku ragu sendiri.',
+  'Karena kamu, ya kamu. Nggak perlu alasan lain.',
+];
 
 function ReasonsSection() {
-  const sectionRef = useRef(null);
-  const reasons = [
-    "Senyummu yang mengalihkan duniaku",
-    "Caramu menatapku dengan lembut",
-    "Hatimu yang tulus dan pemaaf",
-    "Tawamu yang menjadi melodi favoritku"
-  ];
+  const [flipped, setFlipped] = useState(() => REASONS.map(() => false));
 
-  useGSAP(() => {
-    gsap.from('.reason-card', {
-      scrollTrigger: { trigger: sectionRef.current, start: 'top 60%' },
-      scale: 0.8,
-      opacity: 0,
-      stagger: 0.2,
-      duration: 1,
-      ease: 'elastic.out(1, 0.5)'
-    });
-  }, { scope: sectionRef });
+  const toggle = (i) => setFlipped((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
 
   return (
-    <section ref={sectionRef} className="w-full py-32 px-4">
-      <h2 className="text-3xl md:text-5xl font-bold mb-16 text-center">Kenapa Aku Memilihmu</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        {reasons.map((reason, i) => (
-          <div key={i} className="reason-card group relative p-1 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 hover:from-purple-500 hover:to-pink-500 transition-all duration-500">
-            <div className="bg-black/90 backdrop-blur-xl h-full p-8 rounded-xl flex items-center gap-4 group-hover:scale-[0.98] transition-transform duration-500">
-              <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-purple-400 to-pink-400 opacity-50 group-hover:opacity-100 transition-opacity">0{i + 1}</span>
-              <p className="text-lg md:text-xl font-medium text-white/80 group-hover:text-white transition-colors">{reason}</p>
+    <section id="reasons" className="py-24 px-6">
+      <div className="reveal text-center max-w-xl mx-auto mb-14">
+        <span className="font-caveat text-[#e8b978] text-xl block mb-2">enam alasan, dari banyak alasan</span>
+        <h2 className="font-fraunces font-semibold text-4xl md:text-5xl">Kenapa aku sayang kamu</h2>
+      </div>
+
+      <div className="reveal flex gap-6 overflow-x-auto pb-8 px-1" style={{ scrollSnapType: 'x mandatory' }}>
+        {REASONS.map((reason, i) => (
+          <div
+            key={i}
+            onClick={() => toggle(i)}
+            className="postcard flex-none w-60 h-[300px] cursor-pointer"
+            style={{ perspective: '1200px', scrollSnapAlign: 'start' }}
+          >
+            <div
+              className="postcard-inner relative w-full h-full transition-transform duration-500"
+              style={{
+                transformStyle: 'preserve-3d',
+                transform: flipped[i] ? 'rotateY(180deg)' : 'rotateY(0deg)',
+              }}
+            >
+              <div
+                className="pc-face absolute inset-0 rounded-2xl flex flex-col items-center justify-center text-center p-6 border border-[#e8b978]/25"
+                style={{ backfaceVisibility: 'hidden', background: 'linear-gradient(160deg,#2b1730,#241228)' }}
+              >
+                <div className="font-fraunces italic text-[#a9895f] text-xs tracking-[0.2em] uppercase mb-3">alasan</div>
+                <div className="text-[#b79aa0] text-sm">sentuh kartu untuk baca</div>
+                <FaHeart className="mt-4 text-[#cf6f7a]" size={20} />
+              </div>
+              <div
+                className="pc-face absolute inset-0 rounded-2xl flex items-center justify-center text-center p-6 font-fraunces text-lg text-[#f6ecdf]"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  background: 'linear-gradient(160deg,#cf6f7a,#9c4f5c)',
+                }}
+              >
+                {reason}
+              </div>
             </div>
           </div>
         ))}
@@ -378,141 +305,145 @@ function ReasonsSection() {
   );
 }
 
-function QuotesSection() {
-  const [quoteIndex, setQuoteIndex] = useState(0);
-  const quotes = [
-    "I look at you and see the rest of my life in front of my eyes.",
-    "If I know what love is, it is because of you.",
-    "You are my today and all of my tomorrows."
-  ];
-
-  useEffect(() => {
-    let ctx = gsap.context(() => {
-      const interval = setInterval(() => {
-        gsap.to('.quote-text', { opacity: 0, y: -20, duration: 0.5, onComplete: () => {
-          setQuoteIndex((prev) => (prev + 1) % quotes.length);
-          gsap.fromTo('.quote-text', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
-        }});
-      }, 4000);
-      return () => clearInterval(interval);
-    });
-    return () => ctx.revert();
-  }, [quotes.length]);
-
+function LetterSection() {
   return (
-    <section className="w-full py-32 px-4 flex justify-center text-center bg-gradient-to-b from-transparent to-purple-900/10">
-      <div className="max-w-2xl">
-        <h2 className="text-5xl text-purple-500/30 mb-6 flex justify-center"><FaQuoteLeft /></h2>
-        <p className="quote-text text-2xl md:text-4xl font-serif italic text-white/80 h-24 flex items-center justify-center">
-          {quotes[quoteIndex]}
+    <section id="letter" className="py-24 px-6 flex justify-center">
+      <article
+        className="letter-paper relative w-full max-w-xl text-[#33192a] rounded-sm shadow-2xl"
+        style={{ background: '#f6ecdf', padding: 'clamp(32px,6vw,64px)' }}
+      >
+        <p className="text-lg leading-8 mb-4 first-letter:font-fraunces first-letter:italic first-letter:text-5xl first-letter:float-left first-letter:leading-none first-letter:mr-2 first-letter:text-[#cf6f7a]">
+          Syafa, di hari kamu lahir ini, aku cuma mau kamu tahu satu hal sederhana: aku bersyukur banget kamu ada.
+          Bukan cuma di hari spesial kayak sekarang, tapi di semua hari biasa yang jadi nggak biasa karena ada kamu.
         </p>
-      </div>
-    </section>
-  );
-}
-
-function EndingSection() {
-  const sectionRef = useRef(null);
-
-  useGSAP(() => {
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top 50%',
-      onEnter: () => {
-        gsap.to('.ending-text', { scale: 1, opacity: 1, duration: 2, ease: 'elastic.out(1, 0.3)' });
-        gsap.to('.confetti', {
-          y: '100vh',
-          rotation: () => gsap.utils.random(0, 360),
-          x: () => gsap.utils.random(-100, 100),
-          duration: () => gsap.utils.random(2, 5),
-          ease: 'none',
-          stagger: { each: 0.02, repeat: -1 }
-        });
-        gsap.to('.floating-heart-end', {
-          y: '-100vh',
-          x: () => gsap.utils.random(-50, 50),
-          scale: () => gsap.utils.random(0.5, 1.5),
-          opacity: 0,
-          duration: () => gsap.utils.random(3, 7),
-          ease: 'power1.in',
-          stagger: { each: 0.1, repeat: -1 }
-        });
-      }
-    });
-  }, { scope: sectionRef });
-
-  return (
-    <section ref={sectionRef} className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black border-t border-white/5">
-      <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 to-black z-0" />
-      
-      {/* Confetti Generation */}
-      {[...Array(50)].map((_, i) => (
-        <div 
-          key={`confetti-${i}`} 
-          className="confetti absolute top-[-5vh] w-2 h-4 rounded-sm z-10"
-          style={{
-            left: `${gsap.utils.random(0, 100)}vw`,
-            backgroundColor: ['#A855F7', '#EC4899', '#FFFFFF'][Math.floor(Math.random() * 3)]
-          }}
-        />
-      ))}
-
-      {/* Floating Hearts Generation */}
-      {[...Array(20)].map((_, i) => (
-        <FaHeart 
-          key={`heart-${i}`}
-          className="floating-heart-end absolute bottom-[-10vh] text-pink-500/50 z-10"
-          style={{
-            left: `${gsap.utils.random(10, 90)}vw`,
-            fontSize: `${gsap.utils.random(1, 3)}rem`
-          }}
-        />
-      ))}
-
-      <div className="z-20 text-center px-4">
-        <h1 className="ending-text opacity-0 scale-50 text-5xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/30 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-          I Love You<br/>Forever <span className="text-pink-500 inline-block drop-shadow-[0_0_20px_rgba(236,72,153,0.8)]">❤️</span>
-        </h1>
-      </div>
-    </section>
-  );
-}
-
-// Reusable Particle Component
-function Particles({ count = 20, className = '' }) {
-  const containerRef = useRef(null);
-
-  useGSAP(() => {
-    const particles = gsap.utils.toArray('.particle');
-    particles.forEach(particle => {
-      gsap.to(particle, {
-        y: () => gsap.utils.random(-100, 100),
-        x: () => gsap.utils.random(-100, 100),
-        opacity: () => gsap.utils.random(0.1, 0.8),
-        scale: () => gsap.utils.random(0.5, 1.5),
-        duration: () => gsap.utils.random(3, 10),
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut'
-      });
-    });
-  }, { scope: containerRef });
-
-  return (
-    <div ref={containerRef} className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
-      {[...Array(count)].map((_, i) => (
+        <p className="text-lg leading-8 mb-4">
+          <em>
+            (Tulis ulang bagian ini dengan kata-katamu sendiri — cerita, kenangan, atau harapan buat dia ke depannya.
+            Surat yang paling berkesan itu yang jujur, bukan yang rapi.)
+          </em>
+        </p>
+        <p className="text-lg leading-8 mb-4">
+          Terima kasih untuk semua sabar, semua peluk, dan semua cara kamu bikin hidupku lebih baik. Selamat ulang
+          tahun, sayangku. Semoga tahun ini penuh hal baik, dan semoga aku masih boleh ada di sampingmu, merayakannya.
+        </p>
+        <div className="font-caveat text-2xl text-right text-[#cf6f7a] mt-6">— [nama kamu]</div>
         <div
-          key={i}
-          className="particle absolute rounded-full bg-white"
+          className="absolute rounded-full"
           style={{
-            width: `${Math.random() * 3 + 1}px`,
-            height: `${Math.random() * 3 + 1}px`,
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            boxShadow: '0 0 10px 2px rgba(255,255,255,0.3)'
+            bottom: -18, right: 36, width: 44, height: 44,
+            background: 'radial-gradient(circle at 35% 30%,#e2828f,#cf6f7a 60%,#9c4650 100%)',
+            boxShadow: '0 6px 14px rgba(0,0,0,.4)',
           }}
         />
+      </article>
+    </section>
+  );
+}
+
+function FinaleSection({ onReplay }) {
+  const hearts = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        size: 0.9 + Math.random() * 1.3,
+        duration: 6 + Math.random() * 6,
+        delay: Math.random() * 8,
+        glyph: i % 2 === 0 ? '♥' : '♡',
+      })),
+    []
+  );
+
+  return (
+    <section id="finale" className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden px-6">
+      {hearts.map((h) => (
+        <span
+          key={h.id}
+          className="heart-float absolute text-[#cf6f7a]"
+          style={{
+            bottom: '-10%',
+            left: `${h.left}%`,
+            fontSize: `${h.size}rem`,
+            animationDuration: `${h.duration}s`,
+            animationDelay: `${h.delay}s`,
+          }}
+        >
+          {h.glyph}
+        </span>
       ))}
-    </div>
+
+      <div
+        className="reveal font-fraunces font-extrabold uppercase relative z-10"
+        style={{
+          fontSize: 'clamp(2.8rem,11vw,7rem)',
+          background: 'linear-gradient(180deg,#f6ecdf,#cf6f7a)',
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+          color: 'transparent',
+        }}
+      >
+        I Love You
+      </div>
+      <div className="reveal font-caveat text-[#e8b978] mt-1 relative z-10" style={{ fontSize: 'clamp(2rem,6vw,3.4rem)' }}>
+        Syafa
+      </div>
+      <div className="reveal mt-6 text-[#b79aa0] text-sm tracking-[0.15em] uppercase relative z-10">
+        sekarang, nanti, dan seterusnya
+      </div>
+      <button
+        onClick={onReplay}
+        className="relative z-10 mt-10 px-8 py-3.5 rounded-full border border-[#e8b978]/40 text-sm tracking-[0.15em] uppercase transition-all duration-500 hover:bg-[#e8b978] hover:text-[#170b16]"
+      >
+        Putar ulang
+      </button>
+    </section>
+  );
+}
+
+/* ============================= GLOBAL STYLES ============================= */
+function GlobalStyles() {
+  return (
+    <style jsx global>{`
+      .font-fraunces { font-family: 'Fraunces', serif; }
+      .font-caveat { font-family: 'Caveat', cursive; }
+
+      .scroll-cue {
+        width: 1px;
+        height: 50px;
+        background: linear-gradient(to bottom, #e8b978, transparent);
+        position: relative;
+      }
+      .scroll-cue::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: -3px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #e8b978;
+        animation: dripline 2s ease-in-out infinite;
+      }
+      @keyframes dripline {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(20px); opacity: 0; }
+      }
+
+      .heart-float {
+        animation-name: rise;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        opacity: 0.7;
+      }
+      @keyframes rise {
+        0% { transform: translateY(0) scale(0.8); opacity: 0; }
+        10% { opacity: 0.8; }
+        100% { transform: translateY(-110vh) scale(1.1); opacity: 0; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .heart-float, .scroll-cue::after { animation: none !important; }
+      }
+    `}</style>
   );
 }
