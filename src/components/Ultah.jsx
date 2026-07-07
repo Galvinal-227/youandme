@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import Lenis from 'lenis';
+import Lenis from '@studio-freight/lenis';
 import { FaHeart } from 'react-icons/fa';
 
 gsap.registerPlugin(ScrollTrigger);
