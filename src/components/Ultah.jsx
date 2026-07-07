@@ -98,7 +98,7 @@ function IntroScreen({ onOpen }) {
         <div className="envelope-body absolute inset-0 rounded-md border border-[#e8b978]/35 overflow-hidden shadow-2xl"
              style={{ background: 'linear-gradient(160deg,#2b1730,#241228)' }}>
           <div className="letter-peek absolute left-[8%] right-[8%] flex items-start justify-center pt-3 rounded-sm"
-               style={{ bottom: '-6%', height: '70%', background: '#f6ecdf' }}>
+               style={{ bottom: '-5%', height: '30%', background: '#f6ecdf' }}>
             <span className="font-caveat text-[#33192a] text-lg">Buka aku ya...</span>
           </div>
         </div>
