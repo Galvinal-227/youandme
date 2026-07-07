@@ -312,25 +312,46 @@ function LetterSection() {
         style={{ background: '#f6ecdf', padding: 'clamp(32px,6vw,64px)' }}
       >
         <p className="text-lg leading-8 mb-4 first-letter:font-fraunces first-letter:italic first-letter:text-5xl first-letter:float-left first-letter:leading-none first-letter:mr-2 first-letter:text-[#cf6f7a]">
-          Syafa, di hari kamu lahir ini, aku cuma mau kamu tahu satu hal sederhana: aku bersyukur banget kamu ada.
-          Bukan cuma di hari spesial kayak sekarang, tapi di semua hari biasa yang jadi nggak biasa karena ada kamu.
+          Hai adek, selamat ulang tahun yaa 🤍.
+          Hari ini hari yang paling spesial, karena di hari inilah orang yang paling mas sayang lahir ke dunia.
+          Mas bener-bener bersyukur bisa kenal sama adek, bisa deket, sampai akhirnya bisa jalan bareng kayak sekarang.
         </p>
+
         <p className="text-lg leading-8 mb-4">
-          <em>
-            (Tulis ulang bagian ini dengan kata-katamu sendiri — cerita, kenangan, atau harapan buat dia ke depannya.
-            Surat yang paling berkesan itu yang jujur, bukan yang rapi.)
-          </em>
+          Makasih ya dek, udah nemenin mas selama ini. Makasih udah mau dengerin cerita mas, nemenin pas lagi capek,
+          pas lagi seneng, bahkan pas lagi banyak masalah. Walaupun kadang kita berantem, salah paham, ngambek-ngambekan,
+          tapi mas selalu percaya kalau semua itu cuma bagian kecil dari perjalanan kita.
         </p>
+
         <p className="text-lg leading-8 mb-4">
-          Terima kasih untuk semua sabar, semua peluk, dan semua cara kamu bikin hidupku lebih baik. Selamat ulang
-          tahun, sayangku. Semoga tahun ini penuh hal baik, dan semoga aku masih boleh ada di sampingmu, merayakannya.
+          Mas minta maaf kalau selama ini masih sering bikin adek kesel, bikin adek nunggu, atau kadang belum bisa jadi
+          yang terbaik. Tapi mas selalu berusaha buat jadi lebih baik sedikit demi sedikit, supaya adek bangga punya mas.
         </p>
-        <div className="font-caveat text-2xl text-right text-[#cf6f7a] mt-6">— Galvin</div>
+
+        <p className="text-lg leading-8 mb-4">
+          Semoga di umur yang baru ini semua doa adek satu-satu dikabulin. Semoga adek selalu sehat, selalu bahagia,
+          dimudahkan sekolahnya, dimudahkan semua urusannya, dan semoga senyumnya nggak pernah hilang.
+          Mas juga berharap semoga nanti kita masih bisa ngerayain ulang tahun bareng di tahun-tahun berikutnya.
+        </p>
+
+        <p className="text-lg leading-8">
+          Sekali lagi, selamat ulang tahun yaa adek. Jangan lupa selalu jaga kesehatan, jangan sering telat makan,
+          dan inget... ada mas yang selalu sayang sama adek. ❤️
+        </p>
+
+        <div className="font-caveat text-2xl text-right text-[#cf6f7a] mt-6">
+          — Dari mas yang paling sayang sama adek.
+        </div>
+
         <div
           className="absolute rounded-full"
           style={{
-            bottom: -18, right: 36, width: 44, height: 44,
-            background: 'radial-gradient(circle at 35% 30%,#e2828f,#cf6f7a 60%,#9c4650 100%)',
+            bottom: -18,
+            right: 36,
+            width: 44,
+            height: 44,
+            background:
+              'radial-gradient(circle at 35% 30%,#e2828f,#cf6f7a 60%,#9c4650 100%)',
             boxShadow: '0 6px 14px rgba(0,0,0,.4)',
           }}
         />
