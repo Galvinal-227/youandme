@@ -7,75 +7,52 @@ import { FaHeart } from 'react-icons/fa';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Ultah() {
-  const [showMain, setShowMain] = useState(false);
-  const [showCountdown, setShowCountdown] = useState(true);
-  const container = useRef(null);
-
-  // Target date: 22 Januari 2027
-  const targetDate = new Date('2027-01-22T00:00:00').getTime();
-
-  // Countdown logic
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-  const [isTimeUp, setIsTimeUp] = useState(false);
+/* ============================= STARFIELD ============================= */
+function Starfield() {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let raf;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      if (distance < 0) {
-        setIsTimeUp(true);
-        setShowCountdown(false);
-        clearInterval(interval);
-        return;
-      }
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = Array.from({ length: Math.min(120, Math.floor(window.innerWidth / 10)) }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.4 + 0.3,
+        s: Math.random() * 0.02 + 0.005,
+        a: Math.random() * Math.PI * 2,
+      }));
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#e8e8e8';
+      stars.forEach((st) => {
+        st.a += st.s;
+        const op = reduceMotion ? 0.5 : ((Math.sin(st.a) + 1) / 2) * 0.7 + 0.15;
+        ctx.globalAlpha = op;
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    }
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      setTimeLeft({ days, hours, minutes, seconds });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [targetDate]);
-
-  // If time is up, show intro screen (envelope) again
-  if (isTimeUp && !showMain) {
-    return (
-      <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
-        <Starfield />
-        <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={true} />
-        <GlobalStyles />
-      </div>
-    );
-  }
-
-  return (
-    <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
-      <Starfield />
-      {!showMain ? (
-        showCountdown ? (
-          <CountdownScreen 
-            timeLeft={timeLeft} 
-            onStart={() => setShowCountdown(false)} 
-          />
-        ) : (
-          <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={false} />
-        )
-      ) : (
-        <MainContent onReplay={() => setShowMain(false)} />
-      )}
-      <GlobalStyles />
-    </div>
-  );
+  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
 }
 
 /* ============================= COUNTDOWN SCREEN ============================= */
@@ -746,5 +723,77 @@ function GlobalStyles() {
         .heart-float, .scroll-cue::after { animation: none !important; }
       }
     `}</style>
+  );
+}
+
+/* ============================= MAIN APP ============================= */
+export default function Ultah() {
+  const [showMain, setShowMain] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(true);
+  const container = useRef(null);
+
+  // Target date: 22 Januari 2027
+  const targetDate = new Date('2027-01-22T00:00:00').getTime();
+
+  // Countdown logic
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+  const [isTimeUp, setIsTimeUp] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        setIsTimeUp(true);
+        setShowCountdown(false);
+        clearInterval(interval);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  // If time is up, show intro screen (envelope) again
+  if (isTimeUp && !showMain) {
+    return (
+      <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
+        <Starfield />
+        <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={true} />
+        <GlobalStyles />
+      </div>
+    );
+  }
+
+  return (
+    <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
+      <Starfield />
+      {!showMain ? (
+        showCountdown ? (
+          <CountdownScreen 
+            timeLeft={timeLeft} 
+            onStart={() => setShowCountdown(false)} 
+          />
+        ) : (
+          <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={false} />
+        )
+      ) : (
+        <MainContent onReplay={() => setShowMain(false)} />
+      )}
+      <GlobalStyles />
+    </div>
   );
 }
