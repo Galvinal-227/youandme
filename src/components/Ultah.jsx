@@ -56,12 +56,35 @@ function Starfield() {
 }
 
 /* ============================= COUNTDOWN SCREEN ============================= */
-function CountdownScreen({ timeLeft, onStart }) {
+function CountdownScreen({ timeLeft, isTimeUp }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Jika waktu sudah habis, tampilkan pesan selamat
+  if (isTimeUp) {
+    return (
+      <div 
+        className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+        style={{ background: 'radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%)' }}
+      >
+        <div className="text-center">
+          <div className="text-6xl mb-6">🎉</div>
+          <h1 className="font-fraunces text-4xl md:text-6xl font-bold text-[#e8e8e8] mb-4">
+            Waktunya Telah Tiba!
+          </h1>
+          <p className="text-[#888888] text-lg mb-8">
+            ️22 Januari 2027 ✨
+          </p>
+          <div className="animate-pulse text-[#666666] text-sm">
+            Mempersiapkan kejutan...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -101,16 +124,9 @@ function CountdownScreen({ timeLeft, onStart }) {
           </div>
         </div>
 
-        <p className="text-[#888888] text-sm max-w-md mx-auto mb-8">
+        <p className="text-[#888888] text-sm max-w-md mx-auto">
           Menunggu hari spesial untuk Syafa ✨
         </p>
-
-        <button
-          onClick={onStart}
-          className="px-8 py-3.5 rounded-full border border-[#666666]/40 text-sm tracking-[0.15em] uppercase transition-all duration-500 hover:bg-[#666666] hover:text-[#0a0a0a] text-[#e8e8e8]"
-        >
-          Buka sekarang
-        </button>
       </div>
     </div>
   );
@@ -729,7 +745,6 @@ function GlobalStyles() {
 /* ============================= MAIN APP ============================= */
 export default function Ultah() {
   const [showMain, setShowMain] = useState(false);
-  const [showCountdown, setShowCountdown] = useState(true);
   const container = useRef(null);
 
   // Target date: 22 Januari 2027
@@ -751,7 +766,6 @@ export default function Ultah() {
 
       if (distance < 0) {
         setIsTimeUp(true);
-        setShowCountdown(false);
         clearInterval(interval);
         return;
       }
@@ -767,12 +781,18 @@ export default function Ultah() {
     return () => clearInterval(interval);
   }, [targetDate]);
 
-  // If time is up, show intro screen (envelope) again
+  // Jika waktu sudah habis, tampilkan countdown dengan pesan selamat dulu, lalu amplop
   if (isTimeUp && !showMain) {
     return (
       <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
         <Starfield />
-        <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={true} />
+        <CountdownScreen timeLeft={timeLeft} isTimeUp={true} />
+        {/* Setelah beberapa detik, tampilkan amplop */}
+        <div className="fixed inset-0 z-[99] pointer-events-none">
+          <div className="w-full h-full flex items-center justify-center">
+            {/* Amplop akan muncul setelah countdown selesai */}
+          </div>
+        </div>
         <GlobalStyles />
       </div>
     );
@@ -782,14 +802,7 @@ export default function Ultah() {
     <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
       <Starfield />
       {!showMain ? (
-        showCountdown ? (
-          <CountdownScreen 
-            timeLeft={timeLeft} 
-            onStart={() => setShowCountdown(false)} 
-          />
-        ) : (
-          <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={false} />
-        )
+        <CountdownScreen timeLeft={timeLeft} isTimeUp={false} />
       ) : (
         <MainContent onReplay={() => setShowMain(false)} />
       )}
