@@ -41,6 +41,10 @@ export default function Ultah() {
   const [giftOpen, setGiftOpen] = useState(false);
   const [showEnding, setShowEnding] = useState(false);
   const [micActive, setMicActive] = useState(false);
+  
+  // ── STATE NAVIGASI ──
+  const [currentPage, setCurrentPage] = useState(0);
+  const totalPages = 12; // 0:Loading, 1:Countdown, 2:Hero, 3:Letter, 4:Timeline, 5:Gallery, 6:Reasons, 7:Wishes, 8:Cake, 9:Gift, 10:Final, 11:Ending
 
   // ── Ref untuk DOM dan animasi ──
   const heroRef = useRef(null);
@@ -58,6 +62,21 @@ export default function Ultah() {
   const particlesCanvas = useRef(null);
   const confettiCanvas = useRef(null);
   const fireworksCanvas = useRef(null);
+
+  // ── NAVIGASI ──
+  const goToNextPage = useCallback(() => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentPage]);
+
+  const goToPage = useCallback((page) => {
+    if (page >= 0 && page < totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
 
   // ── PARTIKEL (Canvas) ──
   useEffect(() => {
@@ -254,7 +273,10 @@ export default function Ultah() {
     let t = 0;
     const interval = setInterval(() => {
       t += 1 + Math.random() * 3;
-      if (t >= 100) { t = 100; clearInterval(interval); setTimeout(() => setLoading(false), 400); }
+      if (t >= 100) { t = 100; clearInterval(interval); setTimeout(() => {
+        setLoading(false);
+        setCurrentPage(1); // langsung ke countdown
+      }, 400); }
       setProgress(Math.min(t, 100));
     }, 40);
     return () => clearInterval(interval);
@@ -290,7 +312,7 @@ export default function Ultah() {
 
   // ── GSAP : Hero ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 2) return;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
       tl.fromTo('.hero-title', { opacity: 0, y: 60, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 1.6 })
@@ -299,11 +321,11 @@ export default function Ultah() {
         .fromTo('.hero-arrow', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1, repeat: -1, yoyo: true, ease: 'sine.inOut' }, '-=0.6');
     }, heroRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Letter typewriter ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 3) return;
     const text = 'For you, a letter woven from the quietest hours, where every word is a candle lit just for you.';
     let index = 0;
     const el = typewriterRef.current;
@@ -334,11 +356,11 @@ export default function Ultah() {
       yoyo: true,
       ease: 'sine.inOut',
     });
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Timeline ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 4) return;
     const ctx = gsap.context(() => {
       const items = timelineRef.current?.querySelectorAll('.timeline-item');
       if (!items) return;
@@ -348,19 +370,14 @@ export default function Ultah() {
         scale: 1,
         duration: 1,
         stagger: 0.25,
-        scrollTrigger: {
-          trigger: timelineRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
     }, timelineRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Gallery ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 5) return;
     const ctx = gsap.context(() => {
       const items = galleryRef.current?.querySelectorAll('.masonry-item');
       if (!items) return;
@@ -370,19 +387,14 @@ export default function Ultah() {
         scale: 1,
         duration: 0.9,
         stagger: 0.12,
-        scrollTrigger: {
-          trigger: galleryRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
     }, galleryRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Reasons ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 6) return;
     const ctx = gsap.context(() => {
       const cards = reasonsRef.current?.querySelectorAll('.reason-card');
       if (!cards) return;
@@ -392,11 +404,6 @@ export default function Ultah() {
         rotateX: 0,
         duration: 1,
         stagger: 0.18,
-        scrollTrigger: {
-          trigger: reasonsRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
       cards.forEach((el, i) => {
         gsap.to(el, {
@@ -410,85 +417,65 @@ export default function Ultah() {
       });
     }, reasonsRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Wishes ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 7) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(wishesRef.current, { opacity: 0, y: 40 }, {
         opacity: 1,
         y: 0,
         duration: 1.4,
-        scrollTrigger: {
-          trigger: wishesRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
     }, wishesRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Cake ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 8) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(cakeRef.current, { opacity: 0, scale: 0.92, y: 30 }, {
         opacity: 1,
         scale: 1,
         y: 0,
         duration: 1.2,
-        scrollTrigger: {
-          trigger: cakeRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
     }, cakeRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Gift ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 9) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(giftRef.current, { opacity: 0, y: 40, scale: 0.94 }, {
         opacity: 1,
         y: 0,
         scale: 1,
         duration: 1.2,
-        scrollTrigger: {
-          trigger: giftRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
     }, giftRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Final Letter ──
   useEffect(() => {
-    if (loading || !showSurprise) return;
+    if (loading || !showSurprise || currentPage !== 10) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(finalRef.current, { opacity: 0, y: 40 }, {
         opacity: 1,
         y: 0,
         duration: 1.4,
-        scrollTrigger: {
-          trigger: finalRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
       });
     }, finalRef);
     return () => ctx.revert();
-  }, [loading, showSurprise]);
+  }, [loading, showSurprise, currentPage]);
 
   // ── GSAP : Ending ──
   useEffect(() => {
-    if (!showEnding) return;
+    if (!showEnding || currentPage !== 11) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(endingRef.current, { opacity: 0, scale: 0.96 }, {
         opacity: 1,
@@ -500,7 +487,7 @@ export default function Ultah() {
       setTimeout(() => fireConfetti(), 1200);
     }, endingRef);
     return () => ctx.revert();
-  }, [showEnding, multiBurst, fireConfetti]);
+  }, [showEnding, multiBurst, fireConfetti, currentPage]);
 
   // ── BLOW DETECTION ──
   const startBlowDetection = useCallback(() => {
@@ -613,10 +600,381 @@ export default function Ultah() {
     setShowSurprise(true);
     setCountdownActive(false);
     setCountdownDone(true);
+    setCurrentPage(2); // langsung ke halaman Hero
     setTimeout(() => {
-      document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
-    }, 400);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   }, []);
+
+  // ── RENDER PAGE ──
+  const renderPage = () => {
+    // PAGE 0: LOADING
+    if (loading) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#000',
+        }}>
+          <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>
+            <HiSparkles />
+          </div>
+          <p style={{ fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
+            Preparing Something Special...
+          </p>
+          <div style={{ width: '200px', height: '2px', background: '#222', borderRadius: '99px', overflow: 'hidden', marginTop: '1.5rem' }}>
+            <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #666, #fff)', borderRadius: '99px', transition: 'width 0.15s linear' }} />
+          </div>
+        </div>
+      );
+    }
+
+    // PAGE 1: COUNTDOWN
+    if (!showSurprise && currentPage === 1) {
+      return (
+        <PageContainer title="Counting Down" icon={<LuClock3 />}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '1rem',
+              maxWidth: '480px',
+              margin: '0 auto 2rem',
+            }}>
+              {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
+                <div key={unit} style={{
+                  textAlign: 'center',
+                  padding: '0.75rem 0.5rem',
+                  borderRadius: '1rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}>
+                  <div style={{ fontSize: '2.8rem', fontWeight: 300, fontVariantNumeric: 'tabular-nums' }}>
+                    {String(countdown[unit]).padStart(2, '0')}
+                  </div>
+                  <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
+                    {unit}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button onClick={handleSurpriseReveal} className="btn-outline">
+              Open the Surprise
+            </button>
+          </div>
+        </PageContainer>
+      );
+    }
+
+    // PAGE 2-11: SETELAH SURPRISE
+    if (showSurprise) {
+      const pages = [
+        // PAGE 2: Hero
+        {
+          component: (
+            <div ref={heroRef} style={{ textAlign: 'center' }}>
+              <div className="hero-icon" style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>
+                <BsCake2Fill />
+              </div>
+              <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.9)' }}>
+                Happy Birthday
+              </h1>
+              <p className="hero-sub" style={{ fontSize: 'clamp(1.25rem, 3vw, 2.5rem)', fontWeight: 300, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginTop: '1rem' }}>
+                Wasiatus Syafana
+              </p>
+              <div className="hero-arrow" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)', marginTop: '3rem' }}>
+                <LuArrowDown />
+              </div>
+            </div>
+          )
+        },
+        // PAGE 3: Letter
+        {
+          component: (
+            <div ref={letterRef} style={{ maxWidth: '672px', margin: '0 auto' }}>
+              <div className="glass-light" style={{ padding: '2rem 3rem', position: 'relative', borderRadius: '1.5rem' }}>
+                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                  <div style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.4)' }}><IoMail /></div>
+                </div>
+                <p ref={typewriterRef} style={{ fontSize: '0.875rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', fontWeight: 300 }} />
+              </div>
+            </div>
+          )
+        },
+        // PAGE 4: Timeline
+        {
+          component: (
+            <div ref={timelineRef} style={{ maxWidth: '768px', margin: '0 auto' }}>
+              <PageHeader icon={<BsCalendarHeart />} title="Our Timeline" />
+              <div style={{ position: 'relative', paddingLeft: '2rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+                {[
+                  { icon: <FaHeart />, year: '2023', text: 'The day our paths crossed — a quiet spark that lit everything.' },
+                  { icon: <FaStar />, year: '2024', text: 'Every laugh, every late-night conversation, every glance that said more than words.' },
+                  { icon: <BsCalendarHeart />, year: '2025', text: 'And now, this moment — a celebration of you, of us, of everything beautiful.' },
+                ].map((item, i) => (
+                  <div key={i} className="timeline-item" style={{ marginBottom: i === 2 ? 0 : '2rem', position: 'relative' }}>
+                    <div style={{
+                      position: 'absolute',
+                      left: '-2.6rem',
+                      top: '0.25rem',
+                      width: '12px',
+                      height: '12px',
+                      borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.8)',
+                      border: '2px solid #000',
+                    }} />
+                    <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.3)' }}>{item.icon}</span>
+                        <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{item.year}</span>
+                      </div>
+                      <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        },
+        // PAGE 5: Gallery
+        {
+          component: (
+            <div ref={galleryRef} style={{ maxWidth: '1024px', margin: '0 auto' }}>
+              <PageHeader icon={<BsImages />} title="Memories in Light" />
+              <div style={{ columnCount: 3, columnGap: '1rem' }}>
+                {galleryImages.map((src, i) => (
+                  <div
+                    key={i}
+                    className="masonry-item"
+                    style={{
+                      breakInside: 'avoid',
+                      marginBottom: '1rem',
+                      borderRadius: '1rem',
+                      overflow: 'hidden',
+                      background: '#111',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => { setLightboxSrc(src); setLightboxOpen(true); }}
+                  >
+                    <img src={src} alt={`Memory ${i+1}`} loading="lazy" style={{ width: '100%', display: 'block', height: `${200 + (i % 3) * 120}px`, objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        },
+        // PAGE 6: Reasons
+        {
+          component: (
+            <div ref={reasonsRef} style={{ maxWidth: '1024px', margin: '0 auto' }}>
+              <PageHeader icon={<FaHeart />} title="Reasons I Love You" />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                {[
+                  'Your laugh — a melody I could listen to forever.',
+                  'The way you see the world, soft and full of wonder.',
+                  'Your quiet strength that holds everything together.',
+                  'The kindness in your eyes, even on the hardest days.',
+                  'Your heart — brave, generous, and endlessly beautiful.',
+                  'Every single part of you, exactly as you are.',
+                ].map((text, i) => (
+                  <div key={i} className="reason-card glass" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '1rem' }}>
+                    <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem' }}>
+                      <FaHeart />
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        },
+        // PAGE 7: Wishes
+        {
+          component: (
+            <div ref={wishesRef} style={{ maxWidth: '672px', margin: '0 auto' }}>
+              <PageHeader icon={<HiSparkles />} title="Birthday Wishes" />
+              <div className="glass-light" style={{ padding: '2rem 3rem', borderRadius: '1.5rem' }}>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8 }}>
+                  May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
+                </p>
+              </div>
+            </div>
+          )
+        },
+        // PAGE 8: Cake
+        {
+          component: (
+            <div ref={cakeRef} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
+              <div style={{ fontSize: '3.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
+                <BsCake2Fill />
+              </div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 300, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>
+                Make a Wish
+              </h2>
+              <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
+                {cakeBlown ? '✨ Your wish is on its way' : 'Blow the candle'}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ position: 'relative' }}>
+                  <div style={{ width: '12rem', height: '4rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', margin: '0 auto' }} />
+                  <div style={{ width: '1rem', height: '6rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))', borderRadius: '9999px', margin: '0.25rem auto 0', position: 'relative' }}>
+                    <div className="flame" style={{
+                      position: 'absolute',
+                      bottom: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '20px',
+                      height: '40px',
+                      background: 'radial-gradient(ellipse at bottom, #fff 0%, #ccc 40%, #888 70%, transparent 100%)',
+                      borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                      filter: 'blur(1px)',
+                      animation: 'flicker 0.3s infinite alternate ease-in-out',
+                      transformOrigin: 'bottom center',
+                      boxShadow: '0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(255,255,255,0.1)',
+                      transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      opacity: cakeBlown ? 0 : 1,
+                      transform: cakeBlown ? 'scale(0.2) translateY(20px)' : 'translateX(-50%)',
+                      filter: cakeBlown ? 'blur(8px)' : 'blur(1px)',
+                    }} />
+                  </div>
+                </div>
+                {!cakeBlown && (
+                  <button onClick={startBlowDetection} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
+                    {micActive ? '🎤 Listening...' : '💨 Blow the Candle'}
+                  </button>
+                )}
+                {cakeBlown && (
+                  <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 300 }}>
+                    ✦ A wish carried on the wind ✦
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        },
+        // PAGE 9: Gift
+        {
+          component: (
+            <div ref={giftRef} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
+              <PageHeader icon={<FaGift />} title="A Gift for You" />
+              <div
+                className={giftOpen ? 'open' : ''}
+                onClick={handleGiftOpen}
+                style={{
+                  width: '200px',
+                  height: '180px',
+                  background: '#111',
+                  borderRadius: '0.5rem 0.5rem 0 0',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  margin: '0 auto',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              >
+                <div style={{
+                  width: '100%',
+                  height: '30px',
+                  background: '#1a1a1a',
+                  borderRadius: '0.5rem 0.5rem 0 0',
+                  borderBottom: '2px solid rgba(255,255,255,0.06)',
+                  transformOrigin: 'bottom center',
+                  transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                  transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
+                }} />
+                <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '8px', background: '#fff', transform: 'translateY(-50%)', opacity: 0.9 }} />
+                <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '8px', background: '#fff', transform: 'translateX(-50%)', opacity: 0.9 }} />
+                <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '2rem', color: '#fff', opacity: 0.8 }}>✦</div>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: giftOpen ? 1 : 0,
+                  pointerEvents: giftOpen ? 'auto' : 'none',
+                  transition: 'opacity 0.6s ease 0.4s',
+                  padding: '0.5rem',
+                  textAlign: 'center',
+                  color: '#ddd',
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>💌 You are the most beautiful part of every day.</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', color: 'rgba(255,255,255,0.3)', fontSize: '1.25rem' }}>
+                      <IoMusicalNotes /><FaHeart /><HiSparkles />
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                      A playlist of all the songs that remind me of you.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
+                {giftOpen ? '✨ Open with love' : 'Click to open'}
+              </p>
+            </div>
+          )
+        },
+        // PAGE 10: Final Letter
+        {
+          component: (
+            <div ref={finalRef} style={{ maxWidth: '672px', margin: '0 auto' }}>
+              <PageHeader icon={<IoMail />} title="A Final Letter" />
+              <div className="glass-light" style={{ padding: '2.5rem 3.5rem', borderRadius: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent, transparent)' }} />
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, position: 'relative', zIndex: 10 }}>
+                  In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
+                  <br /><br />
+                  With all my love,
+                  <br />
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Always.</span>
+                </p>
+              </div>
+            </div>
+          )
+        },
+        // PAGE 11: Ending
+        {
+          component: (
+            <div ref={endingRef} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
+                <FaHeart />
+              </div>
+              <h2 style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.8)' }}>
+                Thank You
+              </h2>
+              <p style={{ fontSize: '0.75rem', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
+                For being you
+              </p>
+              <button onClick={() => { setShowEnding(true); }} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
+                Celebrate
+              </button>
+              {showEnding && (
+                <div style={{ marginTop: '2rem' }}>
+                  <div style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.2)', animation: 'pulse 2s infinite' }}>
+                    <FaHeart />
+                  </div>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300, marginTop: '1rem' }}>
+                    Forever and always
+                  </p>
+                </div>
+              )}
+            </div>
+          )
+        },
+      ];
+
+      const pageIndex = currentPage - 2;
+      if (pageIndex >= 0 && pageIndex < pages.length) {
+        return pages[pageIndex].component;
+      }
+    }
+
+    return null;
+  };
 
   // ── RENDER ──
   return (
@@ -648,627 +1006,33 @@ export default function Ultah() {
         <img src={lightboxSrc} alt="Enlarged" style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '1.5rem', objectFit: 'contain' }} />
       </div>
 
-      {/* LOADING SCREEN */}
-      <div id="loading-screen" style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 99999,
+      {/* PAGE CONTAINER */}
+      <div style={{
+        minHeight: '100vh',
+        background: '#000',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#000',
-        transition: 'opacity 1.2s ease',
-        opacity: loading ? 1 : 0,
-        pointerEvents: loading ? 'auto' : 'none',
+        padding: '2rem 1.5rem',
+        position: 'relative',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-          <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.8)', animation: 'pulse 2s infinite' }}>
-            <HiSparkles />
-          </div>
-          <p style={{ fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontWeight: 300 }}>
-            Preparing Something Special...
-          </p>
-          <div style={{ width: '200px', height: '2px', background: '#222', borderRadius: '99px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #666, #fff)', borderRadius: '99px', transition: 'width 0.15s linear' }} />
-          </div>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', letterSpacing: '0.1em' }}>
-            {Math.round(progress)}%
-          </p>
+        <div style={{ width: '100%', maxWidth: '1200px' }}>
+          {renderPage()}
+
+          {/* CONTINUE BUTTON */}
+          {!loading && currentPage > 0 && currentPage < totalPages - 1 && (
+            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+              <button onClick={goToNextPage} className="btn-outline">
+                Continue →
+              </button>
+              <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.15)', marginTop: '0.5rem', letterSpacing: '0.1em' }}>
+                {currentPage} / {totalPages - 1}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
-      // ── Cari bagian COUNTDOWN di dalam return (sekitar baris 530-570) ──
-
-{/* COUNTDOWN */}
-{!loading && !showSurprise && (
-  <section ref={countdownRef} style={{
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    padding: '3rem 1.5rem',
-  }}>
-    <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center' }}>
-      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>
-        <LuClock3 />
-      </div>
-      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '0.5rem' }}>
-        Counting Down
-      </h2>
-      <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem', fontWeight: 300 }}>
-        The moment is almost here
-      </p>
-      
-      {/* ─── TIMER ─── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '1rem',
-        maxWidth: '480px',
-        margin: '0 auto',
-      }}>
-        {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
-          <div key={unit} style={{
-            textAlign: 'center',
-            padding: '0.75rem 0.5rem',
-            borderRadius: '1rem',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}>
-            <div style={{ fontSize: '2.8rem', fontWeight: 300, letterSpacing: '0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-              {String(countdown[unit]).padStart(2, '0')}
-            </div>
-            <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
-              {unit}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ─── TOMBOL "COBA SEKARANG" ─── */}
-      {/* Tambahkan tombol ini di bawah timer, sebelum atau sesudah countdownDone */}
-      <div style={{ marginTop: '2rem' }}>
-        <button 
-          onClick={() => {
-            // Langsung ke hero tanpa menunggu countdown
-            setShowSurprise(true);
-            setCountdownActive(false);
-            setCountdownDone(true);
-            setTimeout(() => {
-              document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
-            }, 400);
-          }} 
-          className="btn-outline"
-          style={{
-            borderColor: 'rgba(255,255,255,0.15)',
-            fontSize: '0.7rem',
-            padding: '0.6rem 2rem',
-          }}
-        >
-          Coba Sekarang ⏭
-        </button>
-      </div>
-
-      {/* ─── TOMBOL ASLI (Open the Surprise) ─── */}
-      {countdownDone && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <p style={{ fontSize: '1.125rem', fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '1rem' }}>
-            Today is Your Day
-          </p>
-          <button onClick={handleSurpriseReveal} className="btn-outline">
-            Open the Surprise
-          </button>
-        </div>
-      )}
-    </div>
-  </section>
-)}
-
-      {/* HERO */}
-      {showSurprise && (
-        <section id="hero" ref={heroRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-            <div style={{ position: 'absolute', width: '600px', height: '600px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(80px)', top: '-20px', right: '-20px' }} />
-            <div style={{ position: 'absolute', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)', filter: 'blur(80px)', bottom: 0, left: 0 }} />
-          </div>
-          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-            <div className="hero-icon" style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>
-              <BsCake2Fill />
-            </div>
-            <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.9)' }}>
-              Happy Birthday
-            </h1>
-            <p className="hero-sub" style={{ fontSize: 'clamp(1.25rem, 3vw, 2.5rem)', fontWeight: 300, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginTop: '1rem' }}>
-              Wasiatus Syafana
-            </p>
-            <div className="hero-arrow" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)', marginTop: '3rem' }}>
-              <LuArrowDown />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* LETTER INTRODUCTION */}
-      {showSurprise && (
-        <section ref={letterRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '672px', width: '100%' }}>
-            <div style={{
-              background: 'rgba(255,255,255,0.07)',
-              backdropFilter: 'blur(16px) saturate(1.4)',
-              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '1.5rem',
-              padding: '2rem 3rem',
-              boxShadow: '0 30px 60px rgba(255,255,255,0.04)',
-              position: 'relative',
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '-1.5rem',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                fontSize: '1.875rem',
-                color: 'rgba(255,255,255,0.4)',
-                background: 'rgba(0,0,0,0.6)',
-                padding: '0.75rem',
-                borderRadius: '9999px',
-                border: '1px solid rgba(255,255,255,0.05)',
-              }}>
-                <IoMail />
-              </div>
-              <div style={{ marginTop: '2rem' }}>
-                <p ref={typewriterRef} style={{ fontSize: '0.875rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', fontWeight: 300, letterSpacing: '0.05em' }} />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* MEMORY TIMELINE */}
-      {showSurprise && (
-        <section ref={timelineRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '768px', width: '100%' }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
-                <BsCalendarHeart />
-              </div>
-              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
-                Our Timeline
-              </h2>
-            </div>
-            <div style={{ position: 'relative', paddingLeft: '2rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-              {[
-                { icon: <FaHeart />, year: '2023', text: 'The day our paths crossed — a quiet spark that lit everything.' },
-                { icon: <FaStar />, year: '2024', text: 'Every laugh, every late-night conversation, every glance that said more than words.' },
-                { icon: <BsCalendarHeart />, year: '2025', text: 'And now, this moment — a celebration of you, of us, of everything beautiful.' },
-              ].map((item, i) => (
-                <div key={i} className="timeline-item" style={{ marginBottom: i === 2 ? 0 : '3rem', position: 'relative' }}>
-                  <div style={{
-                    position: 'absolute',
-                    left: '-2.6rem',
-                    top: '0.25rem',
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.8)',
-                    border: '2px solid #000',
-                    flexShrink: 0,
-                    zIndex: 2,
-                  }} />
-                  <div style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    backdropFilter: 'blur(12px) saturate(1.2)',
-                    WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: '1rem',
-                    padding: '1.5rem 2rem',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '1.125rem' }}>{item.icon}</span>
-                      <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>{item.year}</span>
-                    </div>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.7 }}>{item.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* GALLERY */}
-      {showSurprise && (
-        <section ref={galleryRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '1024px', width: '100%' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
-                <BsImages />
-              </div>
-              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
-                Memories in Light
-              </h2>
-            </div>
-            <div style={{ columnCount: 3, columnGap: '1rem' }}>
-              {galleryImages.map((src, i) => (
-                <div
-                  key={i}
-                  className="masonry-item"
-                  style={{
-                    breakInside: 'avoid',
-                    marginBottom: '1rem',
-                    borderRadius: '1rem',
-                    overflow: 'hidden',
-                    background: '#111',
-                    cursor: 'pointer',
-                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                  }}
-                  onClick={() => { setLightboxSrc(src); setLightboxOpen(true); }}
-                >
-                  <img
-                    src={src}
-                    alt={`Memory ${i+1}`}
-                    loading="lazy"
-                    style={{
-                      width: '100%',
-                      display: 'block',
-                      height: `${200 + (i % 3) * 120}px`,
-                      objectFit: 'cover',
-                      transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* REASONS I LOVE YOU */}
-      {showSurprise && (
-        <section ref={reasonsRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '1024px', width: '100%' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
-                <FaHeart />
-              </div>
-              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
-                Reasons I Love You
-              </h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              {[
-                'Your laugh — a melody I could listen to forever.',
-                'The way you see the world, soft and full of wonder.',
-                'Your quiet strength that holds everything together.',
-                'The kindness in your eyes, even on the hardest days.',
-                'Your heart — brave, generous, and endlessly beautiful.',
-                'Every single part of you, exactly as you are.',
-              ].map((text, i) => (
-                <div key={i} className="reason-card" style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  backdropFilter: 'blur(12px) saturate(1.2)',
-                  WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: '1rem',
-                  padding: '1.5rem',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem' }}>
-                    <FaHeart />
-                  </div>
-                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.7 }}>{text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* BIRTHDAY WISHES */}
-      {showSurprise && (
-        <section ref={wishesRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '672px', width: '100%' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
-                <HiSparkles />
-              </div>
-              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
-                Birthday Wishes
-              </h2>
-            </div>
-            <div style={{
-              background: 'rgba(255,255,255,0.07)',
-              backdropFilter: 'blur(16px) saturate(1.4)',
-              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '1.5rem',
-              padding: '2rem 3rem',
-              boxShadow: '0 30px 60px rgba(255,255,255,0.04)',
-            }}>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, letterSpacing: '0.05em', textWrap: 'balance' }}>
-                May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* CAKE SECTION */}
-      {showSurprise && (
-        <section ref={cakeRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '448px', width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '3.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
-              <BsCake2Fill />
-            </div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 300, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>
-              Make a Wish
-            </h2>
-            <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
-              {cakeBlown ? '✨ Your wish is on its way' : 'Blow the candle'}
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{ width: '12rem', height: '4rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', margin: '0 auto' }} />
-                <div style={{ width: '1rem', height: '6rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))', borderRadius: '9999px', margin: '0.25rem auto 0', position: 'relative' }}>
-                  <div className="flame" style={{
-                    position: 'absolute',
-                    bottom: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '20px',
-                    height: '40px',
-                    background: 'radial-gradient(ellipse at bottom, #fff 0%, #ccc 40%, #888 70%, transparent 100%)',
-                    borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                    filter: 'blur(1px)',
-                    animation: 'flicker 0.3s infinite alternate ease-in-out',
-                    transformOrigin: 'bottom center',
-                    boxShadow: '0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(255,255,255,0.1)',
-                    transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                    opacity: cakeBlown ? 0 : 1,
-                    transform: cakeBlown ? 'scale(0.2) translateY(20px)' : 'translateX(-50%)',
-                    filter: cakeBlown ? 'blur(8px)' : 'blur(1px)',
-                  }} />
-                </div>
-              </div>
-              {!cakeBlown && (
-                <button onClick={startBlowDetection} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
-                  {micActive ? '🎤 Listening...' : '💨 Blow the Candle'}
-                </button>
-              )}
-              {cakeBlown && (
-                <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 300, letterSpacing: '0.05em' }}>
-                  ✦ A wish carried on the wind ✦
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* GIFT SECTION */}
-      {showSurprise && (
-        <section ref={giftRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '448px', width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
-              <FaGift />
-            </div>
-            <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '2rem' }}>
-              A Gift for You
-            </h2>
-            <div
-              className={giftOpen ? 'open' : ''}
-              onClick={handleGiftOpen}
-              style={{
-                width: '200px',
-                height: '180px',
-                background: '#111',
-                borderRadius: '0.5rem 0.5rem 0 0',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                margin: '0 auto',
-              }}
-            >
-              <div style={{
-                width: '100%',
-                height: '30px',
-                background: '#1a1a1a',
-                borderRadius: '0.5rem 0.5rem 0 0',
-                borderBottom: '2px solid rgba(255,255,255,0.06)',
-                transformOrigin: 'bottom center',
-                transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-                transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
-              }} />
-              <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '8px', background: '#fff', transform: 'translateY(-50%)', opacity: 0.9 }} />
-              <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '8px', background: '#fff', transform: 'translateX(-50%)', opacity: 0.9 }} />
-              <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '2rem', color: '#fff', opacity: 0.8 }}>✦</div>
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: giftOpen ? 1 : 0,
-                pointerEvents: giftOpen ? 'auto' : 'none',
-                transition: 'opacity 0.6s ease 0.4s',
-                padding: '0.5rem',
-                textAlign: 'center',
-                fontSize: '0.85rem',
-                color: '#ddd',
-              }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
-                    💌 You are the most beautiful part of every day.
-                  </p>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', color: 'rgba(255,255,255,0.3)', fontSize: '1.25rem' }}>
-                    <IoMusicalNotes /><FaHeart /><HiSparkles />
-                  </div>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                    A playlist of all the songs that remind me of you.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
-              {giftOpen ? '✨ Open with love' : 'Click to open'}
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* FINAL LETTER */}
-      {showSurprise && (
-        <section ref={finalRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '672px', width: '100%' }}>
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.5rem' }}>
-                <IoMail />
-              </div>
-              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
-                A Final Letter
-              </h2>
-            </div>
-            <div style={{
-              background: 'rgba(255,255,255,0.07)',
-              backdropFilter: 'blur(16px) saturate(1.4)',
-              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '1.5rem',
-              padding: '2.5rem 3.5rem',
-              boxShadow: '0 30px 60px rgba(255,255,255,0.04)',
-              position: 'relative',
-              overflow: 'hidden',
-            }}>
-              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent, transparent)' }} />
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, letterSpacing: '0.05em', textWrap: 'balance', position: 'relative', zIndex: 10 }}>
-                In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
-                <br /><br />
-                With all my love,
-                <br />
-                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Always.</span>
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ENDING TRIGGER */}
-      {showSurprise && (
-        <section ref={endingRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-            <div style={{ position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(80px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-          </div>
-          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-            <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
-              <FaHeart />
-            </div>
-            <h2 style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.8)' }}>
-              Thank You
-            </h2>
-            <p style={{ fontSize: '0.75rem', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
-              For being you
-            </p>
-            <button onClick={() => { setShowEnding(true); setTimeout(() => { document.getElementById('ending')?.scrollIntoView({ behavior: 'smooth' }); }, 300); }} className="btn-outline" style={{ marginTop: '2.5rem', fontSize: '0.65rem' }}>
-              Celebrate
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* ENDING REVEAL */}
-      {showEnding && (
-        <section id="ending" style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-          background: '#000',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-            <div style={{ position: 'absolute', width: '800px', height: '800px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(80px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-          </div>
-          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-            <div style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '1.5rem', animation: 'pulse 2s infinite' }}>
-              <FaHeart />
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300 }}>
-              Forever and always
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* Styles (inline global) - karena JSX tidak bisa pakai <style> di komponen, kita tambahkan di head atau gunakan CSS-in-JS, tapi di sini kita tambahkan global style via useEffect atau style tag. Untuk kemudahan, kita tambahkan style tag di root. */}
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; }
@@ -1311,32 +1075,60 @@ export default function Ultah() {
           transform: scale(1.02);
           box-shadow: 0 0 40px rgba(255,255,255,0.04);
         }
+        .glass {
+          background: rgba(255,255,255,0.04);
+          backdrop-filter: blur(12px) saturate(1.2);
+          -webkit-backdrop-filter: blur(12px) saturate(1.2);
+          border: 1px solid rgba(255,255,255,0.06);
+        }
+        .glass-light {
+          background: rgba(255,255,255,0.07);
+          backdrop-filter: blur(16px) saturate(1.4);
+          -webkit-backdrop-filter: blur(16px) saturate(1.4);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .masonry-item {
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
         .masonry-item:hover {
           transform: scale(1.02);
+        }
+        .masonry-item img {
+          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .masonry-item:hover img {
           transform: scale(1.06);
         }
-        .gift-box.open .gift-lid {
-          transform: rotateX(-90deg) translateY(-4px);
-          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .gift-box .gift-content {
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.6s ease 0.4s;
-        }
-        .gift-box.open .gift-content {
-          opacity: 1;
-          pointer-events: auto;
-        }
         .flame-extinguished {
-          opacity: 0;
-          transform: scale(0.2) translateY(20px);
-          filter: blur(8px);
-          transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+          opacity: 0 !important;
+          transform: scale(0.2) translateY(20px) !important;
+          filter: blur(8px) !important;
         }
       `}</style>
     </>
+  );
+}
+
+// ── COMPONENT HELPER ──
+function PageHeader({ icon, title }) {
+  return (
+    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+        {icon}
+      </div>
+      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+function PageContainer({ children, title, icon }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      {icon && <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>{icon}</div>}
+      {title && <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '2rem' }}>{title}</h2>}
+      {children}
+    </div>
   );
 }
