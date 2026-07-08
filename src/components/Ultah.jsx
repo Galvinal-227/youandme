@@ -1,1185 +1,510 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useState, useEffect } from 'react';
+import { 
+  FaBirthdayCake, 
+  FaGift, 
+  FaHeart, 
+  FaStar, 
+  FaMusic,
+  FaCamera,
+  FaArrowLeft,
+  FaArrowRight,
+  FaSparkles
+} from 'react-icons/fa';
 
-// Ikon dari react-icons
-import { BsCake2Fill, BsImages, BsCalendarHeart, BsMusicNoteBeamed } from 'react-icons/bs';
-import { FaHeart, FaGift, FaStar, FaRegHeart } from 'react-icons/fa6';
-import { IoMail, IoMusicalNotes, IoSparkles } from 'react-icons/io5';
-import { HiSparkles } from 'react-icons/hi2';
-import { LuArrowDown, LuClock3, LuSparkle } from 'react-icons/lu';
+const Ultah = () => {
+  const [currentPhase, setCurrentPhase] = useState('intro'); // intro, text, card
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [showText, setShowText] = useState(false);
 
-gsap.registerPlugin(ScrollTrigger);
-
-// ─── COMPONENT: LOADING SCREEN ───
-function LoadingScreen({ progress }) {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#000',
-    }}>
-      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>
-        <HiSparkles />
-      </div>
-      <p style={{ fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
-        Preparing Something Special...
-      </p>
-      <div style={{ width: '200px', height: '2px', background: '#222', borderRadius: '99px', overflow: 'hidden', marginTop: '1.5rem' }}>
-        <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #666, #fff)', borderRadius: '99px', transition: 'width 0.15s linear' }} />
-      </div>
-    </div>
-  );
-}
-
-// ─── COMPONENT: COUNTDOWN SECTION ───
-function CountdownSection({ countdown, onSurpriseReveal }) {
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>
-        <LuClock3 />
-      </div>
-      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '0.5rem' }}>
-        Counting Down
-      </h2>
-      <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem', fontWeight: 300 }}>
-        The moment is almost here
-      </p>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '1rem',
-        maxWidth: '480px',
-        margin: '0 auto 2rem',
-      }}>
-        {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
-          <div key={unit} style={{
-            textAlign: 'center',
-            padding: '0.75rem 0.5rem',
-            borderRadius: '1rem',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
-          }}>
-            <div style={{ fontSize: '2.8rem', fontWeight: 300, fontVariantNumeric: 'tabular-nums' }}>
-              {String(countdown[unit]).padStart(2, '0')}
-            </div>
-            <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
-              {unit}
-            </div>
-          </div>
-        ))}
-      </div>
-      <button onClick={onSurpriseReveal} className="btn-outline">
-        Open the Surprise
-      </button>
-    </div>
-  );
-}
-
-// ─── COMPONENT: HERO SECTION ───
-const HeroSection = React.forwardRef((props, ref) => {
-  return (
-    <div ref={ref} style={{ textAlign: 'center' }}>
-      <div className="hero-icon" style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>
-        <BsCake2Fill />
-      </div>
-      <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.9)' }}>
-        Happy Birthday
-      </h1>
-      <p className="hero-sub" style={{ fontSize: 'clamp(1.25rem, 3vw, 2.5rem)', fontWeight: 300, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginTop: '1rem' }}>
-        Wasiatus Syafana
-      </p>
-      <div className="hero-arrow" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)', marginTop: '3rem' }}>
-        <LuArrowDown />
-      </div>
-    </div>
-  );
-});
-
-// ─── COMPONENT: LETTER INTRODUCTION ───
-const LetterIntroduction = React.forwardRef(({ typewriterRef }, ref) => {
-  return (
-    <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
-      <div className="glass-light" style={{ padding: '2rem 3rem', position: 'relative', borderRadius: '1.5rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.4)' }}><IoMail /></div>
-        </div>
-        <p ref={typewriterRef} style={{ fontSize: '0.875rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', fontWeight: 300 }} />
-      </div>
-    </div>
-  );
-});
-
-// ─── COMPONENT: MEMORY TIMELINE ───
-const MemoryTimeline = React.forwardRef((props, ref) => {
-  const timelineData = [
-    { icon: <FaHeart />, year: '2023', text: 'The day our paths crossed — a quiet spark that lit everything.' },
-    { icon: <FaStar />, year: '2024', text: 'Every laugh, every late-night conversation, every glance that said more than words.' },
-    { icon: <BsCalendarHeart />, year: '2025', text: 'And now, this moment — a celebration of you, of us, of everything beautiful.' },
+  // 9 foto untuk intro cinematic - GANTI DENGAN FOTO SYAFA
+  const photos = [
+    'https://picsum.photos/400/600?random=1',
+    'https://picsum.photos/400/600?random=2',
+    'https://picsum.photos/400/600?random=3',
+    'https://picsum.photos/400/600?random=4',
+    'https://picsum.photos/400/600?random=5',
+    'https://picsum.photos/400/600?random=6',
+    'https://picsum.photos/400/600?random=7',
+    'https://picsum.photos/400/600?random=8',
+    'https://picsum.photos/400/600?random=9',
   ];
 
-  return (
-    <div ref={ref} style={{ maxWidth: '768px', margin: '0 auto' }}>
-      <PageHeader icon={<BsCalendarHeart />} title="Our Timeline" />
-      <div style={{ position: 'relative', paddingLeft: '2rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-        {timelineData.map((item, i) => (
-          <div key={i} className="timeline-item" style={{ marginBottom: i === 2 ? 0 : '2rem', position: 'relative' }}>
-            <div style={{
-              position: 'absolute',
-              left: '-2.6rem',
-              top: '0.25rem',
-              width: '12px',
-              height: '12px',
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.8)',
-              border: '2px solid #000',
-            }} />
-            <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.3)' }}>{item.icon}</span>
-                <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{item.year}</span>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.6 }}>{item.text}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
+  // Efek intro cinematic
+  useEffect(() => {
+    if (currentPhase === 'intro') {
+      const interval = setInterval(() => {
+        setCurrentPhotoIndex((prev) => {
+          if (prev >= photos.length - 1) {
+            clearInterval(interval);
+            setTimeout(() => {
+              setCurrentPhase('text');
+              setShowText(true);
+            }, 500);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 200);
 
-// ─── COMPONENT: GALLERY SECTION ───
-const GallerySection = React.forwardRef(({ images, onImageClick }, ref) => {
-  return (
-    <div ref={ref} style={{ maxWidth: '1024px', margin: '0 auto' }}>
-      <PageHeader icon={<BsImages />} title="Memories in Light" />
-      <div style={{ columnCount: 3, columnGap: '1rem' }}>
-        {images.map((src, i) => (
-          <div
-            key={i}
-            className="masonry-item"
-            style={{
-              breakInside: 'avoid',
-              marginBottom: '1rem',
-              borderRadius: '1rem',
-              overflow: 'hidden',
-              background: '#111',
-              cursor: 'pointer',
-            }}
-            onClick={() => onImageClick(src)}
-          >
-            <img src={src} alt={`Memory ${i+1}`} loading="lazy" style={{ width: '100%', display: 'block', height: `${200 + (i % 3) * 120}px`, objectFit: 'cover' }} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
+      return () => clearInterval(interval);
+    }
+  }, [currentPhase, photos.length]);
 
-// ─── COMPONENT: REASONS SECTION ───
-const ReasonsSection = React.forwardRef((props, ref) => {
-  const reasons = [
-    'Your laugh — a melody I could listen to forever.',
-    'The way you see the world, soft and full of wonder.',
-    'Your quiet strength that holds everything together.',
-    'The kindness in your eyes, even on the hardest days.',
-    'Your heart — brave, generous, and endlessly beautiful.',
-    'Every single part of you, exactly as you are.',
-  ];
+  // Transisi dari teks ke kartu
+  useEffect(() => {
+    if (currentPhase === 'text' && showText) {
+      const timer = setTimeout(() => {
+        setCurrentPhase('card');
+      }, 3500);
 
-  return (
-    <div ref={ref} style={{ maxWidth: '1024px', margin: '0 auto' }}>
-      <PageHeader icon={<FaHeart />} title="Reasons I Love You" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
-        {reasons.map((text, i) => (
-          <div key={i} className="reason-card glass" style={{ 
-            padding: '2rem 1.5rem', 
-            textAlign: 'center', 
-            borderRadius: '1rem',
-            transition: 'transform 0.3s ease',
-          }}>
-            <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '1rem' }}>
-              <FaRegHeart />
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.6 }}>{text}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
+      return () => clearTimeout(timer);
+    }
+  }, [currentPhase, showText]);
 
-// ─── COMPONENT: BIRTHDAY WISHES ───
-const BirthdayWishes = React.forwardRef((props, ref) => {
-  return (
-    <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
-      <PageHeader icon={<HiSparkles />} title="Birthday Wishes" />
-      <div className="glass-light" style={{ padding: '2.5rem 3.5rem', borderRadius: '1.5rem' }}>
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', fontWeight: 300, lineHeight: 1.9, letterSpacing: '0.02em' }}>
-          May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
-        </p>
-      </div>
-    </div>
-  );
-});
-
-// ─── COMPONENT: CAKE SECTION ───
-const CakeSection = React.forwardRef(({ cakeBlown, micActive, onBlow }, ref) => {
-  return (
-    <div ref={ref} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
-      <div style={{ fontSize: '3.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
-        <BsCake2Fill />
-      </div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 300, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>
-        Make a Wish
-      </h2>
-      <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
-        {cakeBlown ? <><LuSparkle /> Your wish is on its way</> : 'Blow the candle'}
-      </p>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ position: 'relative' }}>
-          <div style={{ width: '12rem', height: '4rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', margin: '0 auto' }} />
-          <div style={{ width: '1rem', height: '6rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))', borderRadius: '9999px', margin: '0.25rem auto 0', position: 'relative' }}>
-            <div className="flame" style={{
-              position: 'absolute',
-              bottom: '100%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '20px',
-              height: '40px',
-              background: 'radial-gradient(ellipse at bottom, #fff 0%, #ccc 40%, #888 70%, transparent 100%)',
-              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-              filter: 'blur(1px)',
-              animation: 'flicker 0.3s infinite alternate ease-in-out',
-              transformOrigin: 'bottom center',
-              boxShadow: '0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(255,255,255,0.1)',
-              transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              opacity: cakeBlown ? 0 : 1,
-              transform: cakeBlown ? 'scale(0.2) translateY(20px)' : 'translateX(-50%)',
-              filter: cakeBlown ? 'blur(8px)' : 'blur(1px)',
-            }} />
-          </div>
+  // Halaman-halaman buku dengan kata-kata untuk Syafa
+  const pages = [
+    {
+      front: (
+        <div style={styles.pageContent}>
+          <FaBirthdayCake style={styles.iconLarge} />
+          <h2 style={styles.pageTitle}>Happy Birthday Syafa!</h2>
+          <p style={styles.pageText}>Hari ini adalah hari spesialmu</p>
+          <p style={styles.swipeHint}>Swipe untuk membuka →</p>
         </div>
-        {!cakeBlown && (
-          <button onClick={onBlow} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
-            {micActive ? <><IoSparkles /> Listening...</> : <><IoSparkles /> Blow the Candle</>}
-          </button>
-        )}
-        {cakeBlown && (
-          <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 300 }}>
-            <LuSparkle /> A wish carried on the wind <LuSparkle />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
-
-// ─── COMPONENT: GIFT SECTION ───
-const GiftSection = React.forwardRef(({ giftOpen, onGiftOpen }, ref) => {
-  return (
-    <div ref={ref} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
-      <PageHeader icon={<FaGift />} title="A Gift for You" />
-      <div
-        className={giftOpen ? 'open' : ''}
-        onClick={onGiftOpen}
-        style={{
-          width: '220px',
-          height: '190px',
-          background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)',
-          borderRadius: '0.75rem 0.75rem 0 0',
-          position: 'relative',
-          cursor: 'pointer',
-          margin: '0 auto',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
-          transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-      >
-        <div style={{
-          width: '100%',
-          height: '32px',
-          background: 'linear-gradient(180deg, #222, #111)',
-          borderRadius: '0.75rem 0.75rem 0 0',
-          borderBottom: '2px solid rgba(255,255,255,0.08)',
-          transformOrigin: 'bottom center',
-          transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
-        }} />
-        <div style={{ 
-          position: 'absolute', 
-          left: 0, 
-          right: 0, 
-          top: '50%', 
-          height: '6px', 
-          background: 'linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.6), rgba(255,255,255,0.3))',
-          transform: 'translateY(-50%)', 
-          opacity: 0.8 
-        }} />
-        <div style={{ 
-          position: 'absolute', 
-          top: 0, 
-          bottom: 0, 
-          left: '50%', 
-          width: '6px', 
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.6), rgba(255,255,255,0.3))',
-          transform: 'translateX(-50%)', 
-          opacity: 0.8 
-        }} />
-        <div style={{ 
-          position: 'absolute', 
-          top: '-18px', 
-          left: '50%', 
-          transform: 'translateX(-50%)', 
-          fontSize: '2.2rem', 
-          color: 'rgba(255,255,255,0.6)',
-        }}>
-          <LuSparkle />
-        </div>
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: giftOpen ? 1 : 0,
-          pointerEvents: giftOpen ? 'auto' : 'none',
-          transition: 'opacity 0.6s ease 0.4s',
-          padding: '1rem',
-          textAlign: 'center',
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.5 }}>
-              <FaHeart style={{ marginRight: '0.5rem', color: 'rgba(255,255,255,0.3)' }} />
-              You are the most beautiful part of every day.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', color: 'rgba(255,255,255,0.25)', fontSize: '1.25rem' }}>
-              <IoMusicalNotes /><FaHeart /><HiSparkles />
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              <BsMusicNoteBeamed style={{ marginRight: '0.3rem' }} />
-              A playlist of all the songs that remind me of you.
-            </p>
-          </div>
-        </div>
-      </div>
-      <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.15)' }}>
-        {giftOpen ? <><LuSparkle /> Open with love</> : 'Click to open'}
-      </p>
-    </div>
-  );
-});
-
-// ─── COMPONENT: FINAL LETTER ───
-const FinalLetter = React.forwardRef((props, ref) => {
-  return (
-    <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
-      <PageHeader icon={<IoMail />} title="A Final Letter" />
-      <div className="glass-light" style={{ 
-        padding: '3rem 3.5rem', 
-        borderRadius: '1.5rem', 
-        position: 'relative', 
-        overflow: 'hidden',
-        boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
-      }}>
-        <div style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          pointerEvents: 'none', 
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.02) 100%)' 
-        }} />
-        <p style={{ 
-          color: 'rgba(255,255,255,0.65)', 
-          fontSize: '0.95rem', 
-          fontWeight: 300, 
-          lineHeight: 2, 
-          position: 'relative', 
-          zIndex: 10,
-          letterSpacing: '0.02em',
-        }}>
-          In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
-          <br /><br />
-          With all my love,
-          <br />
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-            <LuSparkle style={{ marginRight: '0.3rem' }} />
-            Always.
-            <LuSparkle style={{ marginLeft: '0.3rem' }} />
-          </span>
-        </p>
-      </div>
-    </div>
-  );
-});
-
-// ─── COMPONENT: ENDING SECTION ───
-const EndingSection = React.forwardRef(({ showEnding, onCelebrate }, ref) => {
-  return (
-    <div ref={ref} style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: '3.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '1.5rem' }}>
-        <FaHeart />
-      </div>
-      <h2 style={{ fontSize: 'clamp(3rem, 8vw, 5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.85)' }}>
-        Thank You
-      </h2>
-      <p style={{ fontSize: '0.85rem', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.25)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
-        <LuSparkle style={{ marginRight: '0.5rem' }} />
-        For being you
-        <LuSparkle style={{ marginLeft: '0.5rem' }} />
-      </p>
-      <button onClick={onCelebrate} className="btn-outline" style={{ marginTop: '2.5rem', fontSize: '0.7rem' }}>
-        <HiSparkles style={{ marginRight: '0.5rem' }} />
-        Celebrate
-      </button>
-      {showEnding && (
-        <div style={{ marginTop: '3rem' }}>
-          <div style={{ fontSize: '5rem', color: 'rgba(255,255,255,0.15)', animation: 'pulse 2s infinite' }}>
-            <FaHeart />
-          </div>
-          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300, marginTop: '1.5rem' }}>
-            <LuSparkle style={{ marginRight: '0.5rem' }} />
-            Forever and always
-            <LuSparkle style={{ marginLeft: '0.5rem' }} />
+      ),
+    },
+    {
+      front: (
+        <div style={styles.pageContent}>
+          <FaStar style={styles.iconMedium} />
+          <h3 style={styles.pageSubtitle}>Untuk Syafa yang Luar Biasa</h3>
+          <p style={styles.pageText}>
+            Di hari ulang tahunmu ini, aku ingin mengucapkan selamat atas bertambahnya usiamu. 
+            Semoga setiap langkahmu selalu diterangi kebahagiaan.
           </p>
         </div>
-      )}
-    </div>
-  );
-});
-
-// ─── COMPONENT HELPER ───
-function PageHeader({ icon, title }) {
-  return (
-    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-      <div style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.25)', marginBottom: '0.75rem' }}>
-        {icon}
-      </div>
-      <h2 style={{ fontSize: '0.7rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', fontWeight: 300 }}>
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-// ─── MAIN COMPONENT ───
-export default function Ultah() {
-  // ── State ──
-  const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [countdownActive, setCountdownActive] = useState(true);
-  const [showSurprise, setShowSurprise] = useState(false);
-  const [galleryImages] = useState([
-    'https://picsum.photos/id/1/600/800',
-    'https://picsum.photos/id/26/800/600',
-    'https://picsum.photos/id/42/600/800',
-    'https://picsum.photos/id/64/800/600',
-    'https://picsum.photos/id/78/600/800',
-    'https://picsum.photos/id/91/800/600',
-  ]);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxSrc, setLightboxSrc] = useState('');
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [cakeBlown, setCakeBlown] = useState(false);
-  const [giftOpen, setGiftOpen] = useState(false);
-  const [showEnding, setShowEnding] = useState(false);
-  const [micActive, setMicActive] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-
-  // ── Refs ──
-  const heroRef = useRef(null);
-  const letterRef = useRef(null);
-  const timelineRef = useRef(null);
-  const galleryRef = useRef(null);
-  const reasonsRef = useRef(null);
-  const wishesRef = useRef(null);
-  const cakeRef = useRef(null);
-  const giftRef = useRef(null);
-  const finalRef = useRef(null);
-  const endingRef = useRef(null);
-  const typewriterRef = useRef(null);
-  const particlesCanvas = useRef(null);
-  const confettiCanvas = useRef(null);
-  const fireworksCanvas = useRef(null);
-  const containerRef = useRef(null);
-
-  // ── Total Pages ──
-  const totalPages = 12;
-
-  // ── Navigasi ──
-  const goToNextPage = useCallback(() => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(prev => prev + 1);
-      // Scroll ke container, bukan ke home
-      if (containerRef.current) {
-        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  }, [currentPage]);
-
-  // ── PARTIKEL ──
-  useEffect(() => {
-    const canvas = particlesCanvas.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let w, h;
-    const particles = [];
-
-    const resize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    for (let i = 0; i < 70; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.12,
-        vy: (Math.random() - 0.5) * 0.12,
-        r: 1 + Math.random() * 2.5,
-        o: 0.15 + Math.random() * 0.35,
-      });
-    }
-
-    let frame;
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = w;
-        if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h;
-        if (p.y > h) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${p.o})`;
-        ctx.fill();
-      }
-      frame = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  // ── CONFETTI ──
-  const fireConfetti = useCallback(() => {
-    const canvas = confettiCanvas.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = window.innerWidth;
-    const h = canvas.height = window.innerHeight;
-
-    const pieces = [];
-    for (let i = 0; i < 180; i++) {
-      const isCircle = Math.random() > 0.6;
-      pieces.push({
-        x: w / 2 + (Math.random() - 0.5) * 80,
-        y: h / 2 + (Math.random() - 0.5) * 60,
-        vx: (Math.random() - 0.5) * 18,
-        vy: -Math.random() * 20 - 4,
-        r: 3 + Math.random() * 6,
-        size: 4 + Math.random() * 10,
-        rot: Math.random() * 360,
-        rotSpeed: (Math.random() - 0.5) * 12,
-        life: 1,
-        decay: 0.002 + Math.random() * 0.006,
-        isCircle,
-        color: 150 + Math.floor(Math.random() * 105),
-      });
-    }
-
-    let frame;
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      let alive = false;
-      for (const p of pieces) {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.25;
-        p.rot += p.rotSpeed;
-        p.life -= p.decay;
-        if (p.life <= 0) continue;
-        alive = true;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rot * Math.PI) / 180);
-        ctx.globalAlpha = p.life * 0.9;
-        const c = p.color;
-        ctx.fillStyle = `rgb(${c},${c},${c})`;
-        if (p.isCircle) {
-          ctx.beginPath();
-          ctx.arc(0, 0, p.r * p.life, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-        }
-        ctx.restore();
-      }
-      if (alive) {
-        frame = requestAnimationFrame(draw);
-      } else {
-        ctx.clearRect(0, 0, w, h);
-      }
-    };
-    draw();
-
-    setTimeout(() => {
-      if (frame) cancelAnimationFrame(frame);
-      ctx.clearRect(0, 0, w, h);
-    }, 5000);
-  }, []);
-
-  // ── FIREWORKS ──
-  const burstFirework = useCallback((cx, cy) => {
-    const canvas = fireworksCanvas.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = window.innerWidth;
-    const h = canvas.height = window.innerHeight;
-
-    const count = 80 + Math.floor(Math.random() * 60);
-    const particles = [];
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 8;
-      particles.push({
-        x: cx,
-        y: cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life: 1,
-        decay: 0.006 + Math.random() * 0.014,
-        r: 2 + Math.random() * 4,
-      });
-    }
-
-    let frame;
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      let alive = false;
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.04;
-        p.vx *= 0.99;
-        p.vy *= 0.99;
-        p.life -= p.decay;
-        if (p.life <= 0) continue;
-        alive = true;
-        ctx.globalAlpha = p.life * 0.9;
-        ctx.fillStyle = `rgba(255,255,255,${p.life * 0.8})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowColor = 'rgba(255,255,255,0.3)';
-        ctx.shadowBlur = 20;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-      if (alive) {
-        frame = requestAnimationFrame(draw);
-      } else {
-        ctx.clearRect(0, 0, w, h);
-      }
-    };
-    draw();
-
-    setTimeout(() => {
-      if (frame) cancelAnimationFrame(frame);
-      ctx.clearRect(0, 0, w, h);
-    }, 3000);
-  }, []);
-
-  const multiBurst = useCallback((count = 6) => {
-    for (let i = 0; i < count; i++) {
-      setTimeout(() => {
-        const x = 100 + Math.random() * (window.innerWidth - 200);
-        const y = 100 + Math.random() * (window.innerHeight * 0.6);
-        burstFirework(x, y);
-      }, i * 400);
-    }
-  }, [burstFirework]);
-
-  // ── LOADING ──
-  useEffect(() => {
-    let t = 0;
-    const interval = setInterval(() => {
-      t += 1 + Math.random() * 3;
-      if (t >= 100) { 
-        t = 100; 
-        clearInterval(interval); 
-        setTimeout(() => {
-          setLoading(false);
-          setCurrentPage(1);
-        }, 400);
-      }
-      setProgress(Math.min(t, 100));
-    }, 40);
-    return () => clearInterval(interval);
-  }, []);
-
-  // ── COUNTDOWN ──
-  useEffect(() => {
-    if (!countdownActive) return;
-    const target = new Date();
-    target.setDate(target.getDate() + 1);
-    target.setHours(0, 0, 0, 0);
-
-    const tick = () => {
-      const now = new Date();
-      const diff = Math.max(0, target - now);
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setCountdown({ days: d, hours: h, minutes: m, seconds: s });
-      if (diff <= 0) {
-        setCountdownActive(false);
-      }
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [countdownActive]);
-
-  // ── GSAP Animations ──
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 2) return;
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
-      tl.fromTo('.hero-title', { opacity: 0, y: 60, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 1.6 })
-        .fromTo('.hero-sub', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2 }, '-=0.8')
-        .fromTo('.hero-icon', { opacity: 0, scale: 0.5, rotate: -15 }, { opacity: 1, scale: 1, rotate: 0, duration: 1.4 }, '-=1')
-        .fromTo('.hero-arrow', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1, repeat: -1, yoyo: true, ease: 'sine.inOut' }, '-=0.6');
-    }, heroRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 3) return;
-    const text = 'For you, a letter woven from the quietest hours, where every word is a candle lit just for you.';
-    let index = 0;
-    const el = typewriterRef.current;
-    if (!el) return;
-    el.textContent = '';
-    const cursor = document.createElement('span');
-    cursor.className = 'typewriter-cursor';
-    el.appendChild(cursor);
-
-    const type = () => {
-      if (index < text.length) {
-        const char = text[index];
-        const node = document.createTextNode(char);
-        el.insertBefore(node, cursor);
-        index++;
-        setTimeout(type, 28 + Math.random() * 18);
-      } else {
-        gsap.to(cursor, { opacity: 0, duration: 0.6, delay: 1 });
-      }
-    };
-    setTimeout(type, 600);
-
-    gsap.to(letterRef.current, {
-      y: -8,
-      duration: 3.5,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-    });
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 4) return;
-    const ctx = gsap.context(() => {
-      const items = timelineRef.current?.querySelectorAll('.timeline-item');
-      if (!items) return;
-      gsap.fromTo(items, { opacity: 0, y: 60, scale: 0.96 }, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 1,
-        stagger: 0.25,
-      });
-    }, timelineRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 5) return;
-    const ctx = gsap.context(() => {
-      const items = galleryRef.current?.querySelectorAll('.masonry-item');
-      if (!items) return;
-      gsap.fromTo(items, { opacity: 0, y: 50, scale: 0.94 }, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.9,
-        stagger: 0.12,
-      });
-    }, galleryRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 6) return;
-    const ctx = gsap.context(() => {
-      const cards = reasonsRef.current?.querySelectorAll('.reason-card');
-      if (!cards) return;
-      gsap.fromTo(cards, { opacity: 0, y: 50, rotateX: 8 }, {
-        opacity: 1,
-        y: 0,
-        rotateX: 0,
-        duration: 1,
-        stagger: 0.18,
-      });
-      cards.forEach((el, i) => {
-        gsap.to(el, {
-          y: -6 + (i % 3) * 2,
-          duration: 2.4 + i * 0.2,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: i * 0.15,
-        });
-      });
-    }, reasonsRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 7) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(wishesRef.current, { opacity: 0, y: 40 }, {
-        opacity: 1,
-        y: 0,
-        duration: 1.4,
-      });
-    }, wishesRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 8) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(cakeRef.current, { opacity: 0, scale: 0.92, y: 30 }, {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-      });
-    }, cakeRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 9) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(giftRef.current, { opacity: 0, y: 40, scale: 0.94 }, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 1.2,
-      });
-    }, giftRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (loading || !showSurprise || currentPage !== 10) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(finalRef.current, { opacity: 0, y: 40 }, {
-        opacity: 1,
-        y: 0,
-        duration: 1.4,
-      });
-    }, finalRef);
-    return () => ctx.revert();
-  }, [loading, showSurprise, currentPage]);
-
-  useEffect(() => {
-    if (!showEnding || currentPage !== 11) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(endingRef.current, { opacity: 0, scale: 0.96 }, {
-        opacity: 1,
-        scale: 1,
-        duration: 2,
-        ease: 'power3.out',
-      });
-      setTimeout(() => multiBurst(8), 600);
-      setTimeout(() => fireConfetti(), 1200);
-    }, endingRef);
-    return () => ctx.revert();
-  }, [showEnding, multiBurst, fireConfetti, currentPage]);
-
-  // ── BLOW DETECTION ──
-  const startBlowDetection = useCallback(() => {
-    if (cakeBlown || micActive) return;
-    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-      .then(stream => {
-        setMicActive(true);
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioCtx.createAnalyser();
-        const source = audioCtx.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.fftSize = 256;
-        const data = new Uint8Array(analyser.fftSize);
-
-        const checkBlow = () => {
-          if (cakeBlown) return;
-          analyser.getByteFrequencyData(data);
-          let sum = 0;
-          for (let i = 0; i < data.length; i++) sum += data[i];
-          const avg = sum / data.length;
-          if (avg > 35) {
-            setCakeBlown(true);
-            setMicActive(false);
-            audioCtx.close();
-            stream.getTracks().forEach(t => t.stop());
-            fireConfetti();
-            setTimeout(() => multiBurst(4), 400);
-
-            const flame = document.querySelector('.flame');
-            if (flame) {
-              flame.classList.add('flame-extinguished');
-              const smokeCanvas = document.createElement('canvas');
-              smokeCanvas.style.position = 'fixed';
-              smokeCanvas.style.inset = '0';
-              smokeCanvas.style.pointerEvents = 'none';
-              smokeCanvas.style.zIndex = '9997';
-              document.body.appendChild(smokeCanvas);
-              const ctx = smokeCanvas.getContext('2d');
-              const w = smokeCanvas.width = window.innerWidth;
-              const h = smokeCanvas.height = window.innerHeight;
-              const particles = [];
-              for (let i = 0; i < 40; i++) {
-                particles.push({
-                  x: w / 2 + (Math.random() - 0.5) * 120,
-                  y: h / 2 + (Math.random() - 0.5) * 80,
-                  vx: (Math.random() - 0.5) * 3,
-                  vy: -Math.random() * 2 - 1,
-                  r: 20 + Math.random() * 50,
-                  o: 0.3 + Math.random() * 0.3,
-                  life: 1,
-                  decay: 0.004 + Math.random() * 0.006,
-                });
-              }
-              let smokeFrame;
-              const drawSmoke = () => {
-                ctx.clearRect(0, 0, w, h);
-                let alive = false;
-                for (const p of particles) {
-                  p.x += p.vx + (Math.random() - 0.5) * 0.6;
-                  p.y += p.vy;
-                  p.vy -= 0.02;
-                  p.r += 0.6;
-                  p.life -= p.decay;
-                  if (p.life <= 0) continue;
-                  alive = true;
-                  ctx.globalAlpha = p.life * p.o * 0.6;
-                  ctx.fillStyle = '#fff';
-                  ctx.beginPath();
-                  ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
-                  ctx.fill();
-                }
-                if (alive) {
-                  smokeFrame = requestAnimationFrame(drawSmoke);
-                } else {
-                  ctx.clearRect(0, 0, w, h);
-                  smokeCanvas.remove();
-                }
-              };
-              drawSmoke();
-              setTimeout(() => {
-                if (smokeFrame) cancelAnimationFrame(smokeFrame);
-                smokeCanvas.remove();
-              }, 5000);
-            }
-            return;
-          }
-          if (!cakeBlown) {
-            requestAnimationFrame(checkBlow);
-          }
-        };
-        checkBlow();
-      })
-      .catch(() => {
-        alert('Microphone access denied. Click the candle to blow it out!');
-        setMicActive(false);
-      });
-  }, [cakeBlown, micActive, fireConfetti, multiBurst]);
-
-  // ── SURPRISE REVEAL ──
-  const handleSurpriseReveal = useCallback(() => {
-    setShowSurprise(true);
-    setCountdownActive(false);
-    setCurrentPage(2);
-    setTimeout(() => {
-      if (containerRef.current) {
-        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
-  }, []);
-
-  // ── RENDER ──
-  return (
-    <>
-      {/* Canvas Background */}
-      <canvas ref={particlesCanvas} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
-      <canvas ref={confettiCanvas} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9998 }} />
-      <canvas ref={fireworksCanvas} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9997 }} />
-
-      {/* Lightbox */}
-      {lightboxOpen && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 9999,
-          background: 'rgba(0,0,0,0.92)',
-          backdropFilter: 'blur(20px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem',
-        }} onClick={() => { setLightboxOpen(false); setLightboxSrc(''); }}>
-          <img src={lightboxSrc} alt="Enlarged" style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '1.5rem', objectFit: 'contain' }} />
+      ),
+    },
+    {
+      front: (
+        <div style={styles.pageContent}>
+          <FaHeart style={styles.iconMedium} />
+          <h3 style={styles.pageSubtitle}>Terima Kasih Sudah Ada</h3>
+          <p style={styles.pageText}>
+            Kehadiranmu membawa warna dan kehangatan bagi orang-orang di sekitarmu. 
+            Tetaplah menjadi pribadi yang indah seperti sekarang.
+          </p>
         </div>
-      )}
+      ),
+    },
+    {
+      front: (
+        <div style={styles.pageContent}>
+          <FaGift style={styles.iconMedium} />
+          <h3 style={styles.pageSubtitle}>Doa Terbaik Untukmu</h3>
+          <p style={styles.pageText}>
+            Semoga Allah senantiasa melimpahkan rahmat-Nya, memberikan kesehatan, 
+            kesuksesan, dan kebahagiaan yang tak terhingga. Aamiin.
+          </p>
+        </div>
+      ),
+    },
+    {
+      front: (
+        <div style={styles.pageContent}>
+          <FaSparkles style={styles.iconLarge} />
+          <h3 style={styles.pageSubtitle}>Selamat Ulang Tahun, Syafa!</h3>
+          <p style={styles.pageText}>
+            Terus bersinar dan jadilah inspirasi bagi banyak orang. 
+            Kamu pantas mendapatkan semua hal baik di dunia ini!
+          </p>
+          <FaMusic style={styles.iconSmall} />
+        </div>
+      ),
+    },
+  ];
 
-      {/* Main Container */}
-      <div ref={containerRef} style={{
-        minHeight: '100vh',
-        background: '#000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem 1.5rem',
-        position: 'relative',
-      }}>
-        <div style={{ width: '100%', maxWidth: '1200px' }}>
+  const handleSwipe = (direction) => {
+    if (direction === 'next' && currentPage < pages.length - 1) {
+      setCurrentPage(currentPage + 1);
+    } else if (direction === 'prev' && currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
-          {/* Page Render */}
-          {loading && <LoadingScreen progress={progress} />}
-          
-          {!loading && !showSurprise && currentPage === 1 && (
-            <CountdownSection countdown={countdown} onSurpriseReveal={handleSurpriseReveal} />
-          )}
+  // Touch handling untuk swipe
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
-          {showSurprise && currentPage === 2 && <HeroSection ref={heroRef} />}
-          {showSurprise && currentPage === 3 && <LetterIntroduction ref={letterRef} typewriterRef={typewriterRef} />}
-          {showSurprise && currentPage === 4 && <MemoryTimeline ref={timelineRef} />}
-          {showSurprise && currentPage === 5 && <GallerySection ref={galleryRef} images={galleryImages} onImageClick={(src) => { setLightboxSrc(src); setLightboxOpen(true); }} />}
-          {showSurprise && currentPage === 6 && <ReasonsSection ref={reasonsRef} />}
-          {showSurprise && currentPage === 7 && <BirthdayWishes ref={wishesRef} />}
-          {showSurprise && currentPage === 8 && <CakeSection ref={cakeRef} cakeBlown={cakeBlown} micActive={micActive} onBlow={startBlowDetection} />}
-          {showSurprise && currentPage === 9 && <GiftSection ref={giftRef} giftOpen={giftOpen} onGiftOpen={() => { if (!giftOpen) { setGiftOpen(true); fireConfetti(); setTimeout(() => multiBurst(3), 500); } }} />}
-          {showSurprise && currentPage === 10 && <FinalLetter ref={finalRef} />}
-          {showSurprise && currentPage === 11 && <EndingSection ref={endingRef} showEnding={showEnding} onCelebrate={() => { setShowEnding(true); }} />}
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
 
-          {/* Continue Button */}
-          {!loading && currentPage > 0 && currentPage < totalPages - 1 && (
-            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-              <button onClick={goToNextPage} className="btn-outline" style={{ padding: '0.8rem 3rem' }}>
-                Continue <LuArrowDown style={{ marginLeft: '0.6rem', fontSize: '0.8rem' }} />
-              </button>
-              <p style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.1)', marginTop: '0.75rem', letterSpacing: '0.15em' }}>
-                {currentPage} of {totalPages - 1}
-              </p>
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      handleSwipe('next');
+    } else if (isRightSwipe) {
+      handleSwipe('prev');
+    }
+  };
+
+  // Render Intro Cinematic
+  if (currentPhase === 'intro') {
+    return (
+      <div style={styles.container}>
+        <div style={styles.introContainer}>
+          <img
+            src={photos[currentPhotoIndex]}
+            alt={`Photo ${currentPhotoIndex + 1}`}
+            style={styles.introPhoto}
+          />
+          <div style={styles.overlay}>
+            <FaCamera style={styles.introIcon} />
+            <p style={styles.introText}>Dipersembahkan oleh...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render Text Phase
+  if (currentPhase === 'text') {
+    return (
+      <div style={styles.container}>
+        <div style={styles.textContainer}>
+          <FaStar style={styles.textIcon} />
+          <h1 style={styles.mainTitle}>Untuk Syafa</h1>
+          <p style={styles.subtitle}>Sebuah kejutan menantimu...</p>
+          <FaSparkles style={styles.textIcon} />
+        </div>
+      </div>
+    );
+  }
+
+  // Render Card Book Phase
+  return (
+    <div style={styles.container}>
+      <div 
+        style={styles.bookContainer}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* Halaman kiri */}
+        {currentPage > 0 && (
+          <div style={styles.pageLeft}>
+            <div style={styles.pageInner}>
+              {pages[currentPage - 1].front}
             </div>
-          )}
+          </div>
+        )}
 
+        {/* Halaman kanan */}
+        <div style={styles.pageRight}>
+          <div style={styles.pageInner}>
+            {pages[currentPage].front}
+          </div>
+          
+          {/* Navigasi tanpa tombol - hanya indikator */}
+          <div style={styles.navigation}>
+            {currentPage > 0 && (
+              <FaArrowLeft 
+                style={styles.navIcon} 
+                onClick={() => handleSwipe('prev')}
+              />
+            )}
+            
+            <div style={styles.pageIndicator}>
+              {pages.map((_, index) => (
+                <span
+                  key={index}
+                  style={{
+                    ...styles.dot,
+                    backgroundColor: index === currentPage ? '#ff6b9d' : '#ddd'
+                  }}
+                />
+              ))}
+            </div>
+
+            {currentPage < pages.length - 1 && (
+              <FaArrowRight 
+                style={styles.navIcon} 
+                onClick={() => handleSwipe('next')}
+              />
+            )}
+          </div>
+
+          <p style={styles.swipeHintBottom}>
+            {currentPage < pages.length - 1 ? 'Swipe untuk melanjutkan' : '🎉 Selesai!'}
+          </p>
         </div>
+
+        {/* Efek lipatan buku */}
+        <div style={styles.bookSpine}></div>
       </div>
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        @keyframes flicker {
-          0% { transform: scale(1) rotate(-2deg); }
-          100% { transform: scale(1.08, 0.92) rotate(2deg); }
-        }
-        .typewriter-cursor {
-          display: inline-block;
-          width: 2px;
-          height: 1em;
-          background: #fff;
-          margin-left: 2px;
-          vertical-align: text-bottom;
-          animation: blink 0.8s step-end infinite;
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .btn-outline {
-          display: inline-block;
-          padding: 0.75rem 2.4rem;
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 99px;
-          color: #fff;
-          font-size: 0.8rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-          backdrop-filter: blur(8px);
-        }
-        .btn-outline:hover {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.4);
-          transform: scale(1.02);
-          box-shadow: 0 0 40px rgba(255,255,255,0.04);
-        }
-        .glass {
-          background: rgba(255,255,255,0.03);
-          backdrop-filter: blur(12px) saturate(1.2);
-          -webkit-backdrop-filter: blur(12px) saturate(1.2);
-          border: 1px solid rgba(255,255,255,0.06);
-        }
-        .glass-light {
-          background: rgba(255,255,255,0.05);
-          backdrop-filter: blur(16px) saturate(1.4);
-          -webkit-backdrop-filter: blur(16px) saturate(1.4);
-          border: 1px solid rgba(255,255,255,0.08);
-        }
-        .masonry-item {
-          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .masonry-item:hover {
-          transform: scale(1.02);
-        }
-        .masonry-item img {
-          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .masonry-item:hover img {
-          transform: scale(1.06);
-        }
-        .flame-extinguished {
-          opacity: 0 !important;
-          transform: scale(0.2) translateY(20px) !important;
-          filter: blur(8px) !important;
-        }
-        .reason-card:hover {
-          transform: translateY(-4px) !important;
-          border-color: rgba(255,255,255,0.15) !important;
-        }
-      `}</style>
-    </>
+      {/* Dekorasi */}
+      <div style={styles.decoration}>
+        <FaStar style={styles.decorIcon} />
+      </div>
+      <div style={{...styles.decoration, left: '15%', top: '10%'}}>
+        <FaHeart style={styles.decorIcon} />
+      </div>
+      <div style={{...styles.decoration, right: '15%', top: '15%'}}>
+        <FaGift style={styles.decorIcon} />
+      </div>
+    </div>
   );
-}
+};
+
+const styles = {
+  container: {
+    width: '100vw',
+    height: '100vh',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  
+  // Intro styles
+  introContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  introPhoto: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    animation: 'fadeIn 0.2s ease-in-out',
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: '20%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: '25px 50px',
+    borderRadius: '15px',
+    textAlign: 'center',
+  },
+  introIcon: {
+    fontSize: '40px',
+    color: 'white',
+    marginBottom: '10px',
+  },
+  introText: {
+    color: 'white',
+    fontSize: '26px',
+    fontWeight: 'bold',
+    margin: 0,
+  },
+  
+  // Text phase styles
+  textContainer: {
+    textAlign: 'center',
+    color: 'white',
+    animation: 'fadeIn 1s ease-in-out',
+  },
+  textIcon: {
+    fontSize: '50px',
+    margin: '20px',
+    animation: 'pulse 2s infinite',
+  },
+  mainTitle: {
+    fontSize: '56px',
+    marginBottom: '20px',
+    textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: '26px',
+    opacity: 0.95,
+    fontStyle: 'italic',
+  },
+  
+  // Book styles
+  bookContainer: {
+    position: 'relative',
+    width: '90%',
+    maxWidth: '650px',
+    height: '75vh',
+    display: 'flex',
+    perspective: '1500px',
+  },
+  pageLeft: {
+    flex: 1,
+    backgroundColor: '#fffef5',
+    borderRadius: '10px 0 0 10px',
+    boxShadow: 'inset -10px 0 20px rgba(0,0,0,0.1)',
+    marginRight: '-5px',
+    zIndex: 1,
+    border: '2px solid #e0e0e0',
+  },
+  pageRight: {
+    flex: 1,
+    backgroundColor: '#fffef5',
+    borderRadius: '0 10px 10px 0',
+    boxShadow: '10px 10px 30px rgba(0,0,0,0.2), inset 10px 0 20px rgba(0,0,0,0.1)',
+    marginLeft: '-5px',
+    zIndex: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '40px 30px',
+    position: 'relative',
+    border: '2px solid #e0e0e0',
+  },
+  pageInner: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bookSpine: {
+    position: 'absolute',
+    left: '50%',
+    top: 0,
+    bottom: 0,
+    width: '12px',
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    transform: 'translateX(-50%)',
+    zIndex: 3,
+    boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+  },
+  pageContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  iconLarge: {
+    fontSize: '60px',
+    color: '#764ba2',
+    marginBottom: '20px',
+  },
+  iconMedium: {
+    fontSize: '45px',
+    color: '#667eea',
+    marginBottom: '15px',
+  },
+  iconSmall: {
+    fontSize: '30px',
+    color: '#ff6b9d',
+    marginTop: '15px',
+  },
+  pageTitle: {
+    fontSize: '36px',
+    color: '#764ba2',
+    marginBottom: '20px',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  pageSubtitle: {
+    fontSize: '26px',
+    color: '#667eea',
+    marginBottom: '20px',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  pageText: {
+    fontSize: '18px',
+    color: '#555',
+    textAlign: 'center',
+    lineHeight: '1.8',
+    paddingHorizontal: '10px',
+  },
+  navigation: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+    marginTop: '20px',
+  },
+  navIcon: {
+    fontSize: '24px',
+    color: '#764ba2',
+    cursor: 'pointer',
+    transition: 'transform 0.2s',
+  },
+  pageIndicator: {
+    display: 'flex',
+    gap: '10px',
+  },
+  dot: {
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+    transition: 'background-color 0.3s',
+  },
+  swipeHint: {
+    marginTop: '25px',
+    fontSize: '16px',
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  swipeHintBottom: {
+    fontSize: '14px',
+    color: '#aaa',
+    fontStyle: 'italic',
+    marginTop: '10px',
+  },
+  
+  // Decorations
+  decoration: {
+    position: 'absolute',
+    fontSize: '35px',
+    animation: 'float 3s ease-in-out infinite',
+  },
+  decorIcon: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: '35px',
+  },
+};
+
+// Tambahkan keyframes untuk animasi
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+`;
+document.head.appendChild(styleSheet);
+
+export default Ultah;
+      
