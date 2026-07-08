@@ -9,13 +9,67 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Ultah() {
   const [showMain, setShowMain] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(true);
   const container = useRef(null);
+
+  // Target date: 22 Januari 2027
+  const targetDate = new Date('2027-01-22T00:00:00').getTime();
+
+  // Countdown logic
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+  const [isTimeUp, setIsTimeUp] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        setIsTimeUp(true);
+        setShowCountdown(false);
+        clearInterval(interval);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  // If time is up, show intro screen (envelope) again
+  if (isTimeUp && !showMain) {
+    return (
+      <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
+        <Starfield />
+        <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={true} />
+        <GlobalStyles />
+      </div>
+    );
+  }
 
   return (
     <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
       <Starfield />
       {!showMain ? (
-        <IntroScreen onOpen={() => setShowMain(true)} />
+        showCountdown ? (
+          <CountdownScreen 
+            timeLeft={timeLeft} 
+            onStart={() => setShowCountdown(false)} 
+          />
+        ) : (
+          <IntroScreen onOpen={() => setShowMain(true)} isTimeUp={false} />
+        )
       ) : (
         <MainContent onReplay={() => setShowMain(false)} />
       )}
@@ -24,56 +78,69 @@ export default function Ultah() {
   );
 }
 
-/* ============================= STARFIELD ============================= */
-function Starfield() {
-  const canvasRef = useRef(null);
+/* ============================= COUNTDOWN SCREEN ============================= */
+function CountdownScreen({ timeLeft, onStart }) {
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-    let raf;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      stars = Array.from({ length: Math.min(120, Math.floor(window.innerWidth / 10)) }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.4 + 0.3,
-        s: Math.random() * 0.02 + 0.005,
-        a: Math.random() * Math.PI * 2,
-      }));
-    }
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#e8e8e8';
-      stars.forEach((st) => {
-        st.a += st.s;
-        const op = reduceMotion ? 0.5 : ((Math.sin(st.a) + 1) / 2) * 0.7 + 0.15;
-        ctx.globalAlpha = op;
-        ctx.beginPath();
-        ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalAlpha = 1;
-      raf = requestAnimationFrame(draw);
-    }
-    resize();
-    draw();
-    window.addEventListener('resize', resize);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
-    };
+    setIsVisible(true);
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
+  return (
+    <div 
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+      style={{ background: 'radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%)' }}
+    >
+      <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <span className="font-caveat text-[#999999] text-2xl mb-4 block">Menuju 22 Januari 2027</span>
+        
+        <div className="flex gap-4 md:gap-8 justify-center items-center mb-8">
+          <div className="text-center">
+            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
+              {String(timeLeft.days).padStart(2, '0')}
+            </div>
+            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Hari</div>
+          </div>
+          <span className="text-4xl md:text-6xl text-[#666666] font-light">:</span>
+          <div className="text-center">
+            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
+              {String(timeLeft.hours).padStart(2, '0')}
+            </div>
+            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Jam</div>
+          </div>
+          <span className="text-4xl md:text-6xl text-[#666666] font-light">:</span>
+          <div className="text-center">
+            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
+              {String(timeLeft.minutes).padStart(2, '0')}
+            </div>
+            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Menit</div>
+          </div>
+          <span className="text-4xl md:text-6xl text-[#666666] font-light">:</span>
+          <div className="text-center">
+            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
+              {String(timeLeft.seconds).padStart(2, '0')}
+            </div>
+            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Detik</div>
+          </div>
+        </div>
+
+        <p className="text-[#888888] text-sm max-w-md mx-auto mb-8">
+          Menunggu hari spesial untuk Syafa ✨
+        </p>
+
+        <button
+          onClick={onStart}
+          className="px-8 py-3.5 rounded-full border border-[#666666]/40 text-sm tracking-[0.15em] uppercase transition-all duration-500 hover:bg-[#666666] hover:text-[#0a0a0a] text-[#e8e8e8]"
+        >
+          Buka sekarang
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ============================= INTRO / ENVELOPE ============================= */
-function IntroScreen({ onOpen }) {
+function IntroScreen({ onOpen, isTimeUp }) {
   const introRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -93,7 +160,9 @@ function IntroScreen({ onOpen }) {
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
       style={{ background: 'radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%)' }}
     >
-      <div className="intro-label font-caveat text-[#999999] text-2xl mb-8">untuk Syafa</div>
+      <div className="intro-label font-caveat text-[#999999] text-2xl mb-8">
+        {isTimeUp ? '🎉 Selamat! Waktunya telah tiba! 🎉' : 'untuk Syafa'}
+      </div>
 
       <section style={{ 
         textAlign: 'center', 
@@ -108,11 +177,11 @@ function IntroScreen({ onOpen }) {
           className={`envelope ${isOpen ? 'open' : ''}`}
           onClick={handleToggle}
           style={{
-            animation: 'spin 10s infinite linear',
+            animation: isTimeUp ? 'spin 10s infinite linear, pulse 1.5s ease-in-out infinite' : 'spin 10s infinite linear',
             backgroundColor: '#ffffff',
             width: '400px',
             height: '225px',
-            boxShadow: '-10px 10px 20px 0px rgba(0, 0, 0, 0.25)',
+            boxShadow: isTimeUp ? '0 0 40px rgba(255, 215, 0, 0.3)' : '-10px 10px 20px 0px rgba(0, 0, 0, 0.25)',
             margin: '0 auto',
             position: 'relative',
             transformStyle: 'preserve-3d',
@@ -240,12 +309,19 @@ function IntroScreen({ onOpen }) {
         </div>
       </section>
 
-      <div className="intro-hint mt-6 text-xs tracking-[0.28em] uppercase text-[#888888]">ketuk amplop untuk membuka</div>
+      <div className="intro-hint mt-6 text-xs tracking-[0.28em] uppercase text-[#888888]">
+        {isTimeUp ? '✨ Klik amplop untuk membuka kejutan! ✨' : 'ketuk amplop untuk membuka'}
+      </div>
 
       <style>{`
         @keyframes spin {
           0% { transform: rotateY(0deg); }
           100% { transform: rotateY(360deg); }
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: rotateY(0deg) scale(1); }
+          50% { transform: rotateY(180deg) scale(1.05); }
         }
 
         /* Responsive styles */
