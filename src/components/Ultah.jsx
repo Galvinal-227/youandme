@@ -125,7 +125,7 @@ function CountdownScreen({ timeLeft, isTimeUp }) {
         </div>
 
         <p className="text-[#888888] text-sm max-w-md mx-auto">
-          Menunggu hari spesial untuk Syafa ✨
+          Waiting...
         </p>
       </div>
     </div>
