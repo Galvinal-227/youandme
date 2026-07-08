@@ -7,9 +7,9 @@ import {
   FaMusic,
   FaCamera,
   FaArrowLeft,
-  FaArrowRight,
-  FaSparkles
+  FaArrowRight
 } from 'react-icons/fa';
+import { LuSparkles } from "react-icons/lu";
 
 const Ultah = () => {
   const [currentPhase, setCurrentPhase] = useState('intro'); // intro, text, card
@@ -187,7 +187,7 @@ const Ultah = () => {
           <FaStar style={styles.textIcon} />
           <h1 style={styles.mainTitle}>Untuk Syafa</h1>
           <p style={styles.subtitle}>Sebuah kejutan menantimu...</p>
-          <FaSparkles style={styles.textIcon} />
+          <LuSparkles style={styles.textIcon} />
         </div>
       </div>
     );
