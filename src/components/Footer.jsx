@@ -4,7 +4,7 @@ import {
   FaHandPaper, FaList, FaCheck, FaTicketAlt, FaBrain,
   FaHeart, FaRegHeart, FaStar, FaRedo, FaTrophy, FaClock,
   FaGem, FaSun, FaMoon, FaCloud, FaLeaf, FaFeather,
-  FaDove, FaRing, FaStarHalfAlt, FaRegStar, FaSmile, FaFrown, FaMeh
+  FaDove, FaRing, FaStarHalfAlt, FaRegStar, FaSmile, FaFrown, FaMeh, FaDiscord
 } from 'react-icons/fa';
 import { 
   GiSelfLove, GiRose, GiLovers, 
@@ -585,6 +585,9 @@ function Footer() {
               </a>
               <a href="https://www.tiktok.com/@vinsyaaaaaaaaaa227" className="text-white/30 hover:text-white transition-all duration-300">
                 <FaTiktok size={18} />
+              </a>
+              <a href="https://discord.gg/szgGgndVr" className="text-white/30 hover:text-white transition-all duration-300">
+                <FaDiscord size={18} />
               </a>
             </div>
           </div>
