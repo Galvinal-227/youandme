@@ -1,812 +1,1312 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-import Lenis from '@studio-freight/lenis';
-import { FaHeart } from 'react-icons/fa';
 
+// Ikon dari react-icons
+import { BsCake2Fill, BsImages, BsCalendarHeart } from 'react-icons/bs';
+import { FaHeart, FaGift, FaStar } from 'react-icons/fa6';
+import { IoMail, IoMusicalNotes } from 'react-icons/io5';
+import { HiSparkles } from 'react-icons/hi2';
+import { LuArrowDown, LuClock3 } from 'react-icons/lu';
+
+// Daftarkan plugin GSAP
 gsap.registerPlugin(ScrollTrigger);
 
-/* ============================= STARFIELD ============================= */
-function Starfield() {
-  const canvasRef = useRef(null);
+// ─── KOMPONEN UTAMA ───
+export default function Ultah() {
+  // ── State ──
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [countdownActive, setCountdownActive] = useState(true);
+  const [countdownDone, setCountdownDone] = useState(false);
+  const [showSurprise, setShowSurprise] = useState(false);
+  const [typewriterDone, setTypewriterDone] = useState(false);
+  const [galleryImages] = useState([
+    'https://picsum.photos/id/1/600/800',
+    'https://picsum.photos/id/26/800/600',
+    'https://picsum.photos/id/42/600/800',
+    'https://picsum.photos/id/64/800/600',
+    'https://picsum.photos/id/78/600/800',
+    'https://picsum.photos/id/91/800/600',
+  ]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState('');
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [cakeBlown, setCakeBlown] = useState(false);
+  const [giftOpen, setGiftOpen] = useState(false);
+  const [showEnding, setShowEnding] = useState(false);
+  const [micActive, setMicActive] = useState(false);
 
+  // ── Ref untuk DOM dan animasi ──
+  const heroRef = useRef(null);
+  const letterRef = useRef(null);
+  const timelineRef = useRef(null);
+  const galleryRef = useRef(null);
+  const reasonsRef = useRef(null);
+  const wishesRef = useRef(null);
+  const cakeRef = useRef(null);
+  const giftRef = useRef(null);
+  const finalRef = useRef(null);
+  const endingRef = useRef(null);
+  const countdownRef = useRef(null);
+  const typewriterRef = useRef(null);
+  const particlesCanvas = useRef(null);
+  const confettiCanvas = useRef(null);
+  const fireworksCanvas = useRef(null);
+
+  // ── PARTIKEL (Canvas) ──
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = particlesCanvas.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let stars = [];
-    let raf;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w, h;
+    const particles = [];
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      stars = Array.from({ length: Math.min(120, Math.floor(window.innerWidth / 10)) }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.4 + 0.3,
-        s: Math.random() * 0.02 + 0.005,
-        a: Math.random() * Math.PI * 2,
-      }));
-    }
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#e8e8e8';
-      stars.forEach((st) => {
-        st.a += st.s;
-        const op = reduceMotion ? 0.5 : ((Math.sin(st.a) + 1) / 2) * 0.7 + 0.15;
-        ctx.globalAlpha = op;
-        ctx.beginPath();
-        ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalAlpha = 1;
-      raf = requestAnimationFrame(draw);
-    }
-    resize();
-    draw();
+    const resize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
     window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 70; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: (Math.random() - 0.5) * 0.12,
+        r: 1 + Math.random() * 2.5,
+        o: 0.15 + Math.random() * 0.35,
+      });
+    }
+
+    let frame;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${p.o})`;
+        ctx.fill();
+      }
+      frame = requestAnimationFrame(draw);
+    };
+    draw();
+
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(frame);
       window.removeEventListener('resize', resize);
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
-}
+  // ── CONFETTI ──
+  const fireConfetti = useCallback(() => {
+    const canvas = confettiCanvas.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width = window.innerWidth;
+    const h = canvas.height = window.innerHeight;
 
-/* ============================= COUNTDOWN SCREEN ============================= */
-function CountdownScreen({ timeLeft, isTimeUp }) {
-  const [isVisible, setIsVisible] = useState(false);
+    const pieces = [];
+    for (let i = 0; i < 180; i++) {
+      const isCircle = Math.random() > 0.6;
+      pieces.push({
+        x: w / 2 + (Math.random() - 0.5) * 80,
+        y: h / 2 + (Math.random() - 0.5) * 60,
+        vx: (Math.random() - 0.5) * 18,
+        vy: -Math.random() * 20 - 4,
+        r: 3 + Math.random() * 6,
+        size: 4 + Math.random() * 10,
+        rot: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 12,
+        life: 1,
+        decay: 0.002 + Math.random() * 0.006,
+        isCircle,
+        color: 150 + Math.floor(Math.random() * 105),
+      });
+    }
 
-  useEffect(() => {
-    setIsVisible(true);
+    let frame;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      let alive = false;
+      for (const p of pieces) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.25;
+        p.rot += p.rotSpeed;
+        p.life -= p.decay;
+        if (p.life <= 0) continue;
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.globalAlpha = p.life * 0.9;
+        const c = p.color;
+        ctx.fillStyle = `rgb(${c},${c},${c})`;
+        if (p.isCircle) {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.r * p.life, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        }
+        ctx.restore();
+      }
+      if (alive) {
+        frame = requestAnimationFrame(draw);
+      } else {
+        ctx.clearRect(0, 0, w, h);
+      }
+    };
+    draw();
+
+    setTimeout(() => {
+      if (frame) cancelAnimationFrame(frame);
+      ctx.clearRect(0, 0, w, h);
+    }, 5000);
   }, []);
 
-  // Jika waktu sudah habis, tampilkan pesan selamat
-  if (isTimeUp) {
-    return (
-      <div 
-        className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
-        style={{ background: 'radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%)' }}
-      >
-        <div className="text-center">
-          <div className="text-6xl mb-6">🎉</div>
-          <h1 className="font-fraunces text-4xl md:text-6xl font-bold text-[#e8e8e8] mb-4">
-            Waktunya Telah Tiba!
-          </h1>
-          <p className="text-[#888888] text-lg mb-8">
-            ️22 Januari 2027 ✨
-          </p>
-          <div className="animate-pulse text-[#666666] text-sm">
-            Mempersiapkan kejutan...
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // ── FIREWORKS ──
+  const burstFirework = useCallback((cx, cy) => {
+    const canvas = fireworksCanvas.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width = window.innerWidth;
+    const h = canvas.height = window.innerHeight;
 
-  return (
-    <div 
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
-      style={{ background: 'radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%)' }}
-    >
-      <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        <span className="font-caveat text-[#999999] text-2xl mb-4 block">Menuju 22 Januari 2027</span>
-        
-        <div className="flex gap-4 md:gap-8 justify-center items-center mb-8">
-          <div className="text-center">
-            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
-              {String(timeLeft.days).padStart(2, '0')}
-            </div>
-            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Hari</div>
-          </div>
-          <span className="text-4xl md:text-6xl text-[#666666] font-light">:</span>
-          <div className="text-center">
-            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
-              {String(timeLeft.hours).padStart(2, '0')}
-            </div>
-            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Jam</div>
-          </div>
-          <span className="text-4xl md:text-6xl text-[#666666] font-light">:</span>
-          <div className="text-center">
-            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
-              {String(timeLeft.minutes).padStart(2, '0')}
-            </div>
-            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Menit</div>
-          </div>
-          <span className="text-4xl md:text-6xl text-[#666666] font-light">:</span>
-          <div className="text-center">
-            <div className="font-fraunces text-5xl md:text-7xl font-bold text-[#e8e8e8] bg-[#1a1a1a] px-4 py-2 rounded-lg min-w-[80px] border border-[#333333]">
-              {String(timeLeft.seconds).padStart(2, '0')}
-            </div>
-            <div className="text-[#666666] text-xs uppercase tracking-wider mt-2">Detik</div>
-          </div>
-        </div>
+    const count = 80 + Math.floor(Math.random() * 60);
+    const particles = [];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 8;
+      particles.push({
+        x: cx,
+        y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.006 + Math.random() * 0.014,
+        r: 2 + Math.random() * 4,
+      });
+    }
 
-        <p className="text-[#888888] text-sm max-w-md mx-auto">
-          Waiting...
-        </p>
-      </div>
-    </div>
-  );
-}
+    let frame;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      let alive = false;
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.04;
+        p.vx *= 0.99;
+        p.vy *= 0.99;
+        p.life -= p.decay;
+        if (p.life <= 0) continue;
+        alive = true;
+        ctx.globalAlpha = p.life * 0.9;
+        ctx.fillStyle = `rgba(255,255,255,${p.life * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowColor = 'rgba(255,255,255,0.3)';
+        ctx.shadowBlur = 20;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      if (alive) {
+        frame = requestAnimationFrame(draw);
+      } else {
+        ctx.clearRect(0, 0, w, h);
+      }
+    };
+    draw();
 
-/* ============================= INTRO / ENVELOPE ============================= */
-function IntroScreen({ onOpen, isTimeUp }) {
-  const introRef = useRef(null);
-  const [isOpen, setIsOpen] = useState(false);
+    setTimeout(() => {
+      if (frame) cancelAnimationFrame(frame);
+      ctx.clearRect(0, 0, w, h);
+    }, 3000);
+  }, []);
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-    // If opening, wait for animation then proceed
-    if (!isOpen) {
+  const multiBurst = useCallback((count = 6) => {
+    for (let i = 0; i < count; i++) {
       setTimeout(() => {
-        onOpen();
-      }, 1200);
+        const x = 100 + Math.random() * (window.innerWidth - 200);
+        const y = 100 + Math.random() * (window.innerHeight * 0.6);
+        burstFirework(x, y);
+      }, i * 400);
     }
-  };
+  }, [burstFirework]);
 
-  return (
-    <div
-      ref={introRef}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
-      style={{ background: 'radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%)' }}
-    >
-      <div className="intro-label font-caveat text-[#999999] text-2xl mb-8">
-        {isTimeUp ? '🎉 Selamat! Waktunya telah tiba! 🎉' : 'untuk Syafa'}
-      </div>
-
-      <section style={{ 
-        textAlign: 'center', 
-        perspective: '1000px', 
-        perspectiveOrigin: '50% 50%', 
-        width: '100%', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        padding: '20px' 
-      }}>
-        <div 
-          className={`envelope ${isOpen ? 'open' : ''}`}
-          onClick={handleToggle}
-          style={{
-            animation: isTimeUp ? 'spin 10s infinite linear, pulse 1.5s ease-in-out infinite' : 'spin 10s infinite linear',
-            backgroundColor: '#ffffff',
-            width: '400px',
-            height: '225px',
-            boxShadow: isTimeUp ? '0 0 40px rgba(255, 215, 0, 0.3)' : '-10px 10px 20px 0px rgba(0, 0, 0, 0.25)',
-            margin: '0 auto',
-            position: 'relative',
-            transformStyle: 'preserve-3d',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            userSelect: 'none',
-          }}
-        >
-          {/* Front face (belakang amplop) */}
-          <div className="front" style={{
-            transform: 'translateZ(-1px) rotateY(180deg)',
-            backgroundColor: '#f5f5f5',
-            width: '400px',
-            height: '225px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backfaceVisibility: 'visible',
-            borderRadius: '4px',
-            pointerEvents: 'none',
-            zIndex: 1,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-          }}>
-            <h1 style={{
-              fontFamily: "'Seaweed Script', cursive",
-              fontSize: '3.2rem',
-              margin: 0,
-              color: '#333333',
-              textShadow: '1px 2px 4px rgba(0,0,0,0.1)',
-              letterSpacing: '2px',
-              fontWeight: 400,
-            }}>♥</h1>
-          </div>
-
-          {/* Inner segitiga atas */}
-          <div className="inner" style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            zIndex: 2,
-          }}>
-            <div style={{
-              borderLeft: '200px solid transparent',
-              borderRight: '200px solid transparent',
-              borderTop: '150px solid #fafafa',
-              position: 'absolute',
-              content: '',
-              top: 0,
-              left: 0,
-            }}></div>
-          </div>
-
-          {/* Bottom segitiga bawah */}
-          <div className="bottom" style={{
-            position: 'absolute',
-            height: '225px',
-            width: '100%',
-            pointerEvents: 'none',
-            zIndex: 2,
-          }}>
-            <div style={{
-              borderLeft: '200px solid transparent',
-              borderRight: '200px solid transparent',
-              borderBottom: '150px solid #fafafa',
-              position: 'absolute',
-              content: '',
-              top: '74px',
-              left: 0,
-            }}></div>
-            <div style={{
-              borderLeft: '170px solid transparent',
-              borderRight: '170px solid transparent',
-              borderBottom: '120px solid #f5f5f5',
-              position: 'absolute',
-              margin: '0 auto',
-              textAlign: 'center',
-              left: '30px',
-              content: '',
-              top: '105px',
-            }}></div>
-          </div>
-
-          {/* Flap (bisa dibuka/tutup) */}
-          <div className="flap" style={{
-            transformOrigin: 'top center',
-            width: 0,
-            height: 0,
-            position: 'relative',
-            transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            pointerEvents: 'none',
-            top: 0,
-            left: 0,
-            zIndex: isOpen ? 0 : 3,
-            transform: isOpen ? 'rotateX(170deg)' : 'rotateX(10deg)',
-            backfaceVisibility: 'visible',
-          }}>
-            <div style={{
-              borderLeft: '200px solid transparent',
-              borderRight: '200px solid transparent',
-              borderTop: '150px solid #ffffff',
-              position: 'absolute',
-              content: '',
-              top: 0,
-              left: 0,
-              backfaceVisibility: 'visible',
-            }}></div>
-            <div style={{
-              borderLeft: '170px solid transparent',
-              borderRight: '170px solid transparent',
-              borderTop: '120px solid #fafafa',
-              position: 'absolute',
-              margin: '0 auto',
-              textAlign: 'center',
-              left: '30px',
-              content: '',
-              top: 0,
-              backfaceVisibility: 'visible',
-            }}></div>
-          </div>
-        </div>
-      </section>
-
-      <div className="intro-hint mt-6 text-xs tracking-[0.28em] uppercase text-[#888888]">
-        {isTimeUp ? '✨ Klik amplop untuk membuka kejutan! ✨' : 'ketuk amplop untuk membuka'}
-      </div>
-
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: rotateY(0deg) scale(1); }
-          50% { transform: rotateY(180deg) scale(1.05); }
-        }
-
-        /* Responsive styles */
-        @media (max-width: 480px) {
-          .envelope {
-            width: 280px !important;
-            height: 158px !important;
-            transform: scale(0.9) !important;
-          }
-          .front {
-            width: 280px !important;
-            height: 158px !important;
-          }
-          .front h1 {
-            font-size: 2.4rem !important;
-          }
-          .inner div,
-          .bottom div:first-child {
-            border-left-width: 140px !important;
-            border-right-width: 140px !important;
-            border-top-width: 105px !important;
-          }
-          .bottom div:first-child {
-            top: 52px !important;
-            border-bottom-width: 105px !important;
-          }
-          .bottom div:last-child {
-            border-left-width: 120px !important;
-            border-right-width: 120px !important;
-            border-bottom-width: 84px !important;
-            left: 20px !important;
-            top: 74px !important;
-          }
-          .flap div:first-child {
-            border-left-width: 140px !important;
-            border-right-width: 140px !important;
-            border-top-width: 105px !important;
-          }
-          .flap div:last-child {
-            border-left-width: 120px !important;
-            border-right-width: 120px !important;
-            border-top-width: 84px !important;
-            left: 20px !important;
-          }
-        }
-
-        @media (max-width: 380px) {
-          .envelope {
-            width: 220px !important;
-            height: 124px !important;
-            transform: scale(0.8) !important;
-          }
-          .front {
-            width: 220px !important;
-            height: 124px !important;
-          }
-          .front h1 {
-            font-size: 1.8rem !important;
-          }
-          .inner div,
-          .bottom div:first-child {
-            border-left-width: 110px !important;
-            border-right-width: 110px !important;
-            border-top-width: 82px !important;
-          }
-          .bottom div:first-child {
-            top: 40px !important;
-            border-bottom-width: 82px !important;
-          }
-          .bottom div:last-child {
-            border-left-width: 94px !important;
-            border-right-width: 94px !important;
-            border-bottom-width: 66px !important;
-            left: 16px !important;
-            top: 58px !important;
-          }
-          .flap div:first-child {
-            border-left-width: 110px !important;
-            border-right-width: 110px !important;
-            border-top-width: 82px !important;
-          }
-          .flap div:last-child {
-            border-left-width: 94px !important;
-            border-right-width: 94px !important;
-            border-top-width: 66px !important;
-            left: 16px !important;
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-/* ============================= MAIN CONTENT ============================= */
-function MainContent({ onReplay }) {
-  const heroRefs = useRef([]);
-
+  // ── LOADING ──
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-    return () => lenis.destroy();
+    let t = 0;
+    const interval = setInterval(() => {
+      t += 1 + Math.random() * 3;
+      if (t >= 100) { t = 100; clearInterval(interval); setTimeout(() => setLoading(false), 400); }
+      setProgress(Math.min(t, 100));
+    }, 40);
+    return () => clearInterval(interval);
   }, []);
 
-  useGSAP(() => {
-    gsap.utils.toArray('#hero .reveal').forEach((el, i) => {
-      gsap.fromTo(el, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: i * 0.15, ease: 'power3.out' });
+  // ── COUNTDOWN ──
+  useEffect(() => {
+    if (!countdownActive) return;
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    target.setHours(0, 0, 0, 0);
+
+    const tick = () => {
+      const now = new Date();
+      const diff = Math.max(0, target - now);
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown({ days: d, hours: h, minutes: m, seconds: s });
+      if (diff <= 0) {
+        setCountdownActive(false);
+        setCountdownDone(true);
+        if (countdownRef.current) {
+          gsap.to(countdownRef.current, { opacity: 0, duration: 1.2, ease: 'power2.inOut', delay: 0.4 });
+        }
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [countdownActive]);
+
+  // ── GSAP : Hero ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
+      tl.fromTo('.hero-title', { opacity: 0, y: 60, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 1.6 })
+        .fromTo('.hero-sub', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2 }, '-=0.8')
+        .fromTo('.hero-icon', { opacity: 0, scale: 0.5, rotate: -15 }, { opacity: 1, scale: 1, rotate: 0, duration: 1.4 }, '-=1')
+        .fromTo('.hero-arrow', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1, repeat: -1, yoyo: true, ease: 'sine.inOut' }, '-=0.6');
+    }, heroRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Letter typewriter ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const text = 'For you, a letter woven from the quietest hours, where every word is a candle lit just for you.';
+    let index = 0;
+    const el = typewriterRef.current;
+    if (!el) return;
+    el.textContent = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'typewriter-cursor';
+    el.appendChild(cursor);
+
+    const type = () => {
+      if (index < text.length) {
+        const char = text[index];
+        const node = document.createTextNode(char);
+        el.insertBefore(node, cursor);
+        index++;
+        setTimeout(type, 28 + Math.random() * 18);
+      } else {
+        setTypewriterDone(true);
+        gsap.to(cursor, { opacity: 0, duration: 0.6, delay: 1 });
+      }
+    };
+    setTimeout(type, 600);
+
+    gsap.to(letterRef.current, {
+      y: -8,
+      duration: 3.5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
     });
-    gsap.utils.toArray('section:not(#hero) .reveal').forEach((el) => {
-      gsap.fromTo(
-        el,
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 82%' } }
-      );
-    });
-    gsap.fromTo(
-      '.letter-paper',
-      { rotateX: -12, opacity: 0, transformPerspective: 800 },
-      { rotateX: 0, opacity: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '#letter', start: 'top 75%' } }
-    );
-    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Timeline ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      const items = timelineRef.current?.querySelectorAll('.timeline-item');
+      if (!items) return;
+      gsap.fromTo(items, { opacity: 0, y: 60, scale: 0.96 }, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1,
+        stagger: 0.25,
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }, timelineRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Gallery ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      const items = galleryRef.current?.querySelectorAll('.masonry-item');
+      if (!items) return;
+      gsap.fromTo(items, { opacity: 0, y: 50, scale: 0.94 }, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.9,
+        stagger: 0.12,
+        scrollTrigger: {
+          trigger: galleryRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }, galleryRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Reasons ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      const cards = reasonsRef.current?.querySelectorAll('.reason-card');
+      if (!cards) return;
+      gsap.fromTo(cards, { opacity: 0, y: 50, rotateX: 8 }, {
+        opacity: 1,
+        y: 0,
+        rotateX: 0,
+        duration: 1,
+        stagger: 0.18,
+        scrollTrigger: {
+          trigger: reasonsRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+      cards.forEach((el, i) => {
+        gsap.to(el, {
+          y: -6 + (i % 3) * 2,
+          duration: 2.4 + i * 0.2,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.15,
+        });
+      });
+    }, reasonsRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Wishes ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(wishesRef.current, { opacity: 0, y: 40 }, {
+        opacity: 1,
+        y: 0,
+        duration: 1.4,
+        scrollTrigger: {
+          trigger: wishesRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }, wishesRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Cake ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(cakeRef.current, { opacity: 0, scale: 0.92, y: 30 }, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 1.2,
+        scrollTrigger: {
+          trigger: cakeRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }, cakeRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Gift ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(giftRef.current, { opacity: 0, y: 40, scale: 0.94 }, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.2,
+        scrollTrigger: {
+          trigger: giftRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }, giftRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Final Letter ──
+  useEffect(() => {
+    if (loading || !showSurprise) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(finalRef.current, { opacity: 0, y: 40 }, {
+        opacity: 1,
+        y: 0,
+        duration: 1.4,
+        scrollTrigger: {
+          trigger: finalRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }, finalRef);
+    return () => ctx.revert();
+  }, [loading, showSurprise]);
+
+  // ── GSAP : Ending ──
+  useEffect(() => {
+    if (!showEnding) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(endingRef.current, { opacity: 0, scale: 0.96 }, {
+        opacity: 1,
+        scale: 1,
+        duration: 2,
+        ease: 'power3.out',
+      });
+      setTimeout(() => multiBurst(8), 600);
+      setTimeout(() => fireConfetti(), 1200);
+    }, endingRef);
+    return () => ctx.revert();
+  }, [showEnding, multiBurst, fireConfetti]);
+
+  // ── BLOW DETECTION ──
+  const startBlowDetection = useCallback(() => {
+    if (cakeBlown || micActive) return;
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then(stream => {
+        setMicActive(true);
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioCtx.createAnalyser();
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.fftSize = 256;
+        const data = new Uint8Array(analyser.fftSize);
+
+        const checkBlow = () => {
+          if (cakeBlown) return;
+          analyser.getByteFrequencyData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) sum += data[i];
+          const avg = sum / data.length;
+          if (avg > 35) {
+            setCakeBlown(true);
+            setMicActive(false);
+            audioCtx.close();
+            stream.getTracks().forEach(t => t.stop());
+            fireConfetti();
+            setTimeout(() => multiBurst(4), 400);
+
+            const flame = document.querySelector('.flame');
+            if (flame) {
+              flame.classList.add('flame-extinguished');
+              // smoke
+              const smokeCanvas = document.createElement('canvas');
+              smokeCanvas.style.position = 'fixed';
+              smokeCanvas.style.inset = '0';
+              smokeCanvas.style.pointerEvents = 'none';
+              smokeCanvas.style.zIndex = '9997';
+              document.body.appendChild(smokeCanvas);
+              const ctx = smokeCanvas.getContext('2d');
+              const w = smokeCanvas.width = window.innerWidth;
+              const h = smokeCanvas.height = window.innerHeight;
+              const particles = [];
+              for (let i = 0; i < 40; i++) {
+                particles.push({
+                  x: w / 2 + (Math.random() - 0.5) * 120,
+                  y: h / 2 + (Math.random() - 0.5) * 80,
+                  vx: (Math.random() - 0.5) * 3,
+                  vy: -Math.random() * 2 - 1,
+                  r: 20 + Math.random() * 50,
+                  o: 0.3 + Math.random() * 0.3,
+                  life: 1,
+                  decay: 0.004 + Math.random() * 0.006,
+                });
+              }
+              let smokeFrame;
+              const drawSmoke = () => {
+                ctx.clearRect(0, 0, w, h);
+                let alive = false;
+                for (const p of particles) {
+                  p.x += p.vx + (Math.random() - 0.5) * 0.6;
+                  p.y += p.vy;
+                  p.vy -= 0.02;
+                  p.r += 0.6;
+                  p.life -= p.decay;
+                  if (p.life <= 0) continue;
+                  alive = true;
+                  ctx.globalAlpha = p.life * p.o * 0.6;
+                  ctx.fillStyle = '#fff';
+                  ctx.beginPath();
+                  ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+                if (alive) {
+                  smokeFrame = requestAnimationFrame(drawSmoke);
+                } else {
+                  ctx.clearRect(0, 0, w, h);
+                  smokeCanvas.remove();
+                }
+              };
+              drawSmoke();
+              setTimeout(() => {
+                if (smokeFrame) cancelAnimationFrame(smokeFrame);
+                smokeCanvas.remove();
+              }, 5000);
+            }
+            return;
+          }
+          if (!cakeBlown) {
+            requestAnimationFrame(checkBlow);
+          }
+        };
+        checkBlow();
+      })
+      .catch(() => {
+        alert('🎤 Microphone access denied. Click the candle to blow it out!');
+        setMicActive(false);
+      });
+  }, [cakeBlown, micActive, fireConfetti, multiBurst]);
+
+  // ── GIFT OPEN ──
+  const handleGiftOpen = useCallback(() => {
+    if (giftOpen) return;
+    setGiftOpen(true);
+    fireConfetti();
+    setTimeout(() => multiBurst(3), 500);
+  }, [giftOpen, fireConfetti, multiBurst]);
+
+  // ── SURPRISE REVEAL ──
+  const handleSurpriseReveal = useCallback(() => {
+    setShowSurprise(true);
+    setCountdownActive(false);
+    setCountdownDone(true);
+    setTimeout(() => {
+      document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+    }, 400);
   }, []);
 
+  // ── RENDER ──
   return (
-    <main className="relative z-[1]">
-      <HeroSection />
-      <AboutSection />
-      <ReasonsSection />
-      <LetterSection />
-      <FinaleSection onReplay={onReplay} />
-      <footer className="text-center py-12 text-[#888888] text-xs tracking-wider">
-      </footer>
-    </main>
-  );
-}
+    <>
+      {/* CANVAS: partikel global */}
+      <canvas ref={particlesCanvas} id="particles-canvas" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
 
-function HeroSection() {
-  return (
-    <section id="hero" className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-      <h1 className="reveal font-fraunces italic uppercase text-[#888888] text-sm md:text-base tracking-widest">
-        Selamat Ulang Tahun,
-      </h1>
-      <div
-        className="reveal font-caveat font-bold leading-none my-2"
-        style={{
-          fontSize: 'clamp(4rem,16vw,10rem)',
-          background: 'linear-gradient(180deg,#e8e8e8 40%, #666666 130%)',
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-          color: 'transparent',
-        }}
-      >
-        Syafa
-      </div>
-      <p className="reveal text-[#888888] max-w-[32ch] text-base md:text-lg">
-        Semoga hari ini seringan tawamu dan sehangat pelukmu. Ini surat kecil, dari aku, untukmu.
-      </p>
-      <div className="scroll-cue mt-16" />
-    </section>
-  );
-}
+      {/* CANVAS: confetti */}
+      <canvas ref={confettiCanvas} id="confetti-canvas" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9998 }} />
 
-function AboutSection() {
-  return (
-    <section id="about" className="px-6 py-28 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-16 md:gap-24 items-center">
-      <div className="reveal">
-        <span className="font-caveat text-[#999999] text-xl block mb-2">tentang kamu</span>
-        <h2 className="font-fraunces font-semibold text-4xl md:text-5xl mb-6 text-[#e8e8e8]">
-          Hal-hal kecil<br />yang jadi besar
-        </h2>
-        <p className="text-[#888888] text-lg leading-relaxed max-w-[46ch]">
-          Kamu punya cara sendiri membuat hari biasa terasa spesial — cara ketawa, cara peduli, cara diam-diam
-          memperhatikan hal yang orang lain lewatkan.{' '}
-          <em>(Ganti paragraf ini dengan cerita nyata kalian berdua — momen, kebiasaan lucunya, atau alasan spesifik kamu sayang dia.)</em>
-        </p>
-        <p className="font-caveat text-[#999999] text-xl mt-5">— dan aku bersyukur bisa jadi bagian dari harinya.</p>
+      {/* CANVAS: fireworks */}
+      <canvas ref={fireworksCanvas} id="fireworks-canvas" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9997 }} />
+
+      {/* LIGHTBOX */}
+      <div id="lightbox" className={lightboxOpen ? 'open' : ''} onClick={() => { setLightboxOpen(false); setLightboxSrc(''); }} style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        background: 'rgba(0,0,0,0.92)',
+        backdropFilter: 'blur(20px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: lightboxOpen ? 1 : 0,
+        pointerEvents: lightboxOpen ? 'auto' : 'none',
+        transition: 'opacity 0.5s ease',
+        padding: '2rem',
+      }}>
+        <img src={lightboxSrc} alt="Enlarged" style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '1.5rem', objectFit: 'contain' }} />
       </div>
 
-      <div className="reveal relative h-[300px] md:h-[380px] max-w-[340px] md:max-w-none mx-auto w-full">
-        <Polaroid className="absolute top-0 left-0 -rotate-6 z-[2]" image="/image1.jpeg" caption="momen favorit #1" />
-        <Polaroid className="absolute bottom-0 right-0 rotate-6 z-[1]" image="/image2.jpeg" caption="momen favorit #2" />
-      </div>
-    </section>
-  );
-}
-
-function Polaroid({ className, image, caption }) {
-  return (
-    <figure className={`polaroid w-[58%] bg-[#e8e8e8] p-3 pb-10 rounded-sm shadow-2xl text-[#1a1a1a] ${className}`}>
-      <img 
-        src={image} 
-        alt={caption}
-        className="aspect-square w-full object-cover rounded-sm grayscale"
-      />
-      <figcaption className="font-caveat text-lg text-center mt-2">{caption}</figcaption>
-    </figure>
-  );
-}
-
-const REASONS = [
-  'Cara kamu tertawa sampai lupa jaga image.',
-  'Kamu selalu ingat hal kecil yang aku sendiri lupa.',
-  'Cara kamu peduli, bahkan waktu kamu capek sendiri.',
-  'Rasanya rumah, setiap kali cerita apapun ke kamu.',
-  'Kamu percaya sama aku, bahkan waktu aku ragu sendiri.',
-  'Karena kamu, ya kamu. Nggak perlu alasan lain.',
-];
-
-function ReasonsSection() {
-  const [flipped, setFlipped] = useState(() => REASONS.map(() => false));
-
-  const toggle = (i) => setFlipped((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
-
-  return (
-    <section id="reasons" className="py-24 px-6">
-      <div className="reveal text-center max-w-xl mx-auto mb-14">
-        <span className="font-caveat text-[#999999] text-xl block mb-2">enam alasan, dari banyak alasan</span>
-        <h2 className="font-fraunces font-semibold text-4xl md:text-5xl text-[#e8e8e8]">Kenapa aku sayang kamu</h2>
+      {/* LOADING SCREEN */}
+      <div id="loading-screen" style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#000',
+        transition: 'opacity 1.2s ease',
+        opacity: loading ? 1 : 0,
+        pointerEvents: loading ? 'auto' : 'none',
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.8)', animation: 'pulse 2s infinite' }}>
+            <HiSparkles />
+          </div>
+          <p style={{ fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontWeight: 300 }}>
+            Preparing Something Special...
+          </p>
+          <div style={{ width: '200px', height: '2px', background: '#222', borderRadius: '99px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #666, #fff)', borderRadius: '99px', transition: 'width 0.15s linear' }} />
+          </div>
+          <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', letterSpacing: '0.1em' }}>
+            {Math.round(progress)}%
+          </p>
+        </div>
       </div>
 
-      <div className="reveal flex gap-6 overflow-x-auto pb-8 px-1" style={{ scrollSnapType: 'x mandatory' }}>
-        {REASONS.map((reason, i) => (
-          <div
-            key={i}
-            onClick={() => toggle(i)}
-            className="postcard flex-none w-60 h-[300px] cursor-pointer"
-            style={{ perspective: '1200px', scrollSnapAlign: 'start' }}
-          >
+      {/* COUNTDOWN */}
+      {!loading && !showSurprise && (
+        <section ref={countdownRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>
+              <LuClock3 />
+            </div>
+            <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '0.5rem' }}>
+              Counting Down
+            </h2>
+            <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem', fontWeight: 300 }}>
+              The moment is almost here
+            </p>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '1rem',
+              maxWidth: '480px',
+              margin: '0 auto',
+            }}>
+              {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
+                <div key={unit} style={{
+                  textAlign: 'center',
+                  padding: '0.75rem 0.5rem',
+                  borderRadius: '1rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}>
+                  <div style={{ fontSize: '2.8rem', fontWeight: 300, letterSpacing: '0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                    {String(countdown[unit]).padStart(2, '0')}
+                  </div>
+                  <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
+                    {unit}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {countdownDone && (
+              <div style={{ marginTop: '3rem' }}>
+                <p style={{ fontSize: '1.125rem', fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '1.5rem' }}>
+                  Today is Your Day
+                </p>
+                <button onClick={handleSurpriseReveal} className="btn-outline">
+                  Open the Surprise
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* HERO */}
+      {showSurprise && (
+        <section id="hero" ref={heroRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', width: '600px', height: '600px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(80px)', top: '-20px', right: '-20px' }} />
+            <div style={{ position: 'absolute', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)', filter: 'blur(80px)', bottom: 0, left: 0 }} />
+          </div>
+          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+            <div className="hero-icon" style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>
+              <BsCake2Fill />
+            </div>
+            <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.9)' }}>
+              Happy Birthday
+            </h1>
+            <p className="hero-sub" style={{ fontSize: 'clamp(1.25rem, 3vw, 2.5rem)', fontWeight: 300, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginTop: '1rem' }}>
+              Wasiatus Syafana
+            </p>
+            <div className="hero-arrow" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)', marginTop: '3rem' }}>
+              <LuArrowDown />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* LETTER INTRODUCTION */}
+      {showSurprise && (
+        <section ref={letterRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '672px', width: '100%' }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.07)',
+              backdropFilter: 'blur(16px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '1.5rem',
+              padding: '2rem 3rem',
+              boxShadow: '0 30px 60px rgba(255,255,255,0.04)',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '-1.5rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: '1.875rem',
+                color: 'rgba(255,255,255,0.4)',
+                background: 'rgba(0,0,0,0.6)',
+                padding: '0.75rem',
+                borderRadius: '9999px',
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}>
+                <IoMail />
+              </div>
+              <div style={{ marginTop: '2rem' }}>
+                <p ref={typewriterRef} style={{ fontSize: '0.875rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', fontWeight: 300, letterSpacing: '0.05em' }} />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* MEMORY TIMELINE */}
+      {showSurprise && (
+        <section ref={timelineRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '768px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+                <BsCalendarHeart />
+              </div>
+              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+                Our Timeline
+              </h2>
+            </div>
+            <div style={{ position: 'relative', paddingLeft: '2rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+              {[
+                { icon: <FaHeart />, year: '2023', text: 'The day our paths crossed — a quiet spark that lit everything.' },
+                { icon: <FaStar />, year: '2024', text: 'Every laugh, every late-night conversation, every glance that said more than words.' },
+                { icon: <BsCalendarHeart />, year: '2025', text: 'And now, this moment — a celebration of you, of us, of everything beautiful.' },
+              ].map((item, i) => (
+                <div key={i} className="timeline-item" style={{ marginBottom: i === 2 ? 0 : '3rem', position: 'relative' }}>
+                  <div style={{
+                    position: 'absolute',
+                    left: '-2.6rem',
+                    top: '0.25rem',
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.8)',
+                    border: '2px solid #000',
+                    flexShrink: 0,
+                    zIndex: 2,
+                  }} />
+                  <div style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    backdropFilter: 'blur(12px) saturate(1.2)',
+                    WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: '1rem',
+                    padding: '1.5rem 2rem',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '1.125rem' }}>{item.icon}</span>
+                      <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>{item.year}</span>
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.7 }}>{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* GALLERY */}
+      {showSurprise && (
+        <section ref={galleryRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '1024px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+                <BsImages />
+              </div>
+              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+                Memories in Light
+              </h2>
+            </div>
+            <div style={{ columnCount: 3, columnGap: '1rem' }}>
+              {galleryImages.map((src, i) => (
+                <div
+                  key={i}
+                  className="masonry-item"
+                  style={{
+                    breakInside: 'avoid',
+                    marginBottom: '1rem',
+                    borderRadius: '1rem',
+                    overflow: 'hidden',
+                    background: '#111',
+                    cursor: 'pointer',
+                    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                  onClick={() => { setLightboxSrc(src); setLightboxOpen(true); }}
+                >
+                  <img
+                    src={src}
+                    alt={`Memory ${i+1}`}
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      display: 'block',
+                      height: `${200 + (i % 3) * 120}px`,
+                      objectFit: 'cover',
+                      transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* REASONS I LOVE YOU */}
+      {showSurprise && (
+        <section ref={reasonsRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '1024px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+                <FaHeart />
+              </div>
+              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+                Reasons I Love You
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {[
+                'Your laugh — a melody I could listen to forever.',
+                'The way you see the world, soft and full of wonder.',
+                'Your quiet strength that holds everything together.',
+                'The kindness in your eyes, even on the hardest days.',
+                'Your heart — brave, generous, and endlessly beautiful.',
+                'Every single part of you, exactly as you are.',
+              ].map((text, i) => (
+                <div key={i} className="reason-card" style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  backdropFilter: 'blur(12px) saturate(1.2)',
+                  WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '1rem',
+                  padding: '1.5rem',
+                  textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem' }}>
+                    <FaHeart />
+                  </div>
+                  <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.7 }}>{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* BIRTHDAY WISHES */}
+      {showSurprise && (
+        <section ref={wishesRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '672px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+                <HiSparkles />
+              </div>
+              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+                Birthday Wishes
+              </h2>
+            </div>
+            <div style={{
+              background: 'rgba(255,255,255,0.07)',
+              backdropFilter: 'blur(16px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '1.5rem',
+              padding: '2rem 3rem',
+              boxShadow: '0 30px 60px rgba(255,255,255,0.04)',
+            }}>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, letterSpacing: '0.05em', textWrap: 'balance' }}>
+                May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CAKE SECTION */}
+      {showSurprise && (
+        <section ref={cakeRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '448px', width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: '3.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
+              <BsCake2Fill />
+            </div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 300, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>
+              Make a Wish
+            </h2>
+            <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
+              {cakeBlown ? '✨ Your wish is on its way' : 'Blow the candle'}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ width: '12rem', height: '4rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', margin: '0 auto' }} />
+                <div style={{ width: '1rem', height: '6rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))', borderRadius: '9999px', margin: '0.25rem auto 0', position: 'relative' }}>
+                  <div className="flame" style={{
+                    position: 'absolute',
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '20px',
+                    height: '40px',
+                    background: 'radial-gradient(ellipse at bottom, #fff 0%, #ccc 40%, #888 70%, transparent 100%)',
+                    borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                    filter: 'blur(1px)',
+                    animation: 'flicker 0.3s infinite alternate ease-in-out',
+                    transformOrigin: 'bottom center',
+                    boxShadow: '0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(255,255,255,0.1)',
+                    transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    opacity: cakeBlown ? 0 : 1,
+                    transform: cakeBlown ? 'scale(0.2) translateY(20px)' : 'translateX(-50%)',
+                    filter: cakeBlown ? 'blur(8px)' : 'blur(1px)',
+                  }} />
+                </div>
+              </div>
+              {!cakeBlown && (
+                <button onClick={startBlowDetection} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
+                  {micActive ? '🎤 Listening...' : '💨 Blow the Candle'}
+                </button>
+              )}
+              {cakeBlown && (
+                <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 300, letterSpacing: '0.05em' }}>
+                  ✦ A wish carried on the wind ✦
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* GIFT SECTION */}
+      {showSurprise && (
+        <section ref={giftRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '448px', width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+              <FaGift />
+            </div>
+            <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '2rem' }}>
+              A Gift for You
+            </h2>
             <div
-              className="postcard-inner relative w-full h-full transition-transform duration-500"
+              className={giftOpen ? 'open' : ''}
+              onClick={handleGiftOpen}
               style={{
-                transformStyle: 'preserve-3d',
-                transform: flipped[i] ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                width: '200px',
+                height: '180px',
+                background: '#111',
+                borderRadius: '0.5rem 0.5rem 0 0',
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                margin: '0 auto',
               }}
             >
-              <div
-                className="pc-face absolute inset-0 rounded-2xl flex flex-col items-center justify-center text-center p-6 border border-[#666666]/25"
-                style={{ backfaceVisibility: 'hidden', background: 'linear-gradient(160deg,#1a1a1a,#0a0a0a)' }}
-              >
-                <div className="font-fraunces italic text-[#666666] text-xs tracking-[0.2em] uppercase mb-3">alasan</div>
-                <div className="text-[#888888] text-sm">sentuh kartu untuk baca</div>
-                <FaHeart className="mt-4 text-[#666666]" size={20} />
-              </div>
-              <div
-                className="pc-face absolute inset-0 rounded-2xl flex items-center justify-center text-center p-6 font-fraunces text-lg text-[#e8e8e8]"
-                style={{
-                  backfaceVisibility: 'hidden',
-                  transform: 'rotateY(180deg)',
-                  background: 'linear-gradient(160deg,#666666,#333333)',
-                }}
-              >
-                {reason}
+              <div style={{
+                width: '100%',
+                height: '30px',
+                background: '#1a1a1a',
+                borderRadius: '0.5rem 0.5rem 0 0',
+                borderBottom: '2px solid rgba(255,255,255,0.06)',
+                transformOrigin: 'bottom center',
+                transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
+              }} />
+              <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '8px', background: '#fff', transform: 'translateY(-50%)', opacity: 0.9 }} />
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '8px', background: '#fff', transform: 'translateX(-50%)', opacity: 0.9 }} />
+              <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '2rem', color: '#fff', opacity: 0.8 }}>✦</div>
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: giftOpen ? 1 : 0,
+                pointerEvents: giftOpen ? 'auto' : 'none',
+                transition: 'opacity 0.6s ease 0.4s',
+                padding: '0.5rem',
+                textAlign: 'center',
+                fontSize: '0.85rem',
+                color: '#ddd',
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
+                    💌 You are the most beautiful part of every day.
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', color: 'rgba(255,255,255,0.3)', fontSize: '1.25rem' }}>
+                    <IoMusicalNotes /><FaHeart /><HiSparkles />
+                  </div>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    A playlist of all the songs that remind me of you.
+                  </p>
+                </div>
               </div>
             </div>
+            <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
+              {giftOpen ? '✨ Open with love' : 'Click to open'}
+            </p>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function LetterSection() {
-  return (
-    <section id="letter" className="py-24 px-6 flex justify-center">
-      <article
-        className="letter-paper relative w-full max-w-xl text-[#1a1a1a] rounded-sm shadow-2xl"
-        style={{ background: '#e8e8e8', padding: 'clamp(32px,6vw,64px)' }}
-      >
-        <p className="text-lg leading-8 mb-4 first-letter:font-fraunces first-letter:italic first-letter:text-5xl first-letter:float-left first-letter:leading-none first-letter:mr-2 first-letter:text-[#666666]">
-          Hai adek, selamat ulang tahun yaa .
-          Hari ini hari yang paling spesial, karena di hari inilah orang yang paling mas sayang lahir ke dunia.
-          Mas bener-bener bersyukur bisa kenal sama adek, bisa deket, sampai akhirnya bisa jalan bareng kayak sekarang.
-        </p>
-
-        <p className="text-lg leading-8 mb-4">
-          Makasih ya dek, udah nemenin mas selama ini. Makasih udah mau dengerin cerita mas, nemenin pas lagi capek,
-          pas lagi seneng, bahkan pas lagi banyak masalah. Walaupun kadang kita berantem, salah paham, ngambek-ngambekan,
-          tapi mas selalu percaya kalau semua itu cuma bagian kecil dari perjalanan kita.
-        </p>
-
-        <p className="text-lg leading-8 mb-4">
-          Mas minta maaf kalau selama ini masih sering bikin adek kesel, bikin adek nunggu, atau kadang belum bisa jadi
-          yang terbaik. Tapi mas selalu berusaha buat jadi lebih baik sedikit demi sedikit, supaya adek bangga punya mas.
-        </p>
-
-        <p className="text-lg leading-8 mb-4">
-          Semoga di umur yang baru ini semua doa adek satu-satu dikabulin. Semoga adek selalu sehat, selalu bahagia,
-          dimudahkan sekolahnya, dimudahkan semua urusannya, dan semoga senyumnya nggak pernah hilang.
-          Mas juga berharap semoga nanti kita masih bisa ngerayain ulang tahun bareng di tahun-tahun berikutnya.
-        </p>
-
-        <p className="text-lg leading-8">
-          Sekali lagi, selamat ulang tahun yaa adek. Jangan lupa selalu jaga kesehatan, jangan sering telat makan,
-          dan inget... ada mas yang selalu sayang sama adek.
-        </p>
-
-        <div className="font-caveat text-2xl text-right text-[#666666] mt-6">
-          — Dari mas yang paling sayang sama adek.
-        </div>
-
-        <div
-          className="absolute rounded-full"
-          style={{
-            bottom: -18,
-            right: 36,
-            width: 44,
-            height: 44,
-            background: 'radial-gradient(circle at 35% 30%, #888888, #666666 60%, #444444 100%)',
-            boxShadow: '0 6px 14px rgba(0,0,0,.4)',
-          }}
-        />
-      </article>
-    </section>
-  );
-}
-
-function FinaleSection({ onReplay }) {
-  const hearts = useMemo(
-    () =>
-      Array.from({ length: 14 }, (_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        size: 0.9 + Math.random() * 1.3,
-        duration: 6 + Math.random() * 6,
-        delay: Math.random() * 8,
-        glyph: i % 2 === 0 ? '♥' : '♡',
-      })),
-    []
-  );
-
-  return (
-    <section id="finale" className="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden px-6">
-      {hearts.map((h) => (
-        <span
-          key={h.id}
-          className="heart-float absolute text-[#666666]"
-          style={{
-            bottom: '-10%',
-            left: `${h.left}%`,
-            fontSize: `${h.size}rem`,
-            animationDuration: `${h.duration}s`,
-            animationDelay: `${h.delay}s`,
-          }}
-        >
-          {h.glyph}
-        </span>
-      ))}
-
-      <div
-        className="reveal font-fraunces font-extrabold uppercase relative z-10"
-        style={{
-          fontSize: 'clamp(2.8rem,11vw,7rem)',
-          background: 'linear-gradient(180deg,#e8e8e8,#666666)',
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-          color: 'transparent',
-        }}
-      >
-        I Love You
-      </div>
-      <div className="reveal font-caveat text-[#999999] mt-1 relative z-10" style={{ fontSize: 'clamp(2rem,6vw,3.4rem)' }}>
-        Syafa
-      </div>
-      <div className="reveal mt-6 text-[#888888] text-sm tracking-[0.15em] uppercase relative z-10">
-        sekarang, nanti, dan seterusnya
-      </div>
-      <button
-        onClick={onReplay}
-        className="relative z-10 mt-10 px-8 py-3.5 rounded-full border border-[#666666]/40 text-sm tracking-[0.15em] uppercase transition-all duration-500 hover:bg-[#666666] hover:text-[#0a0a0a] text-[#e8e8e8]"
-      >
-        Putar ulang
-      </button>
-    </section>
-  );
-}
-
-/* ============================= GLOBAL STYLES ============================= */
-function GlobalStyles() {
-  return (
-    <style jsx global>{`
-      .font-fraunces { font-family: 'Fraunces', serif; }
-      .font-caveat { font-family: 'Caveat', cursive; }
-
-      .scroll-cue {
-        width: 1px;
-        height: 50px;
-        background: linear-gradient(to bottom, #999999, transparent);
-        position: relative;
-      }
-      .scroll-cue::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: -3px;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #999999;
-        animation: dripline 2s ease-in-out infinite;
-      }
-      @keyframes dripline {
-        0% { transform: translateY(0); opacity: 1; }
-        100% { transform: translateY(20px); opacity: 0; }
-      }
-
-      .heart-float {
-        animation-name: rise;
-        animation-timing-function: linear;
-        animation-iteration-count: infinite;
-        opacity: 0.5;
-      }
-      @keyframes rise {
-        0% { transform: translateY(0) scale(0.8); opacity: 0; }
-        10% { opacity: 0.6; }
-        100% { transform: translateY(-110vh) scale(1.1); opacity: 0; }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .heart-float, .scroll-cue::after { animation: none !important; }
-      }
-    `}</style>
-  );
-}
-
-/* ============================= MAIN APP ============================= */
-export default function Ultah() {
-  const [showMain, setShowMain] = useState(false);
-  const container = useRef(null);
-
-  // Target date: 22 Januari 2027
-  const targetDate = new Date('2027-01-22T00:00:00').getTime();
-
-  // Countdown logic
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-  const [isTimeUp, setIsTimeUp] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      if (distance < 0) {
-        setIsTimeUp(true);
-        clearInterval(interval);
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      setTimeLeft({ days, hours, minutes, seconds });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [targetDate]);
-
-  // Jika waktu sudah habis, tampilkan countdown dengan pesan selamat dulu, lalu amplop
-  if (isTimeUp && !showMain) {
-    return (
-      <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
-        <Starfield />
-        <CountdownScreen timeLeft={timeLeft} isTimeUp={true} />
-        {/* Setelah beberapa detik, tampilkan amplop */}
-        <div className="fixed inset-0 z-[99] pointer-events-none">
-          <div className="w-full h-full flex items-center justify-center">
-            {/* Amplop akan muncul setelah countdown selesai */}
-          </div>
-        </div>
-        <GlobalStyles />
-      </div>
-    );
-  }
-
-  return (
-    <div ref={container} className="bg-[#0a0a0a] text-[#e8e8e8] min-h-screen selection:bg-[#666666] selection:text-[#0a0a0a] relative overflow-x-hidden">
-      <Starfield />
-      {!showMain ? (
-        <CountdownScreen timeLeft={timeLeft} isTimeUp={false} />
-      ) : (
-        <MainContent onReplay={() => setShowMain(false)} />
+        </section>
       )}
-      <GlobalStyles />
-    </div>
+
+      {/* FINAL LETTER */}
+      {showSurprise && (
+        <section ref={finalRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ maxWidth: '672px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.5rem' }}>
+                <IoMail />
+              </div>
+              <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+                A Final Letter
+              </h2>
+            </div>
+            <div style={{
+              background: 'rgba(255,255,255,0.07)',
+              backdropFilter: 'blur(16px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '1.5rem',
+              padding: '2.5rem 3.5rem',
+              boxShadow: '0 30px 60px rgba(255,255,255,0.04)',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent, transparent)' }} />
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, letterSpacing: '0.05em', textWrap: 'balance', position: 'relative', zIndex: 10 }}>
+                In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
+                <br /><br />
+                With all my love,
+                <br />
+                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Always.</span>
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ENDING TRIGGER */}
+      {showSurprise && (
+        <section ref={endingRef} style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', width: '500px', height: '500px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(80px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+          </div>
+          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+            <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
+              <FaHeart />
+            </div>
+            <h2 style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.8)' }}>
+              Thank You
+            </h2>
+            <p style={{ fontSize: '0.75rem', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
+              For being you
+            </p>
+            <button onClick={() => { setShowEnding(true); setTimeout(() => { document.getElementById('ending')?.scrollIntoView({ behavior: 'smooth' }); }, 300); }} className="btn-outline" style={{ marginTop: '2.5rem', fontSize: '0.65rem' }}>
+              Celebrate
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* ENDING REVEAL */}
+      {showEnding && (
+        <section id="ending" style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          background: '#000',
+          padding: '3rem 1.5rem',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', width: '800px', height: '800px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', filter: 'blur(80px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+          </div>
+          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+            <div style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '1.5rem', animation: 'pulse 2s infinite' }}>
+              <FaHeart />
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300 }}>
+              Forever and always
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Styles (inline global) - karena JSX tidak bisa pakai <style> di komponen, kita tambahkan di head atau gunakan CSS-in-JS, tapi di sini kita tambahkan global style via useEffect atau style tag. Untuk kemudahan, kita tambahkan style tag di root. */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        @keyframes flicker {
+          0% { transform: scale(1) rotate(-2deg); }
+          100% { transform: scale(1.08, 0.92) rotate(2deg); }
+        }
+        .typewriter-cursor {
+          display: inline-block;
+          width: 2px;
+          height: 1em;
+          background: #fff;
+          margin-left: 2px;
+          vertical-align: text-bottom;
+          animation: blink 0.8s step-end infinite;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .btn-outline {
+          display: inline-block;
+          padding: 0.75rem 2.4rem;
+          border: 1px solid rgba(255,255,255,0.25);
+          border-radius: 99px;
+          color: #fff;
+          font-size: 0.85rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          background: transparent;
+          cursor: pointer;
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          backdrop-filter: blur(8px);
+        }
+        .btn-outline:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.5);
+          transform: scale(1.02);
+          box-shadow: 0 0 40px rgba(255,255,255,0.04);
+        }
+        .masonry-item:hover {
+          transform: scale(1.02);
+        }
+        .masonry-item:hover img {
+          transform: scale(1.06);
+        }
+        .gift-box.open .gift-lid {
+          transform: rotateX(-90deg) translateY(-4px);
+          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .gift-box .gift-content {
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.6s ease 0.4s;
+        }
+        .gift-box.open .gift-content {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .flame-extinguished {
+          opacity: 0;
+          transform: scale(0.2) translateY(20px);
+          filter: blur(8px);
+          transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      `}</style>
+    </>
   );
 }
