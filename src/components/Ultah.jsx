@@ -8,31 +8,423 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Ikon dari react-icons
-import { BsCake2Fill, BsImages, BsCalendarHeart } from 'react-icons/bs';
-import { FaHeart, FaGift, FaStar } from 'react-icons/fa6';
-import { IoMail, IoMusicalNotes } from 'react-icons/io5';
+import { BsCake2Fill, BsImages, BsCalendarHeart, BsMusicNoteBeamed } from 'react-icons/bs';
+import { FaHeart, FaGift, FaStar, FaRegHeart } from 'react-icons/fa6';
+import { IoMail, IoMusicalNotes, IoSparkles } from 'react-icons/io5';
 import { HiSparkles } from 'react-icons/hi2';
-import { LuArrowDown, LuClock3 } from 'react-icons/lu';
+import { LuArrowDown, LuClock3, LuSparkle } from 'react-icons/lu';
 
-// Daftarkan plugin GSAP
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── KOMPONEN UTAMA ───
+// ─── COMPONENT: LOADING SCREEN ───
+function LoadingScreen({ progress }) {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#000',
+    }}>
+      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>
+        <HiSparkles />
+      </div>
+      <p style={{ fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
+        Preparing Something Special...
+      </p>
+      <div style={{ width: '200px', height: '2px', background: '#222', borderRadius: '99px', overflow: 'hidden', marginTop: '1.5rem' }}>
+        <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #666, #fff)', borderRadius: '99px', transition: 'width 0.15s linear' }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── COMPONENT: COUNTDOWN SECTION ───
+function CountdownSection({ countdown, onSurpriseReveal }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>
+        <LuClock3 />
+      </div>
+      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '0.5rem' }}>
+        Counting Down
+      </h2>
+      <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem', fontWeight: 300 }}>
+        The moment is almost here
+      </p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '1rem',
+        maxWidth: '480px',
+        margin: '0 auto 2rem',
+      }}>
+        {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
+          <div key={unit} style={{
+            textAlign: 'center',
+            padding: '0.75rem 0.5rem',
+            borderRadius: '1rem',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            <div style={{ fontSize: '2.8rem', fontWeight: 300, fontVariantNumeric: 'tabular-nums' }}>
+              {String(countdown[unit]).padStart(2, '0')}
+            </div>
+            <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
+              {unit}
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={onSurpriseReveal} className="btn-outline">
+        Open the Surprise
+      </button>
+    </div>
+  );
+}
+
+// ─── COMPONENT: HERO SECTION ───
+const HeroSection = React.forwardRef((props, ref) => {
+  return (
+    <div ref={ref} style={{ textAlign: 'center' }}>
+      <div className="hero-icon" style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>
+        <BsCake2Fill />
+      </div>
+      <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.9)' }}>
+        Happy Birthday
+      </h1>
+      <p className="hero-sub" style={{ fontSize: 'clamp(1.25rem, 3vw, 2.5rem)', fontWeight: 300, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginTop: '1rem' }}>
+        Wasiatus Syafana
+      </p>
+      <div className="hero-arrow" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)', marginTop: '3rem' }}>
+        <LuArrowDown />
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: LETTER INTRODUCTION ───
+const LetterIntroduction = React.forwardRef(({ typewriterRef }, ref) => {
+  return (
+    <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
+      <div className="glass-light" style={{ padding: '2rem 3rem', position: 'relative', borderRadius: '1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.4)' }}><IoMail /></div>
+        </div>
+        <p ref={typewriterRef} style={{ fontSize: '0.875rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', fontWeight: 300 }} />
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: MEMORY TIMELINE ───
+const MemoryTimeline = React.forwardRef((props, ref) => {
+  const timelineData = [
+    { icon: <FaHeart />, year: '2023', text: 'The day our paths crossed — a quiet spark that lit everything.' },
+    { icon: <FaStar />, year: '2024', text: 'Every laugh, every late-night conversation, every glance that said more than words.' },
+    { icon: <BsCalendarHeart />, year: '2025', text: 'And now, this moment — a celebration of you, of us, of everything beautiful.' },
+  ];
+
+  return (
+    <div ref={ref} style={{ maxWidth: '768px', margin: '0 auto' }}>
+      <PageHeader icon={<BsCalendarHeart />} title="Our Timeline" />
+      <div style={{ position: 'relative', paddingLeft: '2rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+        {timelineData.map((item, i) => (
+          <div key={i} className="timeline-item" style={{ marginBottom: i === 2 ? 0 : '2rem', position: 'relative' }}>
+            <div style={{
+              position: 'absolute',
+              left: '-2.6rem',
+              top: '0.25rem',
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.8)',
+              border: '2px solid #000',
+            }} />
+            <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.3)' }}>{item.icon}</span>
+                <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{item.year}</span>
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{item.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: GALLERY SECTION ───
+const GallerySection = React.forwardRef(({ images, onImageClick }, ref) => {
+  return (
+    <div ref={ref} style={{ maxWidth: '1024px', margin: '0 auto' }}>
+      <PageHeader icon={<BsImages />} title="Memories in Light" />
+      <div style={{ columnCount: 3, columnGap: '1rem' }}>
+        {images.map((src, i) => (
+          <div
+            key={i}
+            className="masonry-item"
+            style={{
+              breakInside: 'avoid',
+              marginBottom: '1rem',
+              borderRadius: '1rem',
+              overflow: 'hidden',
+              background: '#111',
+              cursor: 'pointer',
+            }}
+            onClick={() => onImageClick(src)}
+          >
+            <img src={src} alt={`Memory ${i+1}`} loading="lazy" style={{ width: '100%', display: 'block', height: `${200 + (i % 3) * 120}px`, objectFit: 'cover' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: REASONS SECTION ───
+const ReasonsSection = React.forwardRef((props, ref) => {
+  const reasons = [
+    'Your laugh — a melody I could listen to forever.',
+    'The way you see the world, soft and full of wonder.',
+    'Your quiet strength that holds everything together.',
+    'The kindness in your eyes, even on the hardest days.',
+    'Your heart — brave, generous, and endlessly beautiful.',
+    'Every single part of you, exactly as you are.',
+  ];
+
+  return (
+    <div ref={ref} style={{ maxWidth: '1024px', margin: '0 auto' }}>
+      <PageHeader icon={<FaHeart />} title="Reasons I Love You" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        {reasons.map((text, i) => (
+          <div key={i} className="reason-card glass" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '1rem' }}>
+            <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem' }}>
+              <FaRegHeart />
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: BIRTHDAY WISHES ───
+const BirthdayWishes = React.forwardRef((props, ref) => {
+  return (
+    <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
+      <PageHeader icon={<HiSparkles />} title="Birthday Wishes" />
+      <div className="glass-light" style={{ padding: '2rem 3rem', borderRadius: '1.5rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8 }}>
+          May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
+        </p>
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: CAKE SECTION ───
+const CakeSection = React.forwardRef(({ cakeBlown, micActive, onBlow }, ref) => {
+  return (
+    <div ref={ref} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ fontSize: '3.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
+        <BsCake2Fill />
+      </div>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 300, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>
+        Make a Wish
+      </h2>
+      <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
+        {cakeBlown ? <><LuSparkle /> Your wish is on its way</> : 'Blow the candle'}
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ position: 'relative' }}>
+          <div style={{ width: '12rem', height: '4rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', margin: '0 auto' }} />
+          <div style={{ width: '1rem', height: '6rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))', borderRadius: '9999px', margin: '0.25rem auto 0', position: 'relative' }}>
+            <div className="flame" style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '20px',
+              height: '40px',
+              background: 'radial-gradient(ellipse at bottom, #fff 0%, #ccc 40%, #888 70%, transparent 100%)',
+              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+              filter: 'blur(1px)',
+              animation: 'flicker 0.3s infinite alternate ease-in-out',
+              transformOrigin: 'bottom center',
+              boxShadow: '0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(255,255,255,0.1)',
+              transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              opacity: cakeBlown ? 0 : 1,
+              transform: cakeBlown ? 'scale(0.2) translateY(20px)' : 'translateX(-50%)',
+              filter: cakeBlown ? 'blur(8px)' : 'blur(1px)',
+            }} />
+          </div>
+        </div>
+        {!cakeBlown && (
+          <button onClick={onBlow} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
+            {micActive ? <><IoSparkles /> Listening...</> : <><IoSparkles /> Blow the Candle</>}
+          </button>
+        )}
+        {cakeBlown && (
+          <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 300 }}>
+            <LuSparkle /> A wish carried on the wind <LuSparkle />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: GIFT SECTION ───
+const GiftSection = React.forwardRef(({ giftOpen, onGiftOpen }, ref) => {
+  return (
+    <div ref={ref} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
+      <PageHeader icon={<FaGift />} title="A Gift for You" />
+      <div
+        className={giftOpen ? 'open' : ''}
+        onClick={onGiftOpen}
+        style={{
+          width: '200px',
+          height: '180px',
+          background: '#111',
+          borderRadius: '0.5rem 0.5rem 0 0',
+          position: 'relative',
+          cursor: 'pointer',
+          margin: '0 auto',
+          border: '1px solid rgba(255,255,255,0.06)',
+          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <div style={{
+          width: '100%',
+          height: '30px',
+          background: '#1a1a1a',
+          borderRadius: '0.5rem 0.5rem 0 0',
+          borderBottom: '2px solid rgba(255,255,255,0.06)',
+          transformOrigin: 'bottom center',
+          transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
+        }} />
+        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '8px', background: '#fff', transform: 'translateY(-50%)', opacity: 0.9 }} />
+        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '8px', background: '#fff', transform: 'translateX(-50%)', opacity: 0.9 }} />
+        <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '2rem', color: '#fff', opacity: 0.8 }}>
+          <LuSparkle />
+        </div>
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: giftOpen ? 1 : 0,
+          pointerEvents: giftOpen ? 'auto' : 'none',
+          transition: 'opacity 0.6s ease 0.4s',
+          padding: '0.5rem',
+          textAlign: 'center',
+          color: '#ddd',
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
+              <FaHeart style={{ marginRight: '0.5rem' }} />
+              You are the most beautiful part of every day.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', color: 'rgba(255,255,255,0.3)', fontSize: '1.25rem' }}>
+              <IoMusicalNotes /><FaHeart /><HiSparkles />
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+              <BsMusicNoteBeamed /> A playlist of all the songs that remind me of you.
+            </p>
+          </div>
+        </div>
+      </div>
+      <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
+        {giftOpen ? <><LuSparkle /> Open with love</> : 'Click to open'}
+      </p>
+    </div>
+  );
+});
+
+// ─── COMPONENT: FINAL LETTER ───
+const FinalLetter = React.forwardRef((props, ref) => {
+  return (
+    <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
+      <PageHeader icon={<IoMail />} title="A Final Letter" />
+      <div className="glass-light" style={{ padding: '2.5rem 3.5rem', borderRadius: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent, transparent)' }} />
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, position: 'relative', zIndex: 10 }}>
+          In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
+          <br /><br />
+          With all my love,
+          <br />
+          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Always.</span>
+        </p>
+      </div>
+    </div>
+  );
+});
+
+// ─── COMPONENT: ENDING SECTION ───
+const EndingSection = React.forwardRef(({ showEnding, onCelebrate }, ref) => {
+  return (
+    <div ref={ref} style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
+        <FaHeart />
+      </div>
+      <h2 style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.8)' }}>
+        Thank You
+      </h2>
+      <p style={{ fontSize: '0.75rem', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
+        For being you
+      </p>
+      <button onClick={onCelebrate} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
+        <HiSparkles style={{ marginRight: '0.5rem' }} />
+        Celebrate
+      </button>
+      {showEnding && (
+        <div style={{ marginTop: '2rem' }}>
+          <div style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.2)', animation: 'pulse 2s infinite' }}>
+            <FaHeart />
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300, marginTop: '1rem' }}>
+            <LuSparkle /> Forever and always <LuSparkle />
+          </p>
+        </div>
+      )}
+    </div>
+  );
+});
+
+// ─── COMPONENT HELPER ───
+function PageHeader({ icon, title }) {
+  return (
+    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+        {icon}
+      </div>
+      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+// ─── MAIN COMPONENT ───
 export default function Ultah() {
   // ── State ──
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [countdownActive, setCountdownActive] = useState(true);
-  const [countdownDone, setCountdownDone] = useState(false);
   const [showSurprise, setShowSurprise] = useState(false);
-  const [typewriterDone, setTypewriterDone] = useState(false);
   const [galleryImages] = useState([
-    'https://picsum.photos/id/1/600/800',
-    'https://picsum.photos/id/26/800/600',
-    'https://picsum.photos/id/42/600/800',
-    'https://picsum.photos/id/64/800/600',
-    'https://picsum.photos/id/78/600/800',
-    'https://picsum.photos/id/91/800/600',
+    '/image1.jpeg',
+    '/image2.jpeg'',
+    '/image3.jpeg'',
+    '/image4.jpeg'',
+    '/image5.jpeg'',
+    '/image6.jpeg'',
   ]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState('');
@@ -41,12 +433,9 @@ export default function Ultah() {
   const [giftOpen, setGiftOpen] = useState(false);
   const [showEnding, setShowEnding] = useState(false);
   const [micActive, setMicActive] = useState(false);
-  
-  // ── STATE NAVIGASI ──
   const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = 12; // 0:Loading, 1:Countdown, 2:Hero, 3:Letter, 4:Timeline, 5:Gallery, 6:Reasons, 7:Wishes, 8:Cake, 9:Gift, 10:Final, 11:Ending
 
-  // ── Ref untuk DOM dan animasi ──
+  // ── Refs ──
   const heroRef = useRef(null);
   const letterRef = useRef(null);
   const timelineRef = useRef(null);
@@ -57,13 +446,15 @@ export default function Ultah() {
   const giftRef = useRef(null);
   const finalRef = useRef(null);
   const endingRef = useRef(null);
-  const countdownRef = useRef(null);
   const typewriterRef = useRef(null);
   const particlesCanvas = useRef(null);
   const confettiCanvas = useRef(null);
   const fireworksCanvas = useRef(null);
 
-  // ── NAVIGASI ──
+  // ── Total Pages ──
+  const totalPages = 12; // 0:Loading, 1:Countdown, 2:Hero, 3:Letter, 4:Timeline, 5:Gallery, 6:Reasons, 7:Wishes, 8:Cake, 9:Gift, 10:Final, 11:Ending
+
+  // ── Navigasi ──
   const goToNextPage = useCallback(() => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(prev => prev + 1);
@@ -71,14 +462,7 @@ export default function Ultah() {
     }
   }, [currentPage]);
 
-  const goToPage = useCallback((page) => {
-    if (page >= 0 && page < totalPages) {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, []);
-
-  // ── PARTIKEL (Canvas) ──
+  // ── PARTIKEL ──
   useEffect(() => {
     const canvas = particlesCanvas.current;
     if (!canvas) return;
@@ -273,10 +657,14 @@ export default function Ultah() {
     let t = 0;
     const interval = setInterval(() => {
       t += 1 + Math.random() * 3;
-      if (t >= 100) { t = 100; clearInterval(interval); setTimeout(() => {
-        setLoading(false);
-        setCurrentPage(1); // langsung ke countdown
-      }, 400); }
+      if (t >= 100) { 
+        t = 100; 
+        clearInterval(interval); 
+        setTimeout(() => {
+          setLoading(false);
+          setCurrentPage(1);
+        }, 400);
+      }
       setProgress(Math.min(t, 100));
     }, 40);
     return () => clearInterval(interval);
@@ -299,10 +687,6 @@ export default function Ultah() {
       setCountdown({ days: d, hours: h, minutes: m, seconds: s });
       if (diff <= 0) {
         setCountdownActive(false);
-        setCountdownDone(true);
-        if (countdownRef.current) {
-          gsap.to(countdownRef.current, { opacity: 0, duration: 1.2, ease: 'power2.inOut', delay: 0.4 });
-        }
       }
     };
     tick();
@@ -310,7 +694,7 @@ export default function Ultah() {
     return () => clearInterval(interval);
   }, [countdownActive]);
 
-  // ── GSAP : Hero ──
+  // ── GSAP Animations ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 2) return;
     const ctx = gsap.context(() => {
@@ -323,7 +707,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Letter typewriter ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 3) return;
     const text = 'For you, a letter woven from the quietest hours, where every word is a candle lit just for you.';
@@ -343,7 +726,6 @@ export default function Ultah() {
         index++;
         setTimeout(type, 28 + Math.random() * 18);
       } else {
-        setTypewriterDone(true);
         gsap.to(cursor, { opacity: 0, duration: 0.6, delay: 1 });
       }
     };
@@ -358,7 +740,6 @@ export default function Ultah() {
     });
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Timeline ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 4) return;
     const ctx = gsap.context(() => {
@@ -375,7 +756,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Gallery ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 5) return;
     const ctx = gsap.context(() => {
@@ -392,7 +772,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Reasons ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 6) return;
     const ctx = gsap.context(() => {
@@ -419,7 +798,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Wishes ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 7) return;
     const ctx = gsap.context(() => {
@@ -432,7 +810,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Cake ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 8) return;
     const ctx = gsap.context(() => {
@@ -446,7 +823,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Gift ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 9) return;
     const ctx = gsap.context(() => {
@@ -460,7 +836,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Final Letter ──
   useEffect(() => {
     if (loading || !showSurprise || currentPage !== 10) return;
     const ctx = gsap.context(() => {
@@ -473,7 +848,6 @@ export default function Ultah() {
     return () => ctx.revert();
   }, [loading, showSurprise, currentPage]);
 
-  // ── GSAP : Ending ──
   useEffect(() => {
     if (!showEnding || currentPage !== 11) return;
     const ctx = gsap.context(() => {
@@ -519,7 +893,6 @@ export default function Ultah() {
             const flame = document.querySelector('.flame');
             if (flame) {
               flame.classList.add('flame-extinguished');
-              // smoke
               const smokeCanvas = document.createElement('canvas');
               smokeCanvas.style.position = 'fixed';
               smokeCanvas.style.inset = '0';
@@ -582,431 +955,47 @@ export default function Ultah() {
         checkBlow();
       })
       .catch(() => {
-        alert('🎤 Microphone access denied. Click the candle to blow it out!');
+        alert('Microphone access denied. Click the candle to blow it out!');
         setMicActive(false);
       });
   }, [cakeBlown, micActive, fireConfetti, multiBurst]);
-
-  // ── GIFT OPEN ──
-  const handleGiftOpen = useCallback(() => {
-    if (giftOpen) return;
-    setGiftOpen(true);
-    fireConfetti();
-    setTimeout(() => multiBurst(3), 500);
-  }, [giftOpen, fireConfetti, multiBurst]);
 
   // ── SURPRISE REVEAL ──
   const handleSurpriseReveal = useCallback(() => {
     setShowSurprise(true);
     setCountdownActive(false);
-    setCountdownDone(true);
-    setCurrentPage(2); // langsung ke halaman Hero
+    setCurrentPage(2);
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
   }, []);
 
-  // ── RENDER PAGE ──
-  const renderPage = () => {
-    // PAGE 0: LOADING
-    if (loading) {
-      return (
-        <div style={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#000',
-        }}>
-          <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>
-            <HiSparkles />
-          </div>
-          <p style={{ fontSize: '0.75rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
-            Preparing Something Special...
-          </p>
-          <div style={{ width: '200px', height: '2px', background: '#222', borderRadius: '99px', overflow: 'hidden', marginTop: '1.5rem' }}>
-            <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #666, #fff)', borderRadius: '99px', transition: 'width 0.15s linear' }} />
-          </div>
-        </div>
-      );
-    }
-
-    // PAGE 1: COUNTDOWN
-    if (!showSurprise && currentPage === 1) {
-      return (
-        <PageContainer title="Counting Down" icon={<LuClock3 />}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '1rem',
-              maxWidth: '480px',
-              margin: '0 auto 2rem',
-            }}>
-              {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
-                <div key={unit} style={{
-                  textAlign: 'center',
-                  padding: '0.75rem 0.5rem',
-                  borderRadius: '1rem',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}>
-                  <div style={{ fontSize: '2.8rem', fontWeight: 300, fontVariantNumeric: 'tabular-nums' }}>
-                    {String(countdown[unit]).padStart(2, '0')}
-                  </div>
-                  <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
-                    {unit}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button onClick={handleSurpriseReveal} className="btn-outline">
-              Open the Surprise
-            </button>
-          </div>
-        </PageContainer>
-      );
-    }
-
-    // PAGE 2-11: SETELAH SURPRISE
-    if (showSurprise) {
-      const pages = [
-        // PAGE 2: Hero
-        {
-          component: (
-            <div ref={heroRef} style={{ textAlign: 'center' }}>
-              <div className="hero-icon" style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>
-                <BsCake2Fill />
-              </div>
-              <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.9)' }}>
-                Happy Birthday
-              </h1>
-              <p className="hero-sub" style={{ fontSize: 'clamp(1.25rem, 3vw, 2.5rem)', fontWeight: 300, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginTop: '1rem' }}>
-                Wasiatus Syafana
-              </p>
-              <div className="hero-arrow" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.2)', marginTop: '3rem' }}>
-                <LuArrowDown />
-              </div>
-            </div>
-          )
-        },
-        // PAGE 3: Letter
-        {
-          component: (
-            <div ref={letterRef} style={{ maxWidth: '672px', margin: '0 auto' }}>
-              <div className="glass-light" style={{ padding: '2rem 3rem', position: 'relative', borderRadius: '1.5rem' }}>
-                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                  <div style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.4)' }}><IoMail /></div>
-                </div>
-                <p ref={typewriterRef} style={{ fontSize: '0.875rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', fontWeight: 300 }} />
-              </div>
-            </div>
-          )
-        },
-        // PAGE 4: Timeline
-        {
-          component: (
-            <div ref={timelineRef} style={{ maxWidth: '768px', margin: '0 auto' }}>
-              <PageHeader icon={<BsCalendarHeart />} title="Our Timeline" />
-              <div style={{ position: 'relative', paddingLeft: '2rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-                {[
-                  { icon: <FaHeart />, year: '2023', text: 'The day our paths crossed — a quiet spark that lit everything.' },
-                  { icon: <FaStar />, year: '2024', text: 'Every laugh, every late-night conversation, every glance that said more than words.' },
-                  { icon: <BsCalendarHeart />, year: '2025', text: 'And now, this moment — a celebration of you, of us, of everything beautiful.' },
-                ].map((item, i) => (
-                  <div key={i} className="timeline-item" style={{ marginBottom: i === 2 ? 0 : '2rem', position: 'relative' }}>
-                    <div style={{
-                      position: 'absolute',
-                      left: '-2.6rem',
-                      top: '0.25rem',
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.8)',
-                      border: '2px solid #000',
-                    }} />
-                    <div className="glass" style={{ padding: '1.5rem', borderRadius: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                        <span style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.3)' }}>{item.icon}</span>
-                        <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{item.year}</span>
-                      </div>
-                      <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{item.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        },
-        // PAGE 5: Gallery
-        {
-          component: (
-            <div ref={galleryRef} style={{ maxWidth: '1024px', margin: '0 auto' }}>
-              <PageHeader icon={<BsImages />} title="Memories in Light" />
-              <div style={{ columnCount: 3, columnGap: '1rem' }}>
-                {galleryImages.map((src, i) => (
-                  <div
-                    key={i}
-                    className="masonry-item"
-                    style={{
-                      breakInside: 'avoid',
-                      marginBottom: '1rem',
-                      borderRadius: '1rem',
-                      overflow: 'hidden',
-                      background: '#111',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => { setLightboxSrc(src); setLightboxOpen(true); }}
-                  >
-                    <img src={src} alt={`Memory ${i+1}`} loading="lazy" style={{ width: '100%', display: 'block', height: `${200 + (i % 3) * 120}px`, objectFit: 'cover' }} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        },
-        // PAGE 6: Reasons
-        {
-          component: (
-            <div ref={reasonsRef} style={{ maxWidth: '1024px', margin: '0 auto' }}>
-              <PageHeader icon={<FaHeart />} title="Reasons I Love You" />
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                {[
-                  'Your laugh — a melody I could listen to forever.',
-                  'The way you see the world, soft and full of wonder.',
-                  'Your quiet strength that holds everything together.',
-                  'The kindness in your eyes, even on the hardest days.',
-                  'Your heart — brave, generous, and endlessly beautiful.',
-                  'Every single part of you, exactly as you are.',
-                ].map((text, i) => (
-                  <div key={i} className="reason-card glass" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '1rem' }}>
-                    <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem' }}>
-                      <FaHeart />
-                    </div>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        },
-        // PAGE 7: Wishes
-        {
-          component: (
-            <div ref={wishesRef} style={{ maxWidth: '672px', margin: '0 auto' }}>
-              <PageHeader icon={<HiSparkles />} title="Birthday Wishes" />
-              <div className="glass-light" style={{ padding: '2rem 3rem', borderRadius: '1.5rem' }}>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8 }}>
-                  May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
-                </p>
-              </div>
-            </div>
-          )
-        },
-        // PAGE 8: Cake
-        {
-          component: (
-            <div ref={cakeRef} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
-              <div style={{ fontSize: '3.75rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem' }}>
-                <BsCake2Fill />
-              </div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 300, letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>
-                Make a Wish
-              </h2>
-              <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '2rem' }}>
-                {cakeBlown ? '✨ Your wish is on its way' : 'Blow the candle'}
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ position: 'relative' }}>
-                  <div style={{ width: '12rem', height: '4rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderTopLeftRadius: '9999px', borderTopRightRadius: '9999px', margin: '0 auto' }} />
-                  <div style={{ width: '1rem', height: '6rem', background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(255,255,255,0.05))', borderRadius: '9999px', margin: '0.25rem auto 0', position: 'relative' }}>
-                    <div className="flame" style={{
-                      position: 'absolute',
-                      bottom: '100%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '20px',
-                      height: '40px',
-                      background: 'radial-gradient(ellipse at bottom, #fff 0%, #ccc 40%, #888 70%, transparent 100%)',
-                      borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                      filter: 'blur(1px)',
-                      animation: 'flicker 0.3s infinite alternate ease-in-out',
-                      transformOrigin: 'bottom center',
-                      boxShadow: '0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(255,255,255,0.1)',
-                      transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                      opacity: cakeBlown ? 0 : 1,
-                      transform: cakeBlown ? 'scale(0.2) translateY(20px)' : 'translateX(-50%)',
-                      filter: cakeBlown ? 'blur(8px)' : 'blur(1px)',
-                    }} />
-                  </div>
-                </div>
-                {!cakeBlown && (
-                  <button onClick={startBlowDetection} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
-                    {micActive ? '🎤 Listening...' : '💨 Blow the Candle'}
-                  </button>
-                )}
-                {cakeBlown && (
-                  <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 300 }}>
-                    ✦ A wish carried on the wind ✦
-                  </div>
-                )}
-              </div>
-            </div>
-          )
-        },
-        // PAGE 9: Gift
-        {
-          component: (
-            <div ref={giftRef} style={{ maxWidth: '448px', margin: '0 auto', textAlign: 'center' }}>
-              <PageHeader icon={<FaGift />} title="A Gift for You" />
-              <div
-                className={giftOpen ? 'open' : ''}
-                onClick={handleGiftOpen}
-                style={{
-                  width: '200px',
-                  height: '180px',
-                  background: '#111',
-                  borderRadius: '0.5rem 0.5rem 0 0',
-                  position: 'relative',
-                  cursor: 'pointer',
-                  margin: '0 auto',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-                }}
-              >
-                <div style={{
-                  width: '100%',
-                  height: '30px',
-                  background: '#1a1a1a',
-                  borderRadius: '0.5rem 0.5rem 0 0',
-                  borderBottom: '2px solid rgba(255,255,255,0.06)',
-                  transformOrigin: 'bottom center',
-                  transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-                  transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
-                }} />
-                <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '8px', background: '#fff', transform: 'translateY(-50%)', opacity: 0.9 }} />
-                <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '8px', background: '#fff', transform: 'translateX(-50%)', opacity: 0.9 }} />
-                <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '2rem', color: '#fff', opacity: 0.8 }}>✦</div>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: giftOpen ? 1 : 0,
-                  pointerEvents: giftOpen ? 'auto' : 'none',
-                  transition: 'opacity 0.6s ease 0.4s',
-                  padding: '0.5rem',
-                  textAlign: 'center',
-                  color: '#ddd',
-                }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>💌 You are the most beautiful part of every day.</p>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', color: 'rgba(255,255,255,0.3)', fontSize: '1.25rem' }}>
-                      <IoMusicalNotes /><FaHeart /><HiSparkles />
-                    </div>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                      A playlist of all the songs that remind me of you.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
-                {giftOpen ? '✨ Open with love' : 'Click to open'}
-              </p>
-            </div>
-          )
-        },
-        // PAGE 10: Final Letter
-        {
-          component: (
-            <div ref={finalRef} style={{ maxWidth: '672px', margin: '0 auto' }}>
-              <PageHeader icon={<IoMail />} title="A Final Letter" />
-              <div className="glass-light" style={{ padding: '2.5rem 3.5rem', borderRadius: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent, transparent)' }} />
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, position: 'relative', zIndex: 10 }}>
-                  In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
-                  <br /><br />
-                  With all my love,
-                  <br />
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Always.</span>
-                </p>
-              </div>
-            </div>
-          )
-        },
-        // PAGE 11: Ending
-        {
-          component: (
-            <div ref={endingRef} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
-                <FaHeart />
-              </div>
-              <h2 style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.8)' }}>
-                Thank You
-              </h2>
-              <p style={{ fontSize: '0.75rem', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
-                For being you
-              </p>
-              <button onClick={() => { setShowEnding(true); }} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
-                Celebrate
-              </button>
-              {showEnding && (
-                <div style={{ marginTop: '2rem' }}>
-                  <div style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.2)', animation: 'pulse 2s infinite' }}>
-                    <FaHeart />
-                  </div>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300, marginTop: '1rem' }}>
-                    Forever and always
-                  </p>
-                </div>
-              )}
-            </div>
-          )
-        },
-      ];
-
-      const pageIndex = currentPage - 2;
-      if (pageIndex >= 0 && pageIndex < pages.length) {
-        return pages[pageIndex].component;
-      }
-    }
-
-    return null;
-  };
-
   // ── RENDER ──
   return (
     <>
-      {/* CANVAS: partikel global */}
-      <canvas ref={particlesCanvas} id="particles-canvas" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
+      {/* Canvas Background */}
+      <canvas ref={particlesCanvas} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
+      <canvas ref={confettiCanvas} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9998 }} />
+      <canvas ref={fireworksCanvas} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9997 }} />
 
-      {/* CANVAS: confetti */}
-      <canvas ref={confettiCanvas} id="confetti-canvas" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9998 }} />
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          background: 'rgba(0,0,0,0.92)',
+          backdropFilter: 'blur(20px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem',
+        }} onClick={() => { setLightboxOpen(false); setLightboxSrc(''); }}>
+          <img src={lightboxSrc} alt="Enlarged" style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '1.5rem', objectFit: 'contain' }} />
+        </div>
+      )}
 
-      {/* CANVAS: fireworks */}
-      <canvas ref={fireworksCanvas} id="fireworks-canvas" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9997 }} />
-
-      {/* LIGHTBOX */}
-      <div id="lightbox" className={lightboxOpen ? 'open' : ''} onClick={() => { setLightboxOpen(false); setLightboxSrc(''); }} style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: 'rgba(0,0,0,0.92)',
-        backdropFilter: 'blur(20px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: lightboxOpen ? 1 : 0,
-        pointerEvents: lightboxOpen ? 'auto' : 'none',
-        transition: 'opacity 0.5s ease',
-        padding: '2rem',
-      }}>
-        <img src={lightboxSrc} alt="Enlarged" style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: '1.5rem', objectFit: 'contain' }} />
-      </div>
-
-      {/* PAGE CONTAINER */}
+      {/* Main Container */}
       <div style={{
         minHeight: '100vh',
         background: '#000',
@@ -1017,19 +1006,37 @@ export default function Ultah() {
         position: 'relative',
       }}>
         <div style={{ width: '100%', maxWidth: '1200px' }}>
-          {renderPage()}
 
-          {/* CONTINUE BUTTON */}
+          {/* Page Render */}
+          {loading && <LoadingScreen progress={progress} />}
+          
+          {!loading && !showSurprise && currentPage === 1 && (
+            <CountdownSection countdown={countdown} onSurpriseReveal={handleSurpriseReveal} />
+          )}
+
+          {showSurprise && currentPage === 2 && <HeroSection ref={heroRef} />}
+          {showSurprise && currentPage === 3 && <LetterIntroduction ref={letterRef} typewriterRef={typewriterRef} />}
+          {showSurprise && currentPage === 4 && <MemoryTimeline ref={timelineRef} />}
+          {showSurprise && currentPage === 5 && <GallerySection ref={galleryRef} images={galleryImages} onImageClick={(src) => { setLightboxSrc(src); setLightboxOpen(true); }} />}
+          {showSurprise && currentPage === 6 && <ReasonsSection ref={reasonsRef} />}
+          {showSurprise && currentPage === 7 && <BirthdayWishes ref={wishesRef} />}
+          {showSurprise && currentPage === 8 && <CakeSection ref={cakeRef} cakeBlown={cakeBlown} micActive={micActive} onBlow={startBlowDetection} />}
+          {showSurprise && currentPage === 9 && <GiftSection ref={giftRef} giftOpen={giftOpen} onGiftOpen={() => { if (!giftOpen) { setGiftOpen(true); fireConfetti(); setTimeout(() => multiBurst(3), 500); } }} />}
+          {showSurprise && currentPage === 10 && <FinalLetter ref={finalRef} />}
+          {showSurprise && currentPage === 11 && <EndingSection ref={endingRef} showEnding={showEnding} onCelebrate={() => { setShowEnding(true); }} />}
+
+          {/* Continue Button */}
           {!loading && currentPage > 0 && currentPage < totalPages - 1 && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
               <button onClick={goToNextPage} className="btn-outline">
-                Continue →
+                Continue <LuArrowDown style={{ marginLeft: '0.5rem', fontSize: '0.8rem' }} />
               </button>
               <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.15)', marginTop: '0.5rem', letterSpacing: '0.1em' }}>
                 {currentPage} / {totalPages - 1}
               </p>
             </div>
           )}
+
         </div>
       </div>
 
@@ -1106,29 +1113,5 @@ export default function Ultah() {
         }
       `}</style>
     </>
-  );
-}
-
-// ── COMPONENT HELPER ──
-function PageHeader({ icon, title }) {
-  return (
-    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-      <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
-        {icon}
-      </div>
-      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-function PageContainer({ children, title, icon }) {
-  return (
-    <div style={{ textAlign: 'center' }}>
-      {icon && <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>{icon}</div>}
-      {title && <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '2rem' }}>{title}</h2>}
-      {children}
-    </div>
   );
 }
