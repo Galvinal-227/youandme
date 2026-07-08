@@ -147,7 +147,7 @@ const MemoryTimeline = React.forwardRef((props, ref) => {
                 <span style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.3)' }}>{item.icon}</span>
                 <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{item.year}</span>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{item.text}</p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.6 }}>{item.text}</p>
             </div>
           </div>
         ))}
@@ -198,13 +198,18 @@ const ReasonsSection = React.forwardRef((props, ref) => {
   return (
     <div ref={ref} style={{ maxWidth: '1024px', margin: '0 auto' }}>
       <PageHeader icon={<FaHeart />} title="Reasons I Love You" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
         {reasons.map((text, i) => (
-          <div key={i} className="reason-card glass" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '1rem' }}>
-            <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '0.75rem' }}>
+          <div key={i} className="reason-card glass" style={{ 
+            padding: '2rem 1.5rem', 
+            textAlign: 'center', 
+            borderRadius: '1rem',
+            transition: 'transform 0.3s ease',
+          }}>
+            <div style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '1rem' }}>
               <FaRegHeart />
             </div>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300 }}>{text}</p>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.6 }}>{text}</p>
           </div>
         ))}
       </div>
@@ -217,8 +222,8 @@ const BirthdayWishes = React.forwardRef((props, ref) => {
   return (
     <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
       <PageHeader icon={<HiSparkles />} title="Birthday Wishes" />
-      <div className="glass-light" style={{ padding: '2rem 3rem', borderRadius: '1.5rem' }}>
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8 }}>
+      <div className="glass-light" style={{ padding: '2.5rem 3.5rem', borderRadius: '1.5rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', fontWeight: 300, lineHeight: 1.9, letterSpacing: '0.02em' }}>
           May this year bring you everything your heart desires — joy that spills over, peace that settles deep, and love that reminds you how truly extraordinary you are. You deserve all the beauty this world has to offer.
         </p>
       </div>
@@ -287,30 +292,56 @@ const GiftSection = React.forwardRef(({ giftOpen, onGiftOpen }, ref) => {
         className={giftOpen ? 'open' : ''}
         onClick={onGiftOpen}
         style={{
-          width: '200px',
-          height: '180px',
-          background: '#111',
-          borderRadius: '0.5rem 0.5rem 0 0',
+          width: '220px',
+          height: '190px',
+          background: 'linear-gradient(145deg, #1a1a1a, #0a0a0a)',
+          borderRadius: '0.75rem 0.75rem 0 0',
           position: 'relative',
           cursor: 'pointer',
           margin: '0 auto',
-          border: '1px solid rgba(255,255,255,0.06)',
-          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+          transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         <div style={{
           width: '100%',
-          height: '30px',
-          background: '#1a1a1a',
-          borderRadius: '0.5rem 0.5rem 0 0',
-          borderBottom: '2px solid rgba(255,255,255,0.06)',
+          height: '32px',
+          background: 'linear-gradient(180deg, #222, #111)',
+          borderRadius: '0.75rem 0.75rem 0 0',
+          borderBottom: '2px solid rgba(255,255,255,0.08)',
           transformOrigin: 'bottom center',
           transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
           transform: giftOpen ? 'rotateX(-90deg) translateY(-4px)' : 'none',
         }} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '8px', background: '#fff', transform: 'translateY(-50%)', opacity: 0.9 }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '8px', background: '#fff', transform: 'translateX(-50%)', opacity: 0.9 }} />
-        <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '2rem', color: '#fff', opacity: 0.8 }}>
+        <div style={{ 
+          position: 'absolute', 
+          left: 0, 
+          right: 0, 
+          top: '50%', 
+          height: '6px', 
+          background: 'linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.6), rgba(255,255,255,0.3))',
+          transform: 'translateY(-50%)', 
+          opacity: 0.8 
+        }} />
+        <div style={{ 
+          position: 'absolute', 
+          top: 0, 
+          bottom: 0, 
+          left: '50%', 
+          width: '6px', 
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.6), rgba(255,255,255,0.3))',
+          transform: 'translateX(-50%)', 
+          opacity: 0.8 
+        }} />
+        <div style={{ 
+          position: 'absolute', 
+          top: '-18px', 
+          left: '50%', 
+          transform: 'translateX(-50%)', 
+          fontSize: '2.2rem', 
+          color: 'rgba(255,255,255,0.6)',
+        }}>
           <LuSparkle />
         </div>
         <div style={{
@@ -322,25 +353,25 @@ const GiftSection = React.forwardRef(({ giftOpen, onGiftOpen }, ref) => {
           opacity: giftOpen ? 1 : 0,
           pointerEvents: giftOpen ? 'auto' : 'none',
           transition: 'opacity 0.6s ease 0.4s',
-          padding: '0.5rem',
+          padding: '1rem',
           textAlign: 'center',
-          color: '#ddd',
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem' }}>
-              <FaHeart style={{ marginRight: '0.5rem' }} />
+            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem', fontWeight: 300, lineHeight: 1.5 }}>
+              <FaHeart style={{ marginRight: '0.5rem', color: 'rgba(255,255,255,0.3)' }} />
               You are the most beautiful part of every day.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', color: 'rgba(255,255,255,0.3)', fontSize: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', color: 'rgba(255,255,255,0.25)', fontSize: '1.25rem' }}>
               <IoMusicalNotes /><FaHeart /><HiSparkles />
             </div>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-              <BsMusicNoteBeamed /> A playlist of all the songs that remind me of you.
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+              <BsMusicNoteBeamed style={{ marginRight: '0.3rem' }} />
+              A playlist of all the songs that remind me of you.
             </p>
           </div>
         </div>
       </div>
-      <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
+      <p style={{ marginTop: '1rem', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.15)' }}>
         {giftOpen ? <><LuSparkle /> Open with love</> : 'Click to open'}
       </p>
     </div>
@@ -352,14 +383,37 @@ const FinalLetter = React.forwardRef((props, ref) => {
   return (
     <div ref={ref} style={{ maxWidth: '672px', margin: '0 auto' }}>
       <PageHeader icon={<IoMail />} title="A Final Letter" />
-      <div className="glass-light" style={{ padding: '2.5rem 3.5rem', borderRadius: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent, transparent)' }} />
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.8, position: 'relative', zIndex: 10 }}>
+      <div className="glass-light" style={{ 
+        padding: '3rem 3.5rem', 
+        borderRadius: '1.5rem', 
+        position: 'relative', 
+        overflow: 'hidden',
+        boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
+      }}>
+        <div style={{ 
+          position: 'absolute', 
+          inset: 0, 
+          pointerEvents: 'none', 
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.02) 100%)' 
+        }} />
+        <p style={{ 
+          color: 'rgba(255,255,255,0.65)', 
+          fontSize: '0.95rem', 
+          fontWeight: 300, 
+          lineHeight: 2, 
+          position: 'relative', 
+          zIndex: 10,
+          letterSpacing: '0.02em',
+        }}>
           In the quiet hours, when the world falls still, it is you I think of — the warmth of your presence, the light in your smile, the gentle way you make everything feel possible. This day, and every day, you are cherished beyond measure.
           <br /><br />
           With all my love,
           <br />
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Always.</span>
+          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+            <LuSparkle style={{ marginRight: '0.3rem' }} />
+            Always.
+            <LuSparkle style={{ marginLeft: '0.3rem' }} />
+          </span>
         </p>
       </div>
     </div>
@@ -370,26 +424,30 @@ const FinalLetter = React.forwardRef((props, ref) => {
 const EndingSection = React.forwardRef(({ showEnding, onCelebrate }, ref) => {
   return (
     <div ref={ref} style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1.5rem' }}>
+      <div style={{ fontSize: '3.5rem', color: 'rgba(255,255,255,0.2)', marginBottom: '1.5rem' }}>
         <FaHeart />
       </div>
-      <h2 style={{ fontSize: 'clamp(2.5rem, 7vw, 4.5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.8)' }}>
+      <h2 style={{ fontSize: 'clamp(3rem, 8vw, 5rem)', fontWeight: 200, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.85)' }}>
         Thank You
       </h2>
-      <p style={{ fontSize: '0.75rem', letterSpacing: '0.25em', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
+      <p style={{ fontSize: '0.85rem', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.25)', fontWeight: 300, marginTop: '1rem', textTransform: 'uppercase' }}>
+        <LuSparkle style={{ marginRight: '0.5rem' }} />
         For being you
+        <LuSparkle style={{ marginLeft: '0.5rem' }} />
       </p>
-      <button onClick={onCelebrate} className="btn-outline" style={{ marginTop: '2rem', fontSize: '0.65rem' }}>
+      <button onClick={onCelebrate} className="btn-outline" style={{ marginTop: '2.5rem', fontSize: '0.7rem' }}>
         <HiSparkles style={{ marginRight: '0.5rem' }} />
         Celebrate
       </button>
       {showEnding && (
-        <div style={{ marginTop: '2rem' }}>
-          <div style={{ fontSize: '4.5rem', color: 'rgba(255,255,255,0.2)', animation: 'pulse 2s infinite' }}>
+        <div style={{ marginTop: '3rem' }}>
+          <div style={{ fontSize: '5rem', color: 'rgba(255,255,255,0.15)', animation: 'pulse 2s infinite' }}>
             <FaHeart />
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300, marginTop: '1rem' }}>
-            <LuSparkle /> Forever and always <LuSparkle />
+          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8rem', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 300, marginTop: '1.5rem' }}>
+            <LuSparkle style={{ marginRight: '0.5rem' }} />
+            Forever and always
+            <LuSparkle style={{ marginLeft: '0.5rem' }} />
           </p>
         </div>
       )}
@@ -401,10 +459,10 @@ const EndingSection = React.forwardRef(({ showEnding, onCelebrate }, ref) => {
 function PageHeader({ icon, title }) {
   return (
     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-      <div style={{ fontSize: '1.875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>
+      <div style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.25)', marginBottom: '0.75rem' }}>
         {icon}
       </div>
-      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300 }}>
+      <h2 style={{ fontSize: '0.7rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', fontWeight: 300 }}>
         {title}
       </h2>
     </div>
@@ -419,12 +477,12 @@ export default function Ultah() {
   const [countdownActive, setCountdownActive] = useState(true);
   const [showSurprise, setShowSurprise] = useState(false);
   const [galleryImages] = useState([
-    '/image1.jpeg',
-    '/image2.jpeg',
-    '/image3.jpeg',
-    '/image4.jpeg',
-    '/image5.jpeg',
-    '/image6.jpeg',
+    'https://picsum.photos/id/1/600/800',
+    'https://picsum.photos/id/26/800/600',
+    'https://picsum.photos/id/42/600/800',
+    'https://picsum.photos/id/64/800/600',
+    'https://picsum.photos/id/78/600/800',
+    'https://picsum.photos/id/91/800/600',
   ]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState('');
@@ -450,15 +508,19 @@ export default function Ultah() {
   const particlesCanvas = useRef(null);
   const confettiCanvas = useRef(null);
   const fireworksCanvas = useRef(null);
+  const containerRef = useRef(null);
 
   // ── Total Pages ──
-  const totalPages = 12; // 0:Loading, 1:Countdown, 2:Hero, 3:Letter, 4:Timeline, 5:Gallery, 6:Reasons, 7:Wishes, 8:Cake, 9:Gift, 10:Final, 11:Ending
+  const totalPages = 12;
 
   // ── Navigasi ──
   const goToNextPage = useCallback(() => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Scroll ke container, bukan ke home
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }, [currentPage]);
 
@@ -966,7 +1028,9 @@ export default function Ultah() {
     setCountdownActive(false);
     setCurrentPage(2);
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }, 100);
   }, []);
 
@@ -996,7 +1060,7 @@ export default function Ultah() {
       )}
 
       {/* Main Container */}
-      <div style={{
+      <div ref={containerRef} style={{
         minHeight: '100vh',
         background: '#000',
         display: 'flex',
@@ -1028,11 +1092,11 @@ export default function Ultah() {
           {/* Continue Button */}
           {!loading && currentPage > 0 && currentPage < totalPages - 1 && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-              <button onClick={goToNextPage} className="btn-outline">
-                Continue <LuArrowDown style={{ marginLeft: '0.5rem', fontSize: '0.8rem' }} />
+              <button onClick={goToNextPage} className="btn-outline" style={{ padding: '0.8rem 3rem' }}>
+                Continue <LuArrowDown style={{ marginLeft: '0.6rem', fontSize: '0.8rem' }} />
               </button>
-              <p style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.15)', marginTop: '0.5rem', letterSpacing: '0.1em' }}>
-                {currentPage} / {totalPages - 1}
+              <p style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.1)', marginTop: '0.75rem', letterSpacing: '0.15em' }}>
+                {currentPage} of {totalPages - 1}
               </p>
             </div>
           )}
@@ -1065,10 +1129,10 @@ export default function Ultah() {
         .btn-outline {
           display: inline-block;
           padding: 0.75rem 2.4rem;
-          border: 1px solid rgba(255,255,255,0.25);
+          border: 1px solid rgba(255,255,255,0.2);
           border-radius: 99px;
           color: #fff;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           letter-spacing: 0.12em;
           text-transform: uppercase;
           background: transparent;
@@ -1077,19 +1141,19 @@ export default function Ultah() {
           backdrop-filter: blur(8px);
         }
         .btn-outline:hover {
-          background: rgba(255,255,255,0.08);
-          border-color: rgba(255,255,255,0.5);
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(255,255,255,0.4);
           transform: scale(1.02);
           box-shadow: 0 0 40px rgba(255,255,255,0.04);
         }
         .glass {
-          background: rgba(255,255,255,0.04);
+          background: rgba(255,255,255,0.03);
           backdrop-filter: blur(12px) saturate(1.2);
           -webkit-backdrop-filter: blur(12px) saturate(1.2);
           border: 1px solid rgba(255,255,255,0.06);
         }
         .glass-light {
-          background: rgba(255,255,255,0.07);
+          background: rgba(255,255,255,0.05);
           backdrop-filter: blur(16px) saturate(1.4);
           -webkit-backdrop-filter: blur(16px) saturate(1.4);
           border: 1px solid rgba(255,255,255,0.08);
@@ -1110,6 +1174,10 @@ export default function Ultah() {
           opacity: 0 !important;
           transform: scale(0.2) translateY(20px) !important;
           filter: blur(8px) !important;
+        }
+        .reason-card:hover {
+          transform: translateY(-4px) !important;
+          border-color: rgba(255,255,255,0.15) !important;
         }
       `}</style>
     </>
