@@ -678,63 +678,93 @@ export default function Ultah() {
         </div>
       </div>
 
-      {/* COUNTDOWN */}
-      {!loading && !showSurprise && (
-        <section ref={countdownRef} style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          padding: '3rem 1.5rem',
-        }}>
-          <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>
-              <LuClock3 />
+      // ── Cari bagian COUNTDOWN di dalam return (sekitar baris 530-570) ──
+
+{/* COUNTDOWN */}
+{!loading && !showSurprise && (
+  <section ref={countdownRef} style={{
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    padding: '3rem 1.5rem',
+  }}>
+    <div style={{ maxWidth: '1200px', width: '100%', textAlign: 'center' }}>
+      <div style={{ fontSize: '3rem', color: 'rgba(255,255,255,0.3)', marginBottom: '2.5rem' }}>
+        <LuClock3 />
+      </div>
+      <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '0.5rem' }}>
+        Counting Down
+      </h2>
+      <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem', fontWeight: 300 }}>
+        The moment is almost here
+      </p>
+      
+      {/* ─── TIMER ─── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '1rem',
+        maxWidth: '480px',
+        margin: '0 auto',
+      }}>
+        {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
+          <div key={unit} style={{
+            textAlign: 'center',
+            padding: '0.75rem 0.5rem',
+            borderRadius: '1rem',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            <div style={{ fontSize: '2.8rem', fontWeight: 300, letterSpacing: '0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+              {String(countdown[unit]).padStart(2, '0')}
             </div>
-            <h2 style={{ fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 300, marginBottom: '0.5rem' }}>
-              Counting Down
-            </h2>
-            <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem', fontWeight: 300 }}>
-              The moment is almost here
-            </p>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '1rem',
-              maxWidth: '480px',
-              margin: '0 auto',
-            }}>
-              {['days', 'hours', 'minutes', 'seconds'].map((unit) => (
-                <div key={unit} style={{
-                  textAlign: 'center',
-                  padding: '0.75rem 0.5rem',
-                  borderRadius: '1rem',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}>
-                  <div style={{ fontSize: '2.8rem', fontWeight: 300, letterSpacing: '0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                    {String(countdown[unit]).padStart(2, '0')}
-                  </div>
-                  <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
-                    {unit}
-                  </div>
-                </div>
-              ))}
+            <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.16em', color: '#888', marginTop: '0.25rem' }}>
+              {unit}
             </div>
-            {countdownDone && (
-              <div style={{ marginTop: '3rem' }}>
-                <p style={{ fontSize: '1.125rem', fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '1.5rem' }}>
-                  Today is Your Day
-                </p>
-                <button onClick={handleSurpriseReveal} className="btn-outline">
-                  Open the Surprise
-                </button>
-              </div>
-            )}
           </div>
-        </section>
+        ))}
+      </div>
+
+      {/* ─── TOMBOL "COBA SEKARANG" ─── */}
+      {/* Tambahkan tombol ini di bawah timer, sebelum atau sesudah countdownDone */}
+      <div style={{ marginTop: '2rem' }}>
+        <button 
+          onClick={() => {
+            // Langsung ke hero tanpa menunggu countdown
+            setShowSurprise(true);
+            setCountdownActive(false);
+            setCountdownDone(true);
+            setTimeout(() => {
+              document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+            }, 400);
+          }} 
+          className="btn-outline"
+          style={{
+            borderColor: 'rgba(255,255,255,0.15)',
+            fontSize: '0.7rem',
+            padding: '0.6rem 2rem',
+          }}
+        >
+          Coba Sekarang ⏭
+        </button>
+      </div>
+
+      {/* ─── TOMBOL ASLI (Open the Surprise) ─── */}
+      {countdownDone && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <p style={{ fontSize: '1.125rem', fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+            Today is Your Day
+          </p>
+          <button onClick={handleSurpriseReveal} className="btn-outline">
+            Open the Surprise
+          </button>
+        </div>
       )}
+    </div>
+  </section>
+)}
 
       {/* HERO */}
       {showSurprise && (
