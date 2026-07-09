@@ -4,7 +4,7 @@ import React, { useRef, useMemo, Suspense, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
-import { cn } from "../../lib/utils";
+import { cn } from "../lib/utils";
 
 const RADIUS = 2.0;
 
