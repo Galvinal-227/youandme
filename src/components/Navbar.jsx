@@ -72,7 +72,7 @@ function Navbar() {
               <NavLink onClick={() => scrollToSection('hero')} icon={<FaHome />} text="Home" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('gallery')} icon={<FaImages />} text="Gallery" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('story')} icon={<FaHeart />} text="Story" isScrolled={isScrolled} />
-              <NavLink onClick={() => scrollToSection('ultah')} icon={<FaGift />} text="Ultah" isScrolled={isScrolled} />
+              <NavLink onClick={() => scrollToSection('love')} icon={<FaGift />} text="Love" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('profile')} icon={<FaUserFriends />} text="Profile" isScrolled={isScrolled} />
               <NavLink onClick={() => scrollToSection('footer')} icon={<FaInfoCircle />} text="Info" isScrolled={isScrolled} />
             </div>
@@ -109,7 +109,7 @@ function Navbar() {
           <MobileNavLink onClick={() => scrollToSection('hero')} icon={<FaHome />} text="Home" />
           <MobileNavLink onClick={() => scrollToSection('gallery')} icon={<FaImages />} text="Gallery" />
           <MobileNavLink onClick={() => scrollToSection('story')} icon={<FaHeart />} text="Story" />
-          <MobileNavLink onClick={() => scrollToSection('ultah')} icon={<FaGift />} text="Ultah" />
+          <MobileNavLink onClick={() => scrollToSection('love')} icon={<FaGift />} text="Love" />
           <MobileNavLink onClick={() => scrollToSection('profile')} icon={<FaUserFriends />} text="Profile" />
           <MobileNavLink onClick={() => scrollToSection('footer')} icon={<FaInfoCircle />} text="Info" />
           
