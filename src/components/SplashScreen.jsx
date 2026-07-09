@@ -287,7 +287,7 @@ function SplashScreen({ onChoice }) {
             <div className="relative flex items-center gap-3">
               <FaPlay className="text-white/60 group-hover:text-white/80 text-xs transition-all duration-300" />
               <span className="text-white/80 group-hover:text-white text-xs uppercase tracking-[0.2em] transition-all duration-300">
-                Ya
+                Yes
               </span>
               <FaChevronRight className="text-white/20 group-hover:text-white/40 text-[10px] translate-x-0 group-hover:translate-x-1 transition-all duration-300" />
             </div>
@@ -300,7 +300,7 @@ function SplashScreen({ onChoice }) {
             <div className="flex items-center gap-3">
               <FaTimes className="text-white/50 group-hover:text-white text-xs transition-all duration-300" />
               <span className="text-white/50 group-hover:text-white text-xs uppercase tracking-[0.2em] transition-all duration-300">
-                Tidak
+                No
               </span>
             </div>
           </button>

@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
+import LunarGravityCard from './components/ui/lunar-gravity-card';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,7 +47,6 @@ function App() {
     }
   }, [showSplash]);
 
-  // 🔥 INTERSECTION OBSERVER UNTUK FADE-ON-SCROLL
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -56,7 +56,6 @@ function App() {
       });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    // Tunggu sebentar sampai DOM siap
     const timeout = setTimeout(() => {
       document.querySelectorAll('.fade-on-scroll').forEach(el => observer.observe(el));
     }, 100);
@@ -107,6 +106,22 @@ function App() {
       
       <div id="story" className="fade-on-scroll">
         <Story />
+      </div>
+
+      {/* Ganti Ultah dengan LunarGravityCard - Tema Cinta */}
+      <div id="love" className="fade-on-scroll">
+        <LunarGravityCard 
+          title={
+            <>
+              <span className="text-zinc-50 drop-shadow-sm">My Love</span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-pink-400 via-rose-400 to-red-400 drop-shadow-md">
+                For You.
+              </span>
+            </>
+          }
+          description="My love for you is as vast as the universe. Infinite, timeless, and growing with every heartbeat. You are my moon, my stars, my everything."
+        />
       </div>
 
       <div id="profile" className="fade-on-scroll">
