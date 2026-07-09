@@ -18,6 +18,7 @@ function MusicPlayer({
   const [displayText, setDisplayText] = useState('');
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const getSongData = () => {
     if (selectedSong === 'lesungpipi') {
@@ -171,68 +172,107 @@ function MusicPlayer({
         onError={() => setAudioError(true)}
       />
 
-      <div className="fixed top-20 right-6 z-50 w-72 bg-black/50 backdrop-blur-xl border border-white/10 rounded-3xl p-4 shadow-2xl">
-
-        {/* Visualizer dengan CSS animation - gerak terus */}
-        <div className="flex items-end justify-center gap-[3px] h-12 mb-3">
-          {[...Array(16)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-full"
-              style={{
-                width: '3px',
-                height: musicPlaying ? 'auto' : '4px',
-                animation: musicPlaying ? `visualizerWave ${0.3 + i * 0.05}s ease-in-out infinite alternate` : 'none',
-                transformOrigin: 'bottom'
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button onClick={toggleMusic}>
+      {/* Music Player - Responsive */}
+      <div 
+        className={`fixed z-50 transition-all duration-500 ${
+          isMinimized 
+            ? 'bottom-4 right-4 w-14 h-14 rounded-full' 
+            : 'bottom-4 left-4 right-4 md:bottom-6 md:right-6 md:left-auto w-full md:w-72 rounded-3xl'
+        } bg-black/70 backdrop-blur-xl border border-white/10 shadow-2xl`}
+        style={{
+          maxWidth: isMinimized ? '56px' : 'calc(100% - 32px)',
+          margin: '0 auto',
+        }}
+      >
+        {isMinimized ? (
+          // Mini Player
+          <button 
+            onClick={() => setIsMinimized(false)}
+            className="w-full h-full flex items-center justify-center"
+          >
             <img
               src="/music.gif"
-              alt="vinyl"
-              className={`w-14 h-14 rounded-full object-cover transition-all duration-300 ${
-                musicPlaying ? 'animate-spin' : ''
-              }`}
+              alt="music"
+              className={`w-10 h-10 rounded-full object-cover ${musicPlaying ? 'animate-spin' : ''}`}
               style={{ animationDuration: '5s' }}
             />
           </button>
+        ) : (
+          // Full Player
+          <div className="p-3 md:p-4">
+            {/* Tombol minimize */}
+            <button 
+              onClick={() => setIsMinimized(true)}
+              className="absolute -top-2 -right-2 w-6 h-6 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/50 hover:text-white transition-colors"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-          <div className="flex-1">
-            <p className="text-[10px] text-gray-400 tracking-[0.25em]">
-              NOW PLAYING
-            </p>
-            <p className="text-white text-sm font-medium">
-              {songData.title}
-            </p>
-            <p className="text-xs text-gray-500">
-              {songData.artist}
-            </p>
-          </div>
-        </div>
+            {/* Visualizer */}
+            <div className="flex items-end justify-center gap-[3px] h-8 md:h-12 mb-2 md:mb-3">
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-full"
+                  style={{
+                    width: '2px',
+                    height: musicPlaying ? 'auto' : '3px',
+                    animation: musicPlaying ? `visualizerWave ${0.3 + i * 0.05}s ease-in-out infinite alternate` : 'none',
+                    transformOrigin: 'bottom'
+                  }}
+                />
+              ))}
+            </div>
 
-        <div className="mt-4">
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-white transition-all duration-300"
-              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-            />
+            <div className="flex items-center gap-3">
+              <button onClick={toggleMusic} className="flex-shrink-0">
+                <img
+                  src="/music.gif"
+                  alt="vinyl"
+                  className={`w-12 h-12 md:w-14 md:h-14 rounded-full object-cover transition-all duration-300 ${
+                    musicPlaying ? 'animate-spin' : ''
+                  }`}
+                  style={{ animationDuration: '5s' }}
+                />
+              </button>
+
+              <div className="flex-1 min-w-0">
+                <p className="text-[8px] md:text-[10px] text-gray-400 tracking-[0.25em]">
+                  NOW PLAYING
+                </p>
+                <p className="text-white text-xs md:text-sm font-medium truncate">
+                  {songData.title}
+                </p>
+                <p className="text-[10px] md:text-xs text-gray-500 truncate">
+                  {songData.artist}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 md:mt-4">
+              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-white transition-all duration-300"
+                  style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                />
+              </div>
+              <div className="flex justify-between mt-1 text-[8px] md:text-[10px] text-gray-500">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between mt-1 text-[10px] text-gray-500">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div>
+        )}
       </div>
 
-      <div className="fixed bottom-28 left-0 right-0 z-40 pointer-events-none">
-        <div className="max-w-3xl mx-auto text-center px-4">
+      {/* Lyrics - Responsive */}
+      <div className="fixed bottom-20 md:bottom-28 left-0 right-0 z-40 pointer-events-none px-4">
+        <div className="max-w-3xl mx-auto text-center">
           <p
             key={currentLyricIndex}
-            className="current-lyric text-xl md:text-2xl lg:text-3xl text-white font-medium leading-relaxed tracking-wide"
+            className="current-lyric text-sm md:text-xl lg:text-2xl text-white font-medium leading-relaxed tracking-wide"
             style={{ fontFamily: "'Pixelify Sans', 'Courier New', monospace" }}
           >
             {displayText || '🎵'}
@@ -246,8 +286,14 @@ function MusicPlayer({
           to { transform: rotate(360deg); }
         }
         @keyframes visualizerWave {
-          0% { height: 4px; opacity: 0.3; }
-          100% { height: 28px; opacity: 1; }
+          0% { height: 3px; opacity: 0.3; }
+          100% { height: 20px; opacity: 1; }
+        }
+        @media (min-width: 768px) {
+          @keyframes visualizerWave {
+            0% { height: 4px; opacity: 0.3; }
+            100% { height: 28px; opacity: 1; }
+          }
         }
       `}</style>
     </>
