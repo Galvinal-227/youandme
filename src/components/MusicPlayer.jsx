@@ -172,17 +172,13 @@ function MusicPlayer({
         onError={() => setAudioError(true)}
       />
 
-      {/* Music Player - Responsive */}
+      {/* Music Player - Di ATAS (top) biar ga nutup lirik */}
       <div 
         className={`fixed z-50 transition-all duration-500 ${
           isMinimized 
-            ? 'bottom-4 right-4 w-14 h-14 rounded-full' 
-            : 'bottom-4 left-4 right-4 md:bottom-6 md:right-6 md:left-auto w-full md:w-72 rounded-3xl'
+            ? 'top-20 right-4 w-14 h-14 rounded-full' 
+            : 'top-20 right-4 w-64 md:w-72 rounded-2xl'
         } bg-black/70 backdrop-blur-xl border border-white/10 shadow-2xl`}
-        style={{
-          maxWidth: isMinimized ? '56px' : 'calc(100% - 32px)',
-          margin: '0 auto',
-        }}
       >
         {isMinimized ? (
           // Mini Player
@@ -267,8 +263,8 @@ function MusicPlayer({
         )}
       </div>
 
-      {/* Lyrics - Responsive */}
-      <div className="fixed bottom-20 md:bottom-28 left-0 right-0 z-40 pointer-events-none px-4">
+      {/* Lyrics - Di BAWAH player (biar ga ketutupan) */}
+      <div className="fixed bottom-8 md:bottom-12 left-0 right-0 z-40 pointer-events-none px-4">
         <div className="max-w-3xl mx-auto text-center">
           <p
             key={currentLyricIndex}
