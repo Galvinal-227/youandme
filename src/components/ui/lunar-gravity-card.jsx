@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useMemo, Suspense, useState } from "react";
+import React, { useRef, useMemo, Suspense, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useTexture, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -360,30 +360,52 @@ export default function LunarGravityCard({
   description = "Embed highly realistic astrophysics directly into your Next.js project. Zero configuration, fully interactive, and flawlessly smooth."
 }) {
   const [ringState, setRingState] = useState('hidden');
+  const [isMobile, setIsMobile] = useState(false);
   const massiveAsteroidsRef = useRef(new Float32Array(75 * 4));
 
+  // Deteksi device mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <div className={cn("w-full max-w-[1000px] min-h-[700px] md:min-h-[auto] md:h-[540px] bg-black rounded-[2.5rem] flex flex-col md:flex-row relative overflow-hidden border border-white/[0.08] shadow-[0_30px_100px_rgba(0,0,0,0.4)]", className)}>
+    <div className={cn("w-full max-w-[1000px] min-h-[500px] md:min-h-[auto] md:h-[540px] bg-black rounded-[2.5rem] flex flex-col md:flex-row relative overflow-hidden border border-white/[0.08] shadow-[0_30px_100px_rgba(0,0,0,0.4)]", className)}>
       
       <div className="absolute top-0 left-0 md:inset-y-0 md:left-0 w-full h-[60%] md:h-full md:w-[60%] bg-gradient-to-b md:bg-gradient-to-r from-black via-black/90 to-transparent z-10 pointer-events-none"></div>
 
-      <div className="w-full md:w-[45%] flex flex-col justify-center px-10 py-12 md:p-0 md:pl-16 relative z-20 pointer-events-none">
-        <h2 className="text-[4.5rem] md:text-[5.5rem] font-bold tracking-tighter leading-[0.9] mb-6">
+      <div className="w-full md:w-[45%] flex flex-col justify-center px-6 py-8 md:p-0 md:pl-16 relative z-20 pointer-events-none">
+        <h2 className="text-3xl md:text-[5.5rem] font-bold tracking-tighter leading-[0.9] mb-4 md:mb-6">
           {title}
         </h2>
-        <p className="text-base md:text-lg text-zinc-400 font-medium leading-relaxed max-w-[340px]">
+        <p className="text-sm md:text-lg text-zinc-400 font-medium leading-relaxed max-w-[340px]">
           {description}
         </p>
       </div>
      
-      <div className="relative md:absolute md:right-0 md:top-0 w-full h-[450px] md:h-full md:w-[65%] pointer-events-auto z-0 flex items-center justify-center">
+      <div className="relative md:absolute md:right-0 md:top-0 w-full h-[350px] md:h-full md:w-[65%] pointer-events-auto z-0 flex items-center justify-center">
         <div className="absolute inset-0 w-full h-full">
-          <Canvas shadows camera={{ position: [0, 4, 10], fov: 45 }} dpr={[1, 2]}>
+          <Canvas 
+            shadows={!isMobile} 
+            camera={{ position: [0, 4, 10], fov: isMobile ? 60 : 45 }} 
+            dpr={isMobile ? [1, 1.5] : [1, 2]}
+            gl={{ 
+              antialias: !isMobile,
+              powerPreference: "high-performance",
+              alpha: false,
+              stencil: false,
+              depth: true
+            }}
+          >
             <Environment preset="city" />
 
-            <ambientLight intensity={0.02} />
-            <directionalLight position={[8, 5, 5]} intensity={1.5} color="#ffffff" castShadow shadow-mapSize={[2048, 2048]} />
-            <directionalLight position={[-5, -3, -5]} intensity={0.15} color="#4a90e2" />
+            <ambientLight intensity={isMobile ? 0.05 : 0.02} />
+            <directionalLight position={[8, 5, 5]} intensity={isMobile ? 1.0 : 1.5} color="#ffffff" />
+            <directionalLight position={[-5, -3, -5]} intensity={0.1} color="#4a90e2" />
 
             <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} />
 
@@ -392,7 +414,6 @@ export default function LunarGravityCard({
                 <RealisticMoon onClick={() => { if(ringState === 'hidden') setRingState('animating') }} />
                 <ParticleRing ringState={ringState} massiveAsteroidsRef={massiveAsteroidsRef} />
                 <AsteroidBelt ringState={ringState} massiveAsteroidsRef={massiveAsteroidsRef} />
-                <Environment preset="city" />
               </Suspense>
             </group>
           </Canvas>
