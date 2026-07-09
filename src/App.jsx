@@ -10,7 +10,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
-import Ultah from './components/Ultah';
+import LunarGravityCard from './components/ui/lunar-gravity-card';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -108,8 +108,20 @@ function App() {
         <Story />
       </div>
 
-      <div id="ultah" className="fade-on-scroll">
-        <Ultah />
+      {/* Ganti Ultah dengan LunarGravityCard - Tema Cinta */}
+      <div id="love" className="fade-on-scroll">
+        <LunarGravityCard 
+          title={
+            <>
+              <span className="text-zinc-50 drop-shadow-sm">My Love</span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-pink-400 via-rose-400 to-red-400 drop-shadow-md">
+                For You.
+              </span>
+            </>
+          }
+          description="My love for you is as vast as the universe. Infinite, timeless, and growing with every heartbeat. You are my moon, my stars, my everything."
+        />
       </div>
 
       <div id="profile" className="fade-on-scroll">
@@ -153,12 +165,10 @@ function App() {
         ::-webkit-scrollbar-thumb:hover {
           background: #555;
         }
-        
         body {
           background-color: black;
           font-family: 'Jost', sans-serif;
           overflow-x: hidden;
-          cursor: default;
         }
         
         .fade-on-scroll {
