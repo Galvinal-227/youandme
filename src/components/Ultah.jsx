@@ -113,7 +113,7 @@ const Ultah = () => {
     {
       front: (
         <div style={styles.pageContent}>
-          <FaSparkles style={styles.iconLarge} />
+          <LuSparkles style={styles.iconLarge} />
           <h3 style={styles.pageSubtitle}>Selamat Ulang Tahun, Syafa!</h3>
           <p style={styles.pageText}>
             Terus bersinar dan jadilah inspirasi bagi banyak orang. 
@@ -507,4 +507,3 @@ styleSheet.textContent = `
 document.head.appendChild(styleSheet);
 
 export default Ultah;
-      
