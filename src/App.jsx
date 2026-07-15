@@ -14,10 +14,19 @@ import LunarGravityCard from './components/ui/lunar-gravity-card';
 
 const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
   return (
-    <div className="[--shadow:rgba(60,64,67,0.3)_0_1px_2px_0,rgba(60,64,67,0.15)_0_2px_6px_2px] w-4/5 h-auto rounded-2xl bg-white [box-shadow:var(--shadow)] max-w-[300px]">
-      <div className="flex flex-col items-center justify-between pt-9 px-6 pb-6 relative">
-        <span className="relative mx-auto -mt-16 mb-8">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" height={46} width={65}>
+    <div 
+      className="w-full max-w-[500px] rounded-t-2xl bg-white shadow-2xl"
+      style={{ 
+        pointerEvents: 'auto',
+        boxShadow: '0 -10px 40px rgba(0,0,0,0.3)'
+      }}
+    >
+      <div className="flex flex-col items-center px-8 pt-6 pb-8 relative">
+        
+        <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+        
+        <div className="flex items-start gap-4 w-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" height={40} width={56} className="flex-shrink-0 mt-1">
             <path stroke="#000" fill="#EAB789" d="M49.157 15.69L44.58.655l-12.422 1.96L21.044.654l-8.499 2.615-6.538 5.23-4.576 9.153v11.114l4.576 8.5 7.846 5.23 10.46 1.96 7.845-2.614 9.153 2.615 11.768-2.615 7.846-7.846 1.96-5.884.655-7.191-7.846-1.308-6.537-3.922z" />
             <path fill="#9C6750" d="M32.286 3.749c-6.94 3.65-11.69 11.053-11.69 19.591 0 8.137 4.313 15.242 10.724 19.052a20.513 20.513 0 01-8.723 1.937c-11.598 0-21-9.626-21-21.5 0-11.875 9.402-21.5 21-21.5 3.495 0 6.79.874 9.689 2.42z" clipRule="evenodd" fillRule="evenodd" />
             <path fill="#634647" d="M64.472 20.305a.954.954 0 00-1.172-.824 4.508 4.508 0 01-3.958-.934.953.953 0 00-1.076-.11c-.46.252-.977.383-1.502.382a3.154 3.154 0 01-2.97-2.11.954.954 0 00-.833-.634 4.54 4.54 0 01-4.205-4.507c.002-.23.022-.46.06-.687a.952.952 0 00-.213-.767 3.497 3.497 0 01-.614-3.5.953.953 0 00-.382-1.138 3.522 3.522 0 01-1.5-3.992.951.951 0 00-.762-1.227A22.611 22.611 0 0032.3 2.16 22.41 22.41 0 0022.657.001a22.654 22.654 0 109.648 43.15 22.644 22.644 0 0032.167-22.847zM22.657 43.4a20.746 20.746 0 110-41.493c2.566-.004 5.11.473 7.501 1.407a22.64 22.64 0 00.003 38.682 20.6 20.6 0 01-7.504 1.404zm19.286 0a20.746 20.746 0 112.131-41.384 5.417 5.417 0 001.918 4.635 5.346 5.346 0 00-.133 1.182A5.441 5.441 0 0046.879 11a5.804 5.804 0 00-.028.568 6.456 6.456 0 005.38 6.345 5.053 5.053 0 006.378 2.472 6.412 6.412 0 004.05 1.12 20.768 20.768 0 01-20.716 21.897z" />
@@ -28,35 +37,40 @@ const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
             <path fill="#634647" d="M19.672 35.374a.954.954 0 00-.954.953v2.363a.954.954 0 001.907 0v-2.362a.954.954 0 00-.953-.954z" />
             <path fill="#644647" d="M33.129 29.18l-2.803 1.065a.953.953 0 00-.053 1.764.957.957 0 00.73.022l2.803-1.065a.953.953 0 00-.677-1.783v-.003zm24.373-3.628l-2.167.823a.956.956 0 00-.054 1.764.954.954 0 00.73.021l2.169-.823a.954.954 0 10-.678-1.784v-.001z" />
           </svg>
-        </span>
-        <h5 className="text-sm font-semibold mb-2 text-left mr-auto text-zinc-700">
-          Your privacy is important to us
-        </h5>
-        <p className="w-full mb-4 text-sm text-justify">
-          We process your personal information to measure and improve our sites and
-          services, to assist our campaigns and to provide personalised content.
-          <br />
-          For more information see our
-          <a 
-            className="mb-2 text-sm cursor-pointer font-semibold transition-colors hover:text-[#634647] underline underline-offset-2"
-            onClick={onPrivacyPolicy}
+          <div className="flex-1">
+            <h5 className="text-sm font-semibold mb-1 text-left text-zinc-700">
+              Your privacy is important to us
+            </h5>
+            <p className="text-xs text-justify text-gray-600 leading-relaxed">
+              We process your personal information to measure and improve our sites and
+              services, to assist our campaigns and to provide personalised content.
+              <br />
+              For more information see our
+              <a 
+                className="ml-1 text-xs cursor-pointer font-semibold transition-colors hover:text-[#634647] underline underline-offset-2"
+                onClick={onPrivacyPolicy}
+              >
+                Privacy Policy
+              </a>
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3 w-full mt-2">
+          <button 
+            className="text-xs text-zinc-600 cursor-pointer font-semibold transition-colors hover:text-[#634647] hover:underline underline-offset-2 px-2 py-1"
+            onClick={onMoreOptions}
           >
-            Privacy Policy
-          </a>
-        </p>
-        <button 
-          className="mb-2 text-sm mr-auto text-zinc-600 cursor-pointer font-semibold transition-colors hover:text-[#634647] hover:underline underline-offset-2"
-          onClick={onMoreOptions}
-        >
-          More Options
-        </button>
-        <button 
-          className="absolute font-semibold right-6 bottom-6 cursor-pointer py-2 px-8 w-max break-keep text-sm rounded-lg transition-colors text-[#634647] hover:text-[#ddad81] bg-[#ddad81] hover:bg-[#634647]" 
-          type="button"
-          onClick={onAccept}
-        >
-          Accept
-        </button>
+            More Options
+          </button>
+          <button 
+            className="flex-1 font-semibold cursor-pointer py-2.5 px-6 text-sm rounded-lg transition-all text-white bg-[#634647] hover:bg-[#7a5554] shadow-md hover:shadow-lg" 
+            type="button"
+            onClick={onAccept}
+          >
+            Accept All
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -77,7 +91,7 @@ function App() {
     if (!hasAcceptedCookies) {
       const timer = setTimeout(() => {
         setShowCookieConsent(true);
-      }, 1000);
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -142,16 +156,16 @@ function App() {
   const handleAcceptCookies = () => {
     localStorage.setItem('cookieConsent', 'accepted');
     setShowCookieConsent(false);
-    console.log('Cookies accepted ');
+    console.log('Cookies accepted');
   };
 
   const handleMoreOptions = () => {
-    console.log('More options clicked - showing more settings');
-    alert('More cookie options would appear here');
+    console.log('🔧 More options clicked');
+    alert('More cookie settings would appear here');
   };
 
   const handlePrivacyPolicy = () => {
-    console.log('Privacy policy clicked - opening privacy policy page');
+    console.log('📄 Privacy policy clicked');
     alert('Opening privacy policy page');
   };
 
@@ -172,14 +186,19 @@ function App() {
           selectedSong={selectedSong}
         />
       )}
-    
+      
       {showCookieConsent && (
-        <div className="fixed bottom-4 right-4 z-50 max-w-xs animate-in slide-in-from-bottom-4 duration-500">
-          <Card 
-            onAccept={handleAcceptCookies}
-            onMoreOptions={handleMoreOptions}
-            onPrivacyPolicy={handlePrivacyPolicy}
-          />
+        <div 
+          className="fixed bottom-0 left-0 right-0 z-[999999999999] animate-in slide-up"
+          style={{ pointerEvents: 'none' }}
+        >
+          <div className="max-w-lg mx-auto px-4 pb-4" style={{ pointerEvents: 'auto' }}>
+            <Card 
+              onAccept={handleAcceptCookies}
+              onMoreOptions={handleMoreOptions}
+              onPrivacyPolicy={handlePrivacyPolicy}
+            />
+          </div>
         </div>
       )}
       
@@ -282,19 +301,19 @@ function App() {
           background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
         }
         
-        /* Animasi untuk cookie card */
-        @keyframes slideInFromBottom {
+        /* Animasi slide up untuk cookie card */
+        @keyframes slideUp {
           from {
             opacity: 0;
-            transform: translateY(20px) scale(0.95);
+            transform: translateY(100%);
           }
           to {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
           }
         }
-        .animate-in {
-          animation: slideInFromBottom 0.5s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
+        .slide-up {
+          animation: slideUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
         }
       `}</style>
     </div>
