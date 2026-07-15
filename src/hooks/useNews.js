@@ -1,3 +1,4 @@
+// src/hooks/useNews.js
 import { useState, useEffect, useCallback } from 'react';
 import { getTopHeadlines, searchNews, getSources } from '../services/newsService';
 
@@ -15,18 +16,29 @@ export const useNews = (initialCategory = 'general') => {
     setError(null);
     
     try {
-      const response = await getTopHeadlines({
-        category: category !== 'general' ? category : undefined,
+      const requestParams = {
         ...params
-      });
+      };
+      
+      // Only add category if not 'general'
+      if (category && category !== 'general') {
+        requestParams.category = category;
+      }
+      
+      console.log('Fetching headlines with params:', requestParams);
+      const response = await getTopHeadlines(requestParams);
       
       if (response.status === 'ok') {
         setArticles(response.articles || []);
+        if (response.articles?.length === 0) {
+          setError('No articles found for this category');
+        }
       } else {
         setError('Failed to fetch news');
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      console.error('Fetch error details:', err);
+      setError(err.message || 'An error occurred while fetching news');
     } finally {
       setLoading(false);
     }
@@ -34,7 +46,7 @@ export const useNews = (initialCategory = 'general') => {
 
   // Search news
   const searchNewsArticles = useCallback(async (query) => {
-    if (!query.trim()) {
+    if (!query || query.trim() === '') {
       fetchHeadlines();
       return;
     }
@@ -46,11 +58,15 @@ export const useNews = (initialCategory = 'general') => {
       const response = await searchNews(query);
       if (response.status === 'ok') {
         setArticles(response.articles || []);
+        if (response.articles?.length === 0) {
+          setError('No articles found for your search');
+        }
       } else {
         setError('Failed to search news');
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      console.error('Search error details:', err);
+      setError(err.message || 'An error occurred while searching');
     } finally {
       setLoading(false);
     }
@@ -72,11 +88,13 @@ export const useNews = (initialCategory = 'general') => {
   const changeCategory = useCallback((newCategory) => {
     setCategory(newCategory);
     setSelectedSource('');
+    setError(null);
   }, []);
 
   // Change source
   const changeSource = useCallback((sourceId) => {
     setSelectedSource(sourceId);
+    setError(null);
     if (sourceId) {
       fetchHeadlines({ sources: sourceId });
     } else {
