@@ -12,8 +12,7 @@ import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import LunarGravityCard from './components/ui/lunar-gravity-card';
 
-// Import Card component langsung di sini
-const Card = () => {
+const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
   return (
     <div className="[--shadow:rgba(60,64,67,0.3)_0_1px_2px_0,rgba(60,64,67,0.15)_0_2px_6px_2px] w-4/5 h-auto rounded-2xl bg-white [box-shadow:var(--shadow)] max-w-[300px]">
       <div className="flex flex-col items-center justify-between pt-9 px-6 pb-6 relative">
@@ -38,12 +37,24 @@ const Card = () => {
           services, to assist our campaigns and to provide personalised content.
           <br />
           For more information see our
-          <a className="mb-2 text-sm cursor-pointer font-semibold transition-colors hover:text-[#634647] underline underline-offset-2">Privacy Policy</a>
+          <a 
+            className="mb-2 text-sm cursor-pointer font-semibold transition-colors hover:text-[#634647] underline underline-offset-2"
+            onClick={onPrivacyPolicy}
+          >
+            Privacy Policy
+          </a>
         </p>
-        <button className="mb-2 text-sm mr-auto text-zinc-600 cursor-pointer font-semibold transition-colors hover:text-[#634647] hover:underline underline-offset-2">
+        <button 
+          className="mb-2 text-sm mr-auto text-zinc-600 cursor-pointer font-semibold transition-colors hover:text-[#634647] hover:underline underline-offset-2"
+          onClick={onMoreOptions}
+        >
           More Options
         </button>
-        <button className="absolute font-semibold right-6 bottom-6 cursor-pointer py-2 px-8 w-max break-keep text-sm rounded-lg transition-colors text-[#634647] hover:text-[#ddad81] bg-[#ddad81] hover:bg-[#634647]" type="button">
+        <button 
+          className="absolute font-semibold right-6 bottom-6 cursor-pointer py-2 px-8 w-max break-keep text-sm rounded-lg transition-colors text-[#634647] hover:text-[#ddad81] bg-[#ddad81] hover:bg-[#634647]" 
+          type="button"
+          onClick={onAccept}
+        >
           Accept
         </button>
       </div>
@@ -62,10 +73,8 @@ function App() {
   const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
-    // Cek apakah user sudah menerima cookie sebelumnya
     const hasAcceptedCookies = localStorage.getItem('cookieConsent');
     if (!hasAcceptedCookies) {
-      // Tampilkan cookie consent setelah splash screen selesai
       const timer = setTimeout(() => {
         setShowCookieConsent(true);
       }, 1000);
@@ -133,14 +142,17 @@ function App() {
   const handleAcceptCookies = () => {
     localStorage.setItem('cookieConsent', 'accepted');
     setShowCookieConsent(false);
+    console.log('Cookies accepted ');
   };
 
   const handleMoreOptions = () => {
-    console.log('More options clicked');
+    console.log('More options clicked - showing more settings');
+    alert('More cookie options would appear here');
   };
 
   const handlePrivacyPolicy = () => {
-    console.log('Privacy policy clicked');
+    console.log('Privacy policy clicked - opening privacy policy page');
+    alert('Opening privacy policy page');
   };
 
   if (showSplash) {
@@ -160,11 +172,14 @@ function App() {
           selectedSong={selectedSong}
         />
       )}
-      
-      {/* Cookie Consent Card - positioned in bottom right corner */}
+    
       {showCookieConsent && (
         <div className="fixed bottom-4 right-4 z-50 max-w-xs animate-in slide-in-from-bottom-4 duration-500">
-          <Card />
+          <Card 
+            onAccept={handleAcceptCookies}
+            onMoreOptions={handleMoreOptions}
+            onPrivacyPolicy={handlePrivacyPolicy}
+          />
         </div>
       )}
       
@@ -180,7 +195,6 @@ function App() {
         <Story />
       </div>
 
-      {/* Ganti Ultah dengan LunarGravityCard - Tema Cinta */}
       <div id="love" className="fade-on-scroll">
         <LunarGravityCard 
           title={
