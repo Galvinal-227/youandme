@@ -11,6 +11,7 @@ import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import LunarGravityCard from './components/ui/lunar-gravity-card';
+import Ultah from './components/Ultah';
 
 const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
   return (
@@ -231,6 +232,10 @@ function App() {
 
       <div id="profile" className="fade-on-scroll">
         <Profile />
+      </div>
+
+      <div id="ultah" className="fade-on-scroll">
+        <Ultah />
       </div>
 
       <div id="love-message" className="love-message py-32 px-4 relative fade-on-scroll">
