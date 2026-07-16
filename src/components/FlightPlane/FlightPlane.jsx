@@ -42,6 +42,8 @@ const FlightPlane = React.memo(() => {
     const pathEl = pathRef.current;
     if (pathEl) {
       try {
+        // Set the path data
+        pathEl.setAttribute('d', pathData);
         const length = pathEl.getTotalLength();
         pathEl.style.strokeDasharray = length;
         pathEl.style.strokeDashoffset = length;
@@ -58,7 +60,7 @@ const FlightPlane = React.memo(() => {
           },
         });
       } catch (e) {
-        // Silently handle path errors
+        console.warn('Path drawing error:', e);
       }
     }
 
@@ -97,7 +99,6 @@ const FlightPlane = React.memo(() => {
       >
         <path
           ref={pathRef}
-          d={pathData}
           fill="none"
           stroke="#cbd5e1"
           strokeWidth="1.5"
