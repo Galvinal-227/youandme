@@ -1,5 +1,5 @@
 // planeAnimation.js
-// GSAP animation logic using ScrollTrigger and MotionPathPlugin.
+// GSAP animation logic using ScrollTrigger based on document scroll.
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -8,13 +8,12 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 /**
- * Animates the paper airplane along a path with ScrollTrigger.
- * Includes: path following, rotation, wing flutter, glow pulse, trail.
+ * Animates the paper airplane along a path based on document scroll progress.
+ * ScrollTrigger is attached to the document body, not a fixed container.
  */
 export function animatePlane({
   pathData,          // SVG path string (d attribute)
   planeRef,          // Ref to the plane container
-  trailRef,          // Ref to the trail container
   onUpdate = null,   // Callback with progress and position
 }) {
   if (!planeRef || !pathData) return null;
@@ -30,30 +29,32 @@ export function animatePlane({
     svg.appendChild(path);
     document.body.appendChild(svg);
     
-    // Get the path for MotionPath
     const motionPath = path;
+
+    // Create ScrollTrigger based on document height
+    const scrollTrigger = {
+      trigger: document.body,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1.2,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        if (onUpdate && motionPath) {
+          try {
+            const progress = self.progress;
+            const length = motionPath.getTotalLength();
+            const point = motionPath.getPointAtLength(progress * length);
+            onUpdate({ progress, x: point.x, y: point.y });
+          } catch (e) {
+            // Silently handle path errors
+          }
+        }
+      },
+    };
 
     // 1. Master timeline for the plane
     const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '.flight-container',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1.2,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          if (onUpdate && motionPath) {
-            try {
-              const progress = self.progress;
-              const length = motionPath.getTotalLength();
-              const point = motionPath.getPointAtLength(progress * length);
-              onUpdate({ progress, x: point.x, y: point.y });
-            } catch (e) {
-              // Silently handle path errors
-            }
-          }
-        },
-      },
+      scrollTrigger: scrollTrigger,
     });
 
     // 2. Plane follows the path with auto-rotation
@@ -130,7 +131,7 @@ export function animatePlane({
 }
 
 /**
- * Fade out the glow at the end of the journey.
+ * Fade out the glow at the end of the journey (near bottom of page).
  */
 export function fadeGlow(glowRef) {
   if (!glowRef) return null;
@@ -139,16 +140,16 @@ export function fadeGlow(glowRef) {
     duration: 1.5,
     ease: 'power2.out',
     scrollTrigger: {
-      trigger: '.flight-container',
-      start: 'bottom bottom',
-      end: 'bottom bottom+=100px',
+      trigger: document.body,
+      start: 'bottom bottom-=200px',
+      end: 'bottom bottom',
       scrub: 1,
     },
   });
 }
 
 /**
- * Make the plane float gently forever at the end.
+ * Make the plane float gently forever at the end (when at bottom).
  */
 export function floatForever(planeRef) {
   if (!planeRef) return null;
@@ -163,6 +164,12 @@ export function floatForever(planeRef) {
     repeat: -1,
     ease: 'sine.inOut',
     delay: 0.5,
+    scrollTrigger: {
+      trigger: document.body,
+      start: 'bottom bottom',
+      end: 'bottom bottom+=1px',
+      toggleActions: 'play none none none',
+    },
   });
 }
 
