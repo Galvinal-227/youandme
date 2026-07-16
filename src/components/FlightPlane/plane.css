@@ -1,6 +1,6 @@
 /* plane.css
-   Styles for the paper airplane and its animations.
-   Works with Tailwind CSS.
+   Styles for the paper airplane overlay.
+   The overlay is fixed but the path spans the entire document.
 */
 
 /* The plane container - fluid sizing */
@@ -63,12 +63,12 @@
   }
 }
 
-/* Ensure the flight container doesn't block interactions */
-.flight-container {
+/* Ensure the overlay doesn't block interactions */
+.flight-plane-overlay {
   pointer-events: none;
 }
 
-.flight-container svg,
-.flight-container .plane-container {
+.flight-plane-overlay svg,
+.flight-plane-overlay .plane-container {
   pointer-events: none;
 }
