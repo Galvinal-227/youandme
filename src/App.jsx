@@ -11,7 +11,6 @@ import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import LunarGravityCard from './components/ui/lunar-gravity-card';
-import News from './components/News';
 
 const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
   return (
@@ -232,18 +231,6 @@ function App() {
 
       <div id="profile" className="fade-on-scroll">
         <Profile />
-      </div>
-
-      {/* News Section */}
-      <div id="news" className="fade-on-scroll py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">Latest News</h2>
-            <p className="text-gray-400">Stay updated with what's happening around the world</p>
-            <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-rose-500 mx-auto mt-4 rounded-full"></div>
-          </div>
-          <News />
-        </div>
       </div>
 
       <div id="love-message" className="love-message py-32 px-4 relative fade-on-scroll">
