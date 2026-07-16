@@ -1,6 +1,6 @@
 // PlaneSVG.jsx
 // Renders a premium layered paper airplane as an inline React SVG component.
-// Based on the provided SVG reference with enhanced layering for GSAP animation.
+// Each layer has a className for independent GSAP animation.
 
 import React from 'react';
 
@@ -53,7 +53,7 @@ const PlaneSVG = React.memo(({ className = '' }) => {
 
       <g id="paper-plane" transform="translate(1, 2)" filter="url(#dropShadow)">
         
-        {/* GLOW LAYER - Soft pulsing glow behind the plane */}
+        {/* GLOW LAYER */}
         <ellipse
           className="plane-glow"
           cx="30"
@@ -64,14 +64,14 @@ const PlaneSVG = React.memo(({ className = '' }) => {
           filter="url(#softGlow)"
         />
 
-        {/* SHADOW LAYER - Subtle shadow beneath the plane */}
+        {/* SHADOW LAYER */}
         <path
           className="plane-shadow"
           fill="url(#shadowGrad)"
           d="M 27 22.2 L 22.2 20.4 L 1.1 18.5 C 0.2 18.2 -0.3 17.2 0 16.3 L 60.8 0 C 61.7 0.3 62.2 1.3 61.9 2.3 L 43.8 32.8 C 43.5 33.7 42.5 34.2 41.5 33.9 L 27 22.2 Z"
         />
 
-        {/* LEFT WING - Dari SVG original */}
+        {/* LEFT WING */}
         <path
           className="plane-wing-left"
           fill="url(#wingGrad)"
@@ -81,7 +81,7 @@ const PlaneSVG = React.memo(({ className = '' }) => {
           d="M 27 22.2 L 22.2 20.4 L 1.1 18.5 C 0.2 18.2 -0.3 17.2 0 16.3 L 60.8 0 C 61.7 0.3 62.2 1.3 61.9 2.3 L 43.8 32.8 C 43.5 33.7 42.5 34.2 41.5 33.9 L 27 22.2 Z"
         />
 
-        {/* RIGHT WING - Dari SVG original */}
+        {/* RIGHT WING */}
         <path
           className="plane-wing-right"
           fill="url(#wingGrad)"
@@ -91,7 +91,7 @@ const PlaneSVG = React.memo(({ className = '' }) => {
           d="M 27 22.2 L 22.2 20.4 L 61.375 1.125 L 27 22.2 Z"
         />
 
-        {/* BODY LAYER - Main fuselage dari SVG original */}
+        {/* BODY */}
         <path
           className="plane-body"
           fill="url(#bodyGrad)"
@@ -101,7 +101,7 @@ const PlaneSVG = React.memo(({ className = '' }) => {
           d="M 27 22.2 L 22.2 20.4 L 1.1 18.5 C 0.2 18.2 -0.3 17.2 0 16.3 L 60.8 0 C 61.7 0.3 62.2 1.3 61.9 2.3 L 43.8 32.8 C 43.5 33.7 42.5 34.2 41.5 33.9 L 22.2 20.4 L 61.375 1.125 L 27 22.2 Z"
         />
 
-        {/* HIGHLIGHT LAYER - Subtle reflections */}
+        {/* HIGHLIGHT */}
         <path
           className="plane-highlight"
           fill="#ffffff"
@@ -109,7 +109,7 @@ const PlaneSVG = React.memo(({ className = '' }) => {
           d="M 25 18 L 28 20 L 40 28 L 25 18 Z"
         />
 
-        {/* OUTLINE DETAIL - Dari SVG original */}
+        {/* OUTLINE DETAIL */}
         <path
           className="plane-outline"
           fill="none"
