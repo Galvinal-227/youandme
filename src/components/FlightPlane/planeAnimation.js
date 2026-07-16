@@ -31,11 +31,16 @@ export function animatePlane({
         onUpdate: (self) => {
           if (onUpdate) {
             const progress = self.progress;
-            const path = document.querySelector('.flight-path');
-            if (path) {
-              const length = path.getTotalLength();
-              const point = path.getPointAtLength(progress * length);
-              onUpdate({ progress, x: point.x, y: point.y });
+            // Get the path element safely
+            const pathEl = document.querySelector('.flight-path');
+            if (pathEl) {
+              try {
+                const length = pathEl.getTotalLength();
+                const point = pathEl.getPointAtLength(progress * length);
+                onUpdate({ progress, x: point.x, y: point.y });
+              } catch (e) {
+                // Silently handle path errors
+              }
             }
           }
         },
@@ -63,7 +68,7 @@ export function animatePlane({
 
     if (leftWing && rightWing) {
       gsap.to(leftWing, {
-        rotationZ: 2,
+        rotation: 2,
         transformOrigin: '50% 80%',
         yoyo: true,
         repeat: -1,
@@ -71,7 +76,7 @@ export function animatePlane({
         ease: 'sine.inOut',
       });
       gsap.to(rightWing, {
-        rotationZ: -2,
+        rotation: -2,
         transformOrigin: '50% 80%',
         yoyo: true,
         repeat: -1,
