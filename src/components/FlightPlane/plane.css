@@ -1,0 +1,74 @@
+/* plane.css
+   Styles for the paper airplane and its animations.
+   Works with Tailwind CSS.
+*/
+
+/* The plane container - fluid sizing */
+.plane-container {
+  will-change: transform, opacity;
+  filter: drop-shadow(0 4px 12px rgba(0, 20, 40, 0.15));
+}
+
+/* SVG layers - smooth rendering */
+.plane-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Glow pulsing is handled by GSAP, but we set a base */
+.plane-glow {
+  transform-origin: center;
+  opacity: 0.6;
+}
+
+/* Wing flutter origins */
+.plane-wing-left,
+.plane-wing-right {
+  transform-origin: 50% 80%;
+  will-change: transform;
+}
+
+/* Highlight shimmer */
+.plane-highlight {
+  will-change: opacity;
+}
+
+/* Trail particles - soft blending */
+.plane-trail circle {
+  mix-blend-mode: soft-light;
+  will-change: opacity, transform;
+}
+
+/* Path drawing line - subtle */
+.flight-path {
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Responsive sizing for the plane */
+@media (max-width: 768px) {
+  .plane-container {
+    width: 56px;
+    height: 34px;
+  }
+}
+
+@media (max-width: 480px) {
+  .plane-container {
+    width: 44px;
+    height: 26px;
+  }
+}
+
+/* Ensure the flight container doesn't block interactions */
+.flight-container {
+  pointer-events: none;
+}
+
+.flight-container svg,
+.flight-container .plane-container {
+  pointer-events: none;
+}
