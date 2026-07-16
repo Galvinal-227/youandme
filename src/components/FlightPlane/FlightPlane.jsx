@@ -41,21 +41,25 @@ const FlightPlane = React.memo(() => {
     // Draw the path line
     const pathEl = pathRef.current;
     if (pathEl) {
-      const length = pathEl.getTotalLength();
-      pathEl.style.strokeDasharray = length;
-      pathEl.style.strokeDashoffset = length;
+      try {
+        const length = pathEl.getTotalLength();
+        pathEl.style.strokeDasharray = length;
+        pathEl.style.strokeDashoffset = length;
 
-      gsap.to(pathEl, {
-        strokeDashoffset: 0,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.flight-container',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1.5,
-          invalidateOnRefresh: true,
-        },
-      });
+        gsap.to(pathEl, {
+          strokeDashoffset: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.flight-container',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1.5,
+            invalidateOnRefresh: true,
+          },
+        });
+      } catch (e) {
+        // Silently handle path errors
+      }
     }
 
     // Animate the plane
