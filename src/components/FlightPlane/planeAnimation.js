@@ -1,0 +1,162 @@
+// planeAnimation.js
+// GSAP animation logic using ScrollTrigger and MotionPathPlugin.
+
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+/**
+ * Animates the paper airplane along a path with ScrollTrigger.
+ * Includes: path following, rotation, wing flutter, glow pulse, trail.
+ */
+export function animatePlane({
+  pathData,          // SVG path string (d attribute)
+  planeRef,          // Ref to the plane container
+  trailRef,          // Ref to the trail container
+  onUpdate = null,   // Callback with progress and position
+}) {
+  if (!planeRef || !pathData) return null;
+
+  const ctx = gsap.context(() => {
+    // 1. Master timeline for the plane
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.flight-container',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.2,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          if (onUpdate) {
+            const progress = self.progress;
+            const path = document.querySelector('.flight-path');
+            if (path) {
+              const length = path.getTotalLength();
+              const point = path.getPointAtLength(progress * length);
+              onUpdate({ progress, x: point.x, y: point.y });
+            }
+          }
+        },
+      },
+    });
+
+    // 2. Plane follows the path with auto-rotation
+    const planeEl = planeRef.current;
+    if (planeEl) {
+      tl.to(planeEl, {
+        motionPath: {
+          path: pathData,
+          align: pathData,
+          autoRotate: true,
+          alignOrigin: [0.5, 0.5],
+        },
+        ease: 'none',
+        duration: 1,
+      });
+    }
+
+    // 3. Subtle wing flutter (alternating rotation)
+    const leftWing = planeEl?.querySelector('.plane-wing-left');
+    const rightWing = planeEl?.querySelector('.plane-wing-right');
+
+    if (leftWing && rightWing) {
+      gsap.to(leftWing, {
+        rotationZ: 2,
+        transformOrigin: '50% 80%',
+        yoyo: true,
+        repeat: -1,
+        duration: 0.8,
+        ease: 'sine.inOut',
+      });
+      gsap.to(rightWing, {
+        rotationZ: -2,
+        transformOrigin: '50% 80%',
+        yoyo: true,
+        repeat: -1,
+        duration: 0.9,
+        ease: 'sine.inOut',
+        delay: 0.2,
+      });
+    }
+
+    // 4. Glow pulse
+    const glow = planeEl?.querySelector('.plane-glow');
+    if (glow) {
+      gsap.to(glow, {
+        scale: 1.15,
+        opacity: 0.7,
+        yoyo: true,
+        repeat: -1,
+        duration: 2.5,
+        ease: 'sine.inOut',
+      });
+    }
+
+    // 5. Highlight shimmer
+    const highlight = planeEl?.querySelector('.plane-highlight');
+    if (highlight) {
+      gsap.to(highlight, {
+        opacity: 0.5,
+        yoyo: true,
+        repeat: -1,
+        duration: 3,
+        ease: 'sine.inOut',
+        delay: 0.5,
+      });
+    }
+
+    // 6. Trail follows the plane (updated via onUpdate callback)
+    // Trail points will be collected in the parent component
+  });
+
+  return ctx;
+}
+
+/**
+ * Fade out the glow at the end of the journey.
+ */
+export function fadeGlow(glowRef) {
+  if (!glowRef) return null;
+  return gsap.to(glowRef, {
+    opacity: 0,
+    duration: 1.5,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '.flight-container',
+      start: 'bottom bottom',
+      end: 'bottom bottom+=100px',
+      scrub: 1,
+    },
+  });
+}
+
+/**
+ * Make the plane float gently forever at the end.
+ */
+export function floatForever(planeRef) {
+  if (!planeRef) return null;
+  const el = planeRef.current;
+  if (!el) return null;
+
+  return gsap.to(el, {
+    y: '-=8',
+    rotation: 0.5,
+    duration: 2.5,
+    yoyo: true,
+    repeat: -1,
+    ease: 'sine.inOut',
+    delay: 0.5,
+  });
+}
+
+/**
+ * Clean up all ScrollTriggers and GSAP contexts.
+ */
+export function cleanupAnimations(ctx) {
+  if (ctx) {
+    ctx.revert();
+  }
+  ScrollTrigger.getAll().forEach((st) => st.kill());
+}
