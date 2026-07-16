@@ -1,3 +1,6 @@
+// App.jsx
+// Integrated with FlightPlane component for cinematic scroll animation
+
 import React, { useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -12,6 +15,7 @@ import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import LunarGravityCard from './components/ui/lunar-gravity-card';
 import Ultah from './components/Ultah';
+import FlightPlane from './components/FlightPlane/FlightPlane';
 
 const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
   return (
@@ -176,6 +180,9 @@ function App() {
 
   return (
     <div className="main-content opacity-0 bg-black overflow-x-hidden relative">
+      {/* Paper Airplane - Fixed overlay */}
+      <FlightPlane />
+      
       <Navbar />
       
       {showMusicPlayer && (
@@ -319,6 +326,31 @@ function App() {
         }
         .slide-up {
           animation: slideUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
+        }
+
+        /* Ensure sections have enough height for scrolling */
+        #hero,
+        #gallery,
+        #story,
+        #love,
+        #profile,
+        #ultah,
+        #love-message,
+        #footer {
+          min-height: 100vh;
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Make sure content is above the airplane */
+        .main-content > *:not(.flight-container) {
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Fix for fixed airplane overlay */
+        .flight-container {
+          z-index: 5;
         }
       `}</style>
     </div>
