@@ -20,6 +20,19 @@ export function animatePlane({
   if (!planeRef || !pathData) return null;
 
   const ctx = gsap.context(() => {
+    const planeEl = planeRef.current;
+    if (!planeEl) return;
+
+    // Create a temporary path element for MotionPath
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathData);
+    svg.appendChild(path);
+    document.body.appendChild(svg);
+    
+    // Get the path for MotionPath
+    const motionPath = path;
+
     // 1. Master timeline for the plane
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -29,18 +42,14 @@ export function animatePlane({
         scrub: 1.2,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          if (onUpdate) {
-            const progress = self.progress;
-            // Get the path element safely
-            const pathEl = document.querySelector('.flight-path');
-            if (pathEl) {
-              try {
-                const length = pathEl.getTotalLength();
-                const point = pathEl.getPointAtLength(progress * length);
-                onUpdate({ progress, x: point.x, y: point.y });
-              } catch (e) {
-                // Silently handle path errors
-              }
+          if (onUpdate && motionPath) {
+            try {
+              const progress = self.progress;
+              const length = motionPath.getTotalLength();
+              const point = motionPath.getPointAtLength(progress * length);
+              onUpdate({ progress, x: point.x, y: point.y });
+            } catch (e) {
+              // Silently handle path errors
             }
           }
         },
@@ -48,23 +57,20 @@ export function animatePlane({
     });
 
     // 2. Plane follows the path with auto-rotation
-    const planeEl = planeRef.current;
-    if (planeEl) {
-      tl.to(planeEl, {
-        motionPath: {
-          path: pathData,
-          align: pathData,
-          autoRotate: true,
-          alignOrigin: [0.5, 0.5],
-        },
-        ease: 'none',
-        duration: 1,
-      });
-    }
+    tl.to(planeEl, {
+      motionPath: {
+        path: motionPath,
+        align: motionPath,
+        autoRotate: true,
+        alignOrigin: [0.5, 0.5],
+      },
+      ease: 'none',
+      duration: 1,
+    });
 
     // 3. Subtle wing flutter (alternating rotation)
-    const leftWing = planeEl?.querySelector('.plane-wing-left');
-    const rightWing = planeEl?.querySelector('.plane-wing-right');
+    const leftWing = planeEl.querySelector('.plane-wing-left');
+    const rightWing = planeEl.querySelector('.plane-wing-right');
 
     if (leftWing && rightWing) {
       gsap.to(leftWing, {
@@ -87,7 +93,7 @@ export function animatePlane({
     }
 
     // 4. Glow pulse
-    const glow = planeEl?.querySelector('.plane-glow');
+    const glow = planeEl.querySelector('.plane-glow');
     if (glow) {
       gsap.to(glow, {
         scale: 1.15,
@@ -100,7 +106,7 @@ export function animatePlane({
     }
 
     // 5. Highlight shimmer
-    const highlight = planeEl?.querySelector('.plane-highlight');
+    const highlight = planeEl.querySelector('.plane-highlight');
     if (highlight) {
       gsap.to(highlight, {
         opacity: 0.5,
@@ -112,8 +118,12 @@ export function animatePlane({
       });
     }
 
-    // 6. Trail follows the plane (updated via onUpdate callback)
-    // Trail points will be collected in the parent component
+    // Clean up temporary SVG
+    return () => {
+      if (svg && svg.parentNode) {
+        svg.parentNode.removeChild(svg);
+      }
+    };
   });
 
   return ctx;
