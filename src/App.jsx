@@ -258,80 +258,91 @@ function App() {
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Pixelify+Sans:wght@400..700&family=Share+Tech&display=swap');
-        
-        ::-webkit-scrollbar {
-          width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-          background: #000;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #333;
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-        body {
-          background-color: black;
-          font-family: 'Jost', sans-serif;
-          overflow-x: hidden;
-        }
-        
-        .fade-on-scroll {
-          opacity: 0;
-          transform: translateY(20px);
-          transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        
-        .fade-on-scroll.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        
-        @keyframes pulse {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(4px); }
-        }
-        .animate-pulse {
-          animation: pulse 1.5s ease-in-out infinite;
-        }
-        .current-lyric {
-          text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
-        }
-        .love-message {
-          background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
-        }
-        
-        /* Animasi slide up untuk cookie card */
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(100%);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .slide-up {
-          animation: slideUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
-        }
+  @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Pixelify+Sans:wght@400..700&family=Share+Tech&display=swap');
+  
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  body {
+    background-color: black;
+    font-family: 'Jost', sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .fade-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  }
+  
+  .fade-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+  .animate-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  .current-lyric {
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+  }
+  .love-message {
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
+  }
+  
+  /* Animasi slide up untuk cookie card */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
+  }
 
-        /* Ensure sections have enough height for scrolling */
-        #hero,
-        #gallery,
-        #story,
-        #love,
-        #profile,
-        #love-message,
-        #footer {
-          min-height: 100vh;
-          position: relative;
-          z-index: 10;
-        }
-      `}</style>
+  #hero,
+  #gallery,
+  #story,
+  #love,
+  #profile,
+  #love-message {
+    position: relative;
+    z-index: 10;
+    padding: 40px 0; /* tambahkan padding agar tidak mepet */
+  }
+
+  /* Khusus untuk hero biar fullscreen */
+  #hero {
+    min-height: 100vh;
+  }
+
+  /* Khusus untuk love-message biar ga terlalu tinggi */
+  #love-message {
+    min-height: auto;
+    padding: 60px 0;
+  }
+`}</style>
     </div>
   );
 }
