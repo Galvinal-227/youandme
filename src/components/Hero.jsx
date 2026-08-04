@@ -20,37 +20,62 @@ function Hero() {
   ];
 
   const fonts = [
-    "'Playfair Display', serif",
-    "'Georgia', serif",
-    "'Times New Roman', serif",
-    "'Garamond', serif",
-    "'Bodoni Moda', serif",
-    "'Cormorant Garamond', serif",
-    "'Merriweather', serif",
-    "'Lora', serif",
-    "'Inter', sans-serif",
-    "'Poppins', sans-serif",
-    "'Montserrat', sans-serif",
-    "'Open Sans', sans-serif",
-    "'Roboto', sans-serif",
-    "'Jost', sans-serif",
-    "'Nunito', sans-serif",
-    "'Quicksand', sans-serif",
-    "'Raleway', sans-serif",
-    "'Oswald', sans-serif",
-    "'Courier New', monospace",
-    "'Fira Code', monospace",
-    "'JetBrains Mono', monospace",
-    "'Source Code Pro', monospace",
-    "'Pacifico', cursive",
-    "'Lobster', cursive",
-    "'Dancing Script', cursive",
-    "'Playball', cursive",
-    "'Great Vibes', cursive",
-    "'Bebas Neue', sans-serif",
-    "'Anton', sans-serif",
-    "'Fjalla One', sans-serif",
-  ];
+  // Serif
+  "'Playfair Display', serif",
+  "'Georgia', serif",
+  "'Times New Roman', serif",
+  "'Garamond', serif",
+  "'Bodoni Moda', serif",
+  "'Cormorant Garamond', serif",
+  "'Merriweather', serif",
+  "'Lora', serif",
+
+  // Sans Serif
+  "'Inter', sans-serif",
+  "'Poppins', sans-serif",
+  "'Montserrat', sans-serif",
+  "'Open Sans', sans-serif",
+  "'Roboto', sans-serif",
+  "'Jost', sans-serif",
+  "'Nunito', sans-serif",
+  "'Quicksand', sans-serif",
+  "'Raleway', sans-serif",
+  "'Oswald', sans-serif",
+  "'Manrope', sans-serif",
+  "'Outfit', sans-serif",
+  "'Space Grotesk', sans-serif",
+  "'DM Sans', sans-serif",
+  "'Plus Jakarta Sans', sans-serif",
+  "'Urbanist', sans-serif",
+  "'Lexend', sans-serif",
+
+  // Monospace
+  "'Courier New', monospace",
+  "'Fira Code', monospace",
+  "'JetBrains Mono', monospace",
+  "'Source Code Pro', monospace",
+  "'IBM Plex Mono', monospace",
+
+  // Cursive
+  "'Pacifico', cursive",
+  "'Lobster', cursive",
+  "'Dancing Script', cursive",
+  "'Playball', cursive",
+  "'Great Vibes', cursive",
+  "'Satisfy', cursive",
+  "'Kaushan Script', cursive",
+
+  // Display
+  "'Bebas Neue', sans-serif",
+  "'Anton', sans-serif",
+  "'Fjalla One', sans-serif",
+  "'Righteous', cursive",
+
+  // Pixel
+  "'Pixelify Sans', sans-serif",
+  "'Press Start 2P', cursive",
+  "'Silkscreen', cursive",
+];
 
   // Ganti foto setiap 300ms (cepat kayak sebelumnya)
   useEffect(() => {
