@@ -14,8 +14,6 @@ import Navbar from './components/Navbar';
 import { FaRegHeart } from 'react-icons/fa';
 import Profile from './components/Profile';
 import LunarGravityCard from './components/ui/lunar-gravity-card';
-import Ultah from './components/Ultah';
-import FlightPlane from './components/FlightPlane/FlightPlane';
 
 const Card = ({ onAccept, onMoreOptions, onPrivacyPolicy }) => {
   return (
@@ -180,9 +178,6 @@ function App() {
 
   return (
     <div className="main-content opacity-0 bg-black overflow-x-hidden relative">
-      {/* Paper Airplane - Fixed overlay */}
-      <FlightPlane />
-      
       <Navbar />
       
       {showMusicPlayer && (
@@ -239,10 +234,6 @@ function App() {
 
       <div id="profile" className="fade-on-scroll">
         <Profile />
-      </div>
-
-      <div id="ultah" className="fade-on-scroll">
-        <Ultah />
       </div>
 
       <div id="love-message" className="love-message py-32 px-4 relative fade-on-scroll">
@@ -334,23 +325,11 @@ function App() {
         #story,
         #love,
         #profile,
-        #ultah,
         #love-message,
         #footer {
           min-height: 100vh;
           position: relative;
           z-index: 10;
-        }
-
-        /* Make sure content is above the airplane */
-        .main-content > *:not(.flight-container) {
-          position: relative;
-          z-index: 10;
-        }
-
-        /* Fix for fixed airplane overlay */
-        .flight-container {
-          z-index: 5;
         }
       `}</style>
     </div>
