@@ -1,46 +1,137 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FiX, FiSend, FiMic, FiSquare } from 'react-icons/fi';
 
-const WEBSITE_CONTEXT = `
-You are Vinsya AI, a gentle assistant inside the YouAndMe website.
+const PERSONAL_DATA = {
+  galvin: {
+    nama_lengkap: 'Galvin Alfito',
+    nama_panggilan: 'Galvin',
+    tanggal_lahir: '7 Oktober 2008',
+    hobi: [
+      'ngoding',
+      'ngegame',
+      'nonton YouTube'
+    ],
+    makanan_kesukaan: 'Makanan yang enak',
+    minuman_kesukaan: 'Kopi Hitam Tanpa Gula Karena Manisnya Udah Ada Di dia Hhihihihi',
+    warna_kesukaan: 'Pink dan biru',
+    music_kesukaan: 'Pop, Indie',
+    film_kesukaan: 'Dracin',
+    zodiak: 'Libra',
+    motto_hidup: 'Pengen Jadi Programmer Handal Tapi Males Ngoding',
+    deskripsi_singkat:
+      'Seseorang yang suka web development dan hampir selalu punya sesuatu untuk dikoding.',
+    fakta_unik:
+      'Kalau sudah ngoding, bisa ngoding, ngoding lagi, lalu ngoding lagi.',
+    cita_cita:
+      'Menjadi seseorang yang ahli di bidang web development.'
+  },
 
-The website is a personal space dedicated to Galvin and Syafa. It contains:
-- Hero section with their names and a welcoming message.
-- Gallery of their memories (photos).
-- Story section about their journey.
-- Profile section introducing each of them.
-- A special "My Love" section with a lunar gravity card.
-- A love message area.
-- Footer.
+  syafa: {
+    nama_lengkap: 'Syafa',
+    nama_panggilan: 'Syafa',
+    tanggal_lahir: '22 Januari 2010',
+    hobi: [
+      'membaca',
+      'menulis',
+      'marah-marah'
+    ],
+    makanan_kesukaan: 'Makanan yang enak',
+    minuman_kesukaan: 'Semua Yang enak enak aja',
+    warna_kesukaan: 'Pink dan biru',
+    music_kesukaan: 'Pop, Indie',
+    film_kesukaan: 'Dracin dan Drakor',
+    zodiak: 'Aquarius',
+    motto_hidup: 'Males Kalo Ga Ada Temennya',
+    deskripsi_singkat:
+      'Seseorang yang suka membaca, menulis, dan punya sisi emosional yang cukup kuat.',
+    fakta_unik:
+      'Bisa membaca, menulis, dan marah-marah dalam satu paket.',
+    cita_cita:
+      'Belum pasti.'
+  },
 
-Your role is to help visitors understand the website, the content of each section, and the general vibe of the site. You can answer about:
-- Galvin (general: he is one of the two people this website is about)
-- Syafa (general: she is the other person)
-- The website's purpose and sections
-- The memories and story shown in the gallery/story sections
-- The music player if they ask about the background song (if known from the site)
-- Any questions about the website's design or content
+  hubungan: {
+    status: 'Pasangan',
+    tanggal_jadian: '18 JUNI 2023',
+    lama_bersama: '4 TAHUN',
+    cerita_pertemuan: 'Perang Stiker Di Whatsapp',
+    deskripsi:
+      'YouAndMe adalah website personal yang dibuat untuk menyimpan cerita, kenangan, dan momen Galvin dan Syafa.'
+  },
+};
 
-IMPORTANT:
-- Do NOT invent personal details (like full names, ages, locations, specific dates) unless clearly provided in the website context.
-- If you don't know something, say "I don't have that information yet" or a natural equivalent.
-- Always answer in the language the user uses (Indonesian or English). Default to Indonesian if unsure.
-- Keep answers concise, warm, and helpful.
-- Do not break character.
+/* ============================================================
+   SYSTEM PROMPT UNTUK VINSYA AI
+   Data di atas otomatis disisipkan ke dalam prompt.
+============================================================ */
+const generateSystemPrompt = () => {
+  const g = PERSONAL_DATA.galvin;
+  const s = PERSONAL_DATA.syafa;
+  const h = PERSONAL_DATA.hubungan;
+
+  return `
+You are Vinsya AI, a gentle and warm assistant inside the YouAndMe website.
+The website is a personal space dedicated to Galvin and Syafa.
+
+You help visitors understand the website and also answer questions about Galvin and Syafa using the data below.
+
+=== PERSONAL DATA GALVIN ===
+Nama Lengkap: ${g.nama_lengkap || 'Tidak diisi'}
+Nama Panggilan: ${g.nama_panggilan || 'Tidak diisi'}
+Tanggal Lahir: ${g.tanggal_lahir || 'Tidak diisi'}
+Hobi: ${g.hobi.length > 0 ? g.hobi.join(', ') : 'Tidak diisi'}
+Makanan Kesukaan: ${g.makanan_kesukaan || 'Tidak diisi'}
+Minuman Kesukaan: ${g.minuman_kesukaan || 'Tidak diisi'}
+Warna Kesukaan: ${g.warna_kesukaan || 'Tidak diisi'}
+Musik Kesukaan: ${g.music_kesukaan || 'Tidak diisi'}
+Film Kesukaan: ${g.film_kesukaan || 'Tidak diisi'}
+Zodiak: ${g.zodiak || 'Tidak diisi'}
+Motto Hidup: ${g.motto_hidup || 'Tidak diisi'}
+Deskripsi Singkat: ${g.deskripsi_singkat || 'Tidak diisi'}
+Fakta Unik: ${g.fakta_unik || 'Tidak diisi'}
+
+=== PERSONAL DATA SYAFA ===
+Nama Lengkap: ${s.nama_lengkap || 'Tidak diisi'}
+Nama Panggilan: ${s.nama_panggilan || 'Tidak diisi'}
+Tanggal Lahir: ${s.tanggal_lahir || 'Tidak diisi'}
+Hobi: ${s.hobi.length > 0 ? s.hobi.join(', ') : 'Tidak diisi'}
+Makanan Kesukaan: ${s.makanan_kesukaan || 'Tidak diisi'}
+Minuman Kesukaan: ${s.minuman_kesukaan || 'Tidak diisi'}
+Warna Kesukaan: ${s.warna_kesukaan || 'Tidak diisi'}
+Musik Kesukaan: ${s.music_kesukaan || 'Tidak diisi'}
+Film Kesukaan: ${s.film_kesukaan || 'Tidak diisi'}
+Zodiak: ${s.zodiak || 'Tidak diisi'}
+Motto Hidup: ${s.motto_hidup || 'Tidak diisi'}
+Deskripsi Singkat: ${s.deskripsi_singkat || 'Tidak diisi'}
+Fakta Unik: ${s.fakta_unik || 'Tidak diisi'}
+
+=== HUBUNGAN MEREKA ===
+Status: ${h.status || 'Tidak diisi'}
+Tanggal Jadian: ${h.tanggal_jadian || 'Tidak diisi'}
+Lama Bersama: ${h.lama_bersama || 'Tidak diisi'}
+Cerita Pertemuan: ${h.cerita_pertemuan || 'Tidak diisi'}
+
+=== PETUNJUK PENTING ===
+- Jika data di atas "Tidak diisi", jangan mengarang. Jawab dengan jujur: "Aku belum punya informasi itu, tapi nanti bisa ditambahkan oleh Galvin."
+- Jika user bertanya tentang tanggal lahir, hobi, makanan kesukaan, dll, gunakan data yang ada di atas.
+- Jawab dalam bahasa yang digunakan user (Indonesia atau Inggris). Default ke Indonesia.
+- Untuk pertanyaan umum di luar data Galvin/Syafa, jawab natural seperti asisten biasa.
+- Jaga nada hangat dan personal.
 `;
+};
 
 const QUICK_QUESTIONS = [
-  'Tell me about Galvin',
-  'Tell me about Syafa',
-  "What's this website about?",
-  'Tell me about your memories',
+  'Kapan Syafa ulang tahun?',
+  'Apa hobi Galvin?',
+  'Makanan kesukaan Syafa apa?',
+  'Ceritain tentang hubungan kalian',
 ];
 
 const VinsyaAI = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hi, I'm Vinsya AI. Ask me about Galvin, Syafa, their memories, or anything you find on this website.",
+      text: "Hai, aku Vinsya AI! Kamu bisa tanya apa saja tentang Galvin, Syafa, atau website ini. Coba tanya hobi, makanan kesukaan, atau tanggal ulang tahun mereka!",
       sender: 'ai',
       timestamp: new Date(),
     },
@@ -110,7 +201,75 @@ const VinsyaAI = ({ isOpen, onClose }) => {
       .slice(-10)
       .map((m) => `${m.sender === 'ai' ? 'Vinsya AI' : 'User'}: ${m.text}`)
       .join('\n');
-    return `${WEBSITE_CONTEXT}\n\nConversation:\n${history}\n\nVinsya AI:`;
+    return `${generateSystemPrompt()}\n\nConversation:\n${history}\n\nVinsya AI:`;
+  };
+
+  const getFallbackResponse = (text) => {
+    const lower = text.toLowerCase();
+    const g = PERSONAL_DATA.galvin;
+    const s = PERSONAL_DATA.syafa;
+    const h = PERSONAL_DATA.hubungan;
+
+    // Cek pertanyaan tentang ulang tahun / tanggal lahir
+    if (lower.includes('ulang') || lower.includes('lahir') || lower.includes('tanggal lahir')) {
+      if (lower.includes('syafa')) {
+        return s.tanggal_lahir ? `Syafa lahir tanggal ${s.tanggal_lahir}.` : 'Aku belum punya info tanggal lahir Syafa.';
+      }
+      if (lower.includes('galvin')) {
+        return g.tanggal_lahir ? `Galvin lahir tanggal ${g.tanggal_lahir}.` : 'Aku belum punya info tanggal lahir Galvin.';
+      }
+      return 'Siapa yang ingin kamu tanyakan? Galvin atau Syafa?';
+    }
+
+    if (lower.includes('hobi')) {
+      if (lower.includes('syafa')) {
+        return s.hobi.length > 0 ? `Hobi Syafa: ${s.hobi.join(', ')}.` : 'Aku belum punya info hobi Syafa.';
+      }
+      if (lower.includes('galvin')) {
+        return g.hobi.length > 0 ? `Hobi Galvin: ${g.hobi.join(', ')}.` : 'Aku belum punya info hobi Galvin.';
+      }
+      return 'Hobi siapa yang ingin kamu tanyakan?';
+    }
+
+    if (lower.includes('makanan kesukaan') || lower.includes('makanan favorit')) {
+      if (lower.includes('syafa')) {
+        return s.makanan_kesukaan ? `Makanan kesukaan Syafa adalah ${s.makanan_kesukaan}.` : 'Aku belum tahu makanan kesukaan Syafa.';
+      }
+      if (lower.includes('galvin')) {
+        return g.makanan_kesukaan ? `Makanan kesukaan Galvin adalah ${g.makanan_kesukaan}.` : 'Aku belum tahu makanan kesukaan Galvin.';
+      }
+      return 'Makanan kesukaan siapa? Galvin atau Syafa?';
+    }
+
+    if (lower.includes('minuman kesukaan') || lower.includes('minuman favorit')) {
+      if (lower.includes('syafa')) {
+        return s.minuman_kesukaan ? `Minuman kesukaan Syafa adalah ${s.minuman_kesukaan}.` : 'Aku belum tahu minuman kesukaan Syafa.';
+      }
+      if (lower.includes('galvin')) {
+        return g.minuman_kesukaan ? `Minuman kesukaan Galvin adalah ${g.minuman_kesukaan}.` : 'Aku belum tahu minuman kesukaan Galvin.';
+      }
+      return 'Minuman kesukaan siapa?';
+    }
+
+    if (lower.includes('warna kesukaan') || lower.includes('warna favorit')) {
+      if (lower.includes('syafa')) {
+        return s.warna_kesukaan ? `Warna kesukaan Syafa adalah ${s.warna_kesukaan}.` : 'Aku belum tahu warna kesukaan Syafa.';
+      }
+      if (lower.includes('galvin')) {
+        return g.warna_kesukaan ? `Warna kesukaan Galvin adalah ${g.warna_kesukaan}.` : 'Aku belum tahu warna kesukaan Galvin.';
+      }
+      return 'Warna kesukaan siapa?';
+    }
+
+    if (lower.includes('jadian') || lower.includes('hubungan') || lower.includes('pacaran')) {
+      if (h.status || h.tanggal_jadian || h.lama_bersama) {
+        return `Mereka ${h.status || 'pacaran'} sejak ${h.tanggal_jadian || 'tanggal yang belum diisi'} (${h.lama_bersama || 'lama bersama belum diisi'}).`;
+      }
+      return 'Aku belum punya detail hubungan mereka.';
+    }
+
+    // Fallback generik
+    return 'Aku belum bisa menjawab itu. Coba tanya tentang Galvin, Syafa, atau website ini ya.';
   };
 
   const sendMessage = async (text) => {
@@ -145,27 +304,16 @@ const VinsyaAI = ({ isOpen, onClose }) => {
           responseText = response.content;
         } else if (response?.text) {
           responseText = response.text;
-        } else {
-          responseText = "I'm not sure how to answer that right now.";
         }
-      } else {
-        const lower = text.toLowerCase();
-        if (lower.includes('galvin')) {
-          responseText = 'Galvin is one of the two people this website is dedicated to. He is a part of the YouAndMe story.';
-        } else if (lower.includes('syafa')) {
-          responseText = 'Syafa is the other person this website is about. Together with Galvin, they make up the YouAndMe journey.';
-        } else if (lower.includes('website') || lower.includes('situs')) {
-          responseText = 'This website is a personal space for Galvin and Syafa to share their memories, photos, and story.';
-        } else if (lower.includes('memori') || lower.includes('kenangan') || lower.includes('memory')) {
-          responseText = 'The website contains a gallery and story section filled with their shared memories.';
-        } else {
-          responseText = "I'm sorry, I can only help with questions about the YouAndMe website, Galvin, Syafa, or their memories.";
-        }
+      }
+
+      if (!responseText.trim()) {
+        responseText = getFallbackResponse(text);
       }
 
       const aiMessage = {
         id: messages.length + 2,
-        text: responseText.trim() || "I couldn't generate a response. Please try again.",
+        text: responseText.trim(),
         sender: 'ai',
         timestamp: new Date(),
       };
@@ -174,7 +322,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
       console.error('Vinsya AI error:', error);
       const aiMessage = {
         id: messages.length + 2,
-        text: "Sorry, I encountered an error. Please try again later.",
+        text: 'Maaf, terjadi kesalahan. Coba lagi ya.',
         sender: 'ai',
         timestamp: new Date(),
       };
@@ -224,11 +372,12 @@ const VinsyaAI = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed bottom-24 right-6 z-[9999999999999999999] flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
+      className="fixed bottom-24 right-6 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
       style={{
         width: 'min(420px, calc(100vw - 2rem))',
         height: 'min(600px, calc(100vh - 120px))',
         animation: 'vinsyaFadeIn 0.3s ease-out',
+        zIndex: 99999999999999,
       }}
     >
       {/* Header */}
