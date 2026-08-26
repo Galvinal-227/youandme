@@ -1172,7 +1172,7 @@ function Footer() {
       )}
 
       <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10"></div>
-
+      <VinsyaAI isOpen={isVinsyaOpen} onClose={() => setIsVinsyaOpen(false)} />
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 3px;
