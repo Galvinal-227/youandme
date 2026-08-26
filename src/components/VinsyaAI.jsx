@@ -224,7 +224,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed bottom-24 right-6 z-[99999] flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
+      className="fixed bottom-24 right-6 z-[9999999999999999999] flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
       style={{
         width: 'min(420px, calc(100vw - 2rem))',
         height: 'min(600px, calc(100vh - 120px))',
