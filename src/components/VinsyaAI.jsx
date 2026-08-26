@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiMessageCircle, FiX, FiSend, FiMic, FiSquare } from 'react-icons/fi';
+import { FiX, FiSend, FiMic, FiSquare } from 'react-icons/fi';
 
-// Konteks website untuk system prompt (tidak mengarang data pribadi)
 const WEBSITE_CONTEXT = `
 You are Vinsya AI, a gentle assistant inside the YouAndMe website.
 
@@ -30,7 +29,6 @@ IMPORTANT:
 - Do not break character.
 `;
 
-// Quick questions untuk tampil saat chat kosong
 const QUICK_QUESTIONS = [
   'Tell me about Galvin',
   'Tell me about Syafa',
@@ -38,8 +36,7 @@ const QUICK_QUESTIONS = [
   'Tell me about your memories',
 ];
 
-const VinsyaAI = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const VinsyaAI = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -57,7 +54,6 @@ const VinsyaAI = () => {
   const abortControllerRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  // Cek window.puter (script dimuat di index.html)
   useEffect(() => {
     if (window.puter && typeof window.puter.ai?.chat === 'function') {
       setPuterReady(true);
@@ -68,23 +64,20 @@ const VinsyaAI = () => {
     }
   }, []);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Close on ESC
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
+        onClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
@@ -94,7 +87,6 @@ const VinsyaAI = () => {
     }
   }, [isOpen]);
 
-  // Speech recognition setup (optional)
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -157,7 +149,6 @@ const VinsyaAI = () => {
           responseText = "I'm not sure how to answer that right now.";
         }
       } else {
-        // Fallback sederhana hanya jika Puter.js tidak tersedia
         const lower = text.toLowerCase();
         if (lower.includes('galvin')) {
           responseText = 'Galvin is one of the two people this website is dedicated to. He is a part of the YouAndMe story.';
@@ -229,143 +220,129 @@ const VinsyaAI = () => {
 
   const hasUserInteracted = messages.some((m) => m.sender === 'user');
 
+  if (!isOpen) return null;
+
   return (
-    <>
-      {/* Floating Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-[99998] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-        aria-label={isOpen ? 'Close Vinsya AI' : 'Open Vinsya AI'}
-        style={{ boxShadow: '0 8px 20px rgba(0,0,0,0.3)' }}
-      >
-        {isOpen ? <FiX className="h-6 w-6" /> : <FiMessageCircle className="h-6 w-6" />}
-      </button>
-
-      {/* Chat Panel */}
-      {isOpen && (
-        <div
-          className="fixed bottom-24 right-6 z-[99999] flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
-          style={{
-            width: 'min(420px, calc(100vw - 2rem))',
-            height: 'min(600px, calc(100vh - 120px))',
-            animation: 'vinsyaFadeIn 0.3s ease-out',
-          }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Vinsya AI</h3>
-              <p className="text-xs text-zinc-400">Your little guide to YouAndMe</p>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
-              aria-label="Close chat"
-            >
-              <FiX className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
-              >
-                <span className="mb-1 px-1 text-[10px] font-medium text-zinc-500">
-                  {msg.sender === 'ai' ? 'Vinsya AI' : 'You'}
-                </span>
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
-                    msg.sender === 'user'
-                      ? 'bg-gradient-to-br from-rose-400 to-pink-500 text-white'
-                      : 'bg-white/5 text-zinc-200'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-                <span className="mt-1 px-1 text-[9px] text-zinc-600">
-                  {formatTime(msg.timestamp)}
-                </span>
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="flex items-start gap-2 pl-1">
-                <span className="text-[10px] font-medium text-zinc-500">Vinsya AI</span>
-                <div className="flex items-center gap-1 px-2 py-2">
-                  {[0, 1, 2].map((dot) => (
-                    <span
-                      key={dot}
-                      className="h-1.5 w-1.5 rounded-full bg-zinc-500 animate-bounce"
-                      style={{ animationDelay: `${dot * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Quick questions - hanya saat belum ada interaksi user */}
-            {!hasUserInteracted && !isLoading && (
-              <div className="mt-4 flex flex-wrap gap-2 px-1">
-                {QUICK_QUESTIONS.map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => handleQuickQuestion(q)}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input */}
-          <div className="border-t border-white/10 px-4 py-3">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                sendMessage(input);
-              }}
-              className="flex items-center gap-2"
-            >
-              <button
-                type="button"
-                onClick={toggleListening}
-                className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                  isListening
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'text-zinc-400 hover:bg-white/10 hover:text-white'
-                }`}
-                aria-label="Voice input"
-              >
-                {isListening ? <FiSquare className="h-4 w-4" /> : <FiMic className="h-4 w-4" />}
-              </button>
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={isListening ? 'Listening...' : 'Ask Vinsya anything...'}
-                disabled={isLoading}
-                className="flex-1 rounded-full bg-white/5 border border-white/10 px-4 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-400/50 focus:ring-1 focus:ring-rose-400/30 disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-pink-500 text-white disabled:opacity-50 hover:opacity-90 transition-opacity"
-                aria-label="Send message"
-              >
-                <FiSend className="h-4 w-4" />
-              </button>
-            </form>
-          </div>
+    <div
+      className="fixed bottom-24 right-6 z-[99999] flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
+      style={{
+        width: 'min(420px, calc(100vw - 2rem))',
+        height: 'min(600px, calc(100vh - 120px))',
+        animation: 'vinsyaFadeIn 0.3s ease-out',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div>
+          <h3 className="text-sm font-semibold text-white">Vinsya AI</h3>
+          <p className="text-xs text-zinc-400">Your little guide to YouAndMe</p>
         </div>
-      )}
+        <button
+          onClick={onClose}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+          aria-label="Close chat"
+        >
+          <FiX className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+          >
+            <span className="mb-1 px-1 text-[10px] font-medium text-zinc-500">
+              {msg.sender === 'ai' ? 'Vinsya AI' : 'You'}
+            </span>
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
+                msg.sender === 'user'
+                  ? 'bg-gradient-to-br from-rose-400 to-pink-500 text-white'
+                  : 'bg-white/5 text-zinc-200'
+              }`}
+            >
+              {msg.text}
+            </div>
+            <span className="mt-1 px-1 text-[9px] text-zinc-600">
+              {formatTime(msg.timestamp)}
+            </span>
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="flex items-start gap-2 pl-1">
+            <span className="text-[10px] font-medium text-zinc-500">Vinsya AI</span>
+            <div className="flex items-center gap-1 px-2 py-2">
+              {[0, 1, 2].map((dot) => (
+                <span
+                  key={dot}
+                  className="h-1.5 w-1.5 rounded-full bg-zinc-500 animate-bounce"
+                  style={{ animationDelay: `${dot * 0.15}s` }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!hasUserInteracted && !isLoading && (
+          <div className="mt-4 flex flex-wrap gap-2 px-1">
+            {QUICK_QUESTIONS.map((q) => (
+              <button
+                key={q}
+                onClick={() => handleQuickQuestion(q)}
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="border-t border-white/10 px-4 py-3">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendMessage(input);
+          }}
+          className="flex items-center gap-2"
+        >
+          <button
+            type="button"
+            onClick={toggleListening}
+            className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+              isListening
+                ? 'bg-red-500/20 text-red-400'
+                : 'text-zinc-400 hover:bg-white/10 hover:text-white'
+            }`}
+            aria-label="Voice input"
+          >
+            {isListening ? <FiSquare className="h-4 w-4" /> : <FiMic className="h-4 w-4" />}
+          </button>
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={isListening ? 'Listening...' : 'Ask Vinsya anything...'}
+            disabled={isLoading}
+            className="flex-1 rounded-full bg-white/5 border border-white/10 px-4 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-400/50 focus:ring-1 focus:ring-rose-400/30 disabled:opacity-50"
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-pink-500 text-white disabled:opacity-50 hover:opacity-90 transition-opacity"
+            aria-label="Send message"
+          >
+            <FiSend className="h-4 w-4" />
+          </button>
+        </form>
+      </div>
 
       <style>{`
         @keyframes vinsyaFadeIn {
@@ -379,7 +356,7 @@ const VinsyaAI = () => {
           }
         }
       `}</style>
-    </>
+    </div>
   );
 };
 
