@@ -12,6 +12,7 @@ import {
   GiHeartNecklace
 } from 'react-icons/gi';
 import { PiChatTeardropText } from "react-icons/pi";
+import VinsyaAI from './VinsyaAI';
 
 function Footer() {
   // State untuk Mesin Capit
@@ -61,6 +62,8 @@ function Footer() {
   const riseInterval = useRef(null);
   const timerRef = useRef(null);
   const holePosition = 85;
+
+  const [isVinsyaOpen, setIsVinsyaOpen] = useState(false);
 
   // Load rating dari localStorage
   useEffect(() => {
@@ -567,6 +570,13 @@ function Footer() {
                     ({averageRating.toFixed(1)})
                   </span>
                 )}
+              </button>
+              <button
+                onClick={() => setIsVinsyaOpen(true)}
+                className="text-white/40 hover:text-white text-sm transition-colors flex items-center justify-center gap-1"
+              >
+                <PiChatTeardropText className="text-[10px]" />
+                <span>Chat Vinsya AI</span>
               </button>
             </div>
           </div>
