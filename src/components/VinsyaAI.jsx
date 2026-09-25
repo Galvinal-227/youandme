@@ -6,11 +6,7 @@ const PERSONAL_DATA = {
     nama_lengkap: 'Galvin Alfito',
     nama_panggilan: 'Galvin',
     tanggal_lahir: '7 Oktober 2008',
-    hobi: [
-      'ngoding',
-      'ngegame',
-      'nonton YouTube'
-    ],
+    hobi: ['ngoding', 'ngegame', 'nonton YouTube'],
     makanan_kesukaan: 'Makanan yang enak',
     minuman_kesukaan: 'Kopi Hitam Tanpa Gula Karena Manisnya Udah Ada Di dia Hhihihihi',
     warna_kesukaan: 'Pink dan biru',
@@ -22,19 +18,13 @@ const PERSONAL_DATA = {
       'Seseorang yang suka web development dan hampir selalu punya sesuatu untuk dikoding.',
     fakta_unik:
       'Kalau sudah ngoding, bisa ngoding, ngoding lagi, lalu ngoding lagi.',
-    cita_cita:
-      'Menjadi seseorang yang ahli di bidang web development.'
+    cita_cita: 'Menjadi seseorang yang ahli di bidang web development.',
   },
-
   syafa: {
     nama_lengkap: 'Syafa',
     nama_panggilan: 'Syafa',
     tanggal_lahir: '22 Januari 2010',
-    hobi: [
-      'membaca',
-      'menulis',
-      'marah-marah'
-    ],
+    hobi: ['membaca', 'menulis', 'marah-marah'],
     makanan_kesukaan: 'Makanan yang enak',
     minuman_kesukaan: 'Semua Yang enak enak aja',
     warna_kesukaan: 'Pink dan biru',
@@ -46,23 +36,20 @@ const PERSONAL_DATA = {
       'Seseorang yang suka membaca, menulis, dan punya sisi emosional yang cukup kuat.',
     fakta_unik:
       'Bisa membaca, menulis, dan marah-marah dalam satu paket.',
-    cita_cita:
-      'Belum pasti.'
+    cita_cita: 'Belum pasti.',
   },
-
   hubungan: {
     status: 'Pasangan',
     tanggal_jadian: '18 JUNI 2023',
     lama_bersama: '4 TAHUN',
     cerita_pertemuan: 'Perang Stiker Di Whatsapp',
     deskripsi:
-      'YouAndMe adalah website personal yang dibuat untuk menyimpan cerita, kenangan, dan momen Galvin dan Syafa.'
+      'YouAndMe adalah website personal yang dibuat untuk menyimpan cerita, kenangan, dan momen Galvin dan Syafa.',
   },
 };
 
 /* ============================================================
    SYSTEM PROMPT UNTUK VINSYA AI
-   Data di atas otomatis disisipkan ke dalam prompt.
 ============================================================ */
 const generateSystemPrompt = () => {
   const g = PERSONAL_DATA.galvin;
@@ -127,9 +114,6 @@ const QUICK_QUESTIONS = [
   'Ceritain tentang hubungan kalian',
 ];
 
-/* ============================================================
-   HELPERS
-============================================================ */
 const formatTime = (date) =>
   date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
@@ -138,8 +122,8 @@ const formatTime = (date) =>
 ============================================================ */
 
 const ChatHeader = ({ onClose }) => (
-  <header className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5">
-    <div className="flex flex-col">
+  <header className="relative z-30 flex items-center justify-between border-b border-white/[0.08] bg-[#050505] px-6 py-5">
+    <div className="flex min-w-0 flex-col">
       <span className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/90">
         Vinsya
       </span>
@@ -147,12 +131,17 @@ const ChatHeader = ({ onClose }) => (
         a little guide to You And Me
       </span>
     </div>
+
     <button
+      type="button"
       onClick={onClose}
+      onMouseDown={(e) => e.preventDefault()}
       aria-label="Close chat"
-      className="flex h-8 w-8 items-center justify-center rounded-full text-white/40 transition-colors duration-300 hover:bg-white/[0.06] hover:text-white/80"
+      title="Close"
+      className="pointer-events-auto relative z-30 -mr-2 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:bg-white/[0.08] hover:text-white active:bg-white/[0.12]"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
     >
-      <FiX className="h-4 w-4" />
+      <FiX className="h-[18px] w-[18px] pointer-events-none" />
     </button>
   </header>
 );
@@ -220,6 +209,7 @@ const QuickQuestions = ({ questions, onSelect }) => (
       {questions.map((q, i) => (
         <button
           key={q}
+          type="button"
           onClick={() => onSelect(q)}
           className="group flex items-baseline gap-4 py-2.5 text-left"
         >
@@ -290,7 +280,8 @@ const VinsyaAI = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
@@ -321,59 +312,89 @@ const VinsyaAI = ({ isOpen, onClose }) => {
     const s = PERSONAL_DATA.syafa;
     const h = PERSONAL_DATA.hubungan;
 
-    if (lower.includes('ulang') || lower.includes('lahir') || lower.includes('tanggal lahir')) {
+    if (
+      lower.includes('ulang') ||
+      lower.includes('lahir') ||
+      lower.includes('tanggal lahir')
+    ) {
       if (lower.includes('syafa')) {
-        return s.tanggal_lahir ? `Syafa lahir tanggal ${s.tanggal_lahir}.` : 'Aku belum punya info tanggal lahir Syafa.';
+        return s.tanggal_lahir
+          ? `Syafa lahir tanggal ${s.tanggal_lahir}.`
+          : 'Aku belum punya info tanggal lahir Syafa.';
       }
       if (lower.includes('galvin')) {
-        return g.tanggal_lahir ? `Galvin lahir tanggal ${g.tanggal_lahir}.` : 'Aku belum punya info tanggal lahir Galvin.';
+        return g.tanggal_lahir
+          ? `Galvin lahir tanggal ${g.tanggal_lahir}.`
+          : 'Aku belum punya info tanggal lahir Galvin.';
       }
       return 'Siapa yang ingin kamu tanyakan? Galvin atau Syafa?';
     }
 
     if (lower.includes('hobi')) {
       if (lower.includes('syafa')) {
-        return s.hobi.length > 0 ? `Hobi Syafa: ${s.hobi.join(', ')}.` : 'Aku belum punya info hobi Syafa.';
+        return s.hobi.length > 0
+          ? `Hobi Syafa: ${s.hobi.join(', ')}.`
+          : 'Aku belum punya info hobi Syafa.';
       }
       if (lower.includes('galvin')) {
-        return g.hobi.length > 0 ? `Hobi Galvin: ${g.hobi.join(', ')}.` : 'Aku belum punya info hobi Galvin.';
+        return g.hobi.length > 0
+          ? `Hobi Galvin: ${g.hobi.join(', ')}.`
+          : 'Aku belum punya info hobi Galvin.';
       }
       return 'Hobi siapa yang ingin kamu tanyakan?';
     }
 
     if (lower.includes('makanan kesukaan') || lower.includes('makanan favorit')) {
       if (lower.includes('syafa')) {
-        return s.makanan_kesukaan ? `Makanan kesukaan Syafa adalah ${s.makanan_kesukaan}.` : 'Aku belum tahu makanan kesukaan Syafa.';
+        return s.makanan_kesukaan
+          ? `Makanan kesukaan Syafa adalah ${s.makanan_kesukaan}.`
+          : 'Aku belum tahu makanan kesukaan Syafa.';
       }
       if (lower.includes('galvin')) {
-        return g.makanan_kesukaan ? `Makanan kesukaan Galvin adalah ${g.makanan_kesukaan}.` : 'Aku belum tahu makanan kesukaan Galvin.';
+        return g.makanan_kesukaan
+          ? `Makanan kesukaan Galvin adalah ${g.makanan_kesukaan}.`
+          : 'Aku belum tahu makanan kesukaan Galvin.';
       }
       return 'Makanan kesukaan siapa? Galvin atau Syafa?';
     }
 
     if (lower.includes('minuman kesukaan') || lower.includes('minuman favorit')) {
       if (lower.includes('syafa')) {
-        return s.minuman_kesukaan ? `Minuman kesukaan Syafa adalah ${s.minuman_kesukaan}.` : 'Aku belum tahu minuman kesukaan Syafa.';
+        return s.minuman_kesukaan
+          ? `Minuman kesukaan Syafa adalah ${s.minuman_kesukaan}.`
+          : 'Aku belum tahu minuman kesukaan Syafa.';
       }
       if (lower.includes('galvin')) {
-        return g.minuman_kesukaan ? `Minuman kesukaan Galvin adalah ${g.minuman_kesukaan}.` : 'Aku belum tahu minuman kesukaan Galvin.';
+        return g.minuman_kesukaan
+          ? `Minuman kesukaan Galvin adalah ${g.minuman_kesukaan}.`
+          : 'Aku belum tahu minuman kesukaan Galvin.';
       }
       return 'Minuman kesukaan siapa?';
     }
 
     if (lower.includes('warna kesukaan') || lower.includes('warna favorit')) {
       if (lower.includes('syafa')) {
-        return s.warna_kesukaan ? `Warna kesukaan Syafa adalah ${s.warna_kesukaan}.` : 'Aku belum tahu warna kesukaan Syafa.';
+        return s.warna_kesukaan
+          ? `Warna kesukaan Syafa adalah ${s.warna_kesukaan}.`
+          : 'Aku belum tahu warna kesukaan Syafa.';
       }
       if (lower.includes('galvin')) {
-        return g.warna_kesukaan ? `Warna kesukaan Galvin adalah ${g.warna_kesukaan}.` : 'Aku belum tahu warna kesukaan Galvin.';
+        return g.warna_kesukaan
+          ? `Warna kesukaan Galvin adalah ${g.warna_kesukaan}.`
+          : 'Aku belum tahu warna kesukaan Galvin.';
       }
       return 'Warna kesukaan siapa?';
     }
 
-    if (lower.includes('jadian') || lower.includes('hubungan') || lower.includes('pacaran')) {
+    if (
+      lower.includes('jadian') ||
+      lower.includes('hubungan') ||
+      lower.includes('pacaran')
+    ) {
       if (h.status || h.tanggal_jadian || h.lama_bersama) {
-        return `Mereka ${h.status || 'pacaran'} sejak ${h.tanggal_jadian || 'tanggal yang belum diisi'} (${h.lama_bersama || 'lama bersama belum diisi'}).`;
+        return `Mereka ${h.status || 'pacaran'} sejak ${
+          h.tanggal_jadian || 'tanggal yang belum diisi'
+        } (${h.lama_bersama || 'lama bersama belum diisi'}).`;
       }
       return 'Aku belum punya detail hubungan mereka.';
     }
@@ -396,7 +417,11 @@ const VinsyaAI = ({ isOpen, onClose }) => {
 
     try {
       let responseText = '';
-      if (puterReady && window.puter && typeof window.puter.ai?.chat === 'function') {
+      if (
+        puterReady &&
+        window.puter &&
+        typeof window.puter.ai?.chat === 'function'
+      ) {
         abortControllerRef.current = new AbortController();
         const fullPrompt = buildContext() + ' ' + text.trim() + '\n';
         const response = await window.puter.ai.chat(fullPrompt, {
@@ -456,7 +481,8 @@ const VinsyaAI = ({ isOpen, onClose }) => {
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      navigator.mediaDevices.getUserMedia({ audio: true })
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
         .then(() => {
           recognitionRef.current.start();
           setIsListening(true);
@@ -478,7 +504,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
   return (
     <div
       className="
-        fixed inset-0 z-[99999999999999] flex flex-col overflow-hidden
+        fixed inset-0 flex flex-col overflow-hidden
         bg-[#050505]/95 backdrop-blur-xl
         md:inset-auto md:bottom-6 md:right-6
         md:h-[min(680px,calc(100vh-100px))]
@@ -487,6 +513,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
         md:border md:border-white/[0.10]
       "
       style={{
+        zIndex: 2147483000,
         animation: 'vinsyaFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
         boxShadow: '0 30px 80px rgba(0,0,0,0.45)',
       }}
@@ -494,7 +521,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
       <ChatHeader onClose={onClose} />
 
       {/* Messages area */}
-      <div className="vinsya-scroll flex-1 min-h-0 space-y-7 overflow-y-auto px-6 py-7">
+      <div className="vinsya-scroll relative z-0 flex-1 min-h-0 space-y-7 overflow-y-auto px-6 py-7">
         {messages.map((msg) => (
           <MessageItem key={msg.id} msg={msg} />
         ))}
@@ -517,7 +544,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
           e.preventDefault();
           sendMessage(input);
         }}
-        className="flex items-center gap-3 border-t border-white/[0.08] px-6 py-4"
+        className="relative z-20 flex items-center gap-3 border-t border-white/[0.08] bg-[#050505] px-6 py-4"
       >
         {isListening && (
           <div className="flex items-end gap-[3px] pr-1">
@@ -554,7 +581,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
           onClick={toggleListening}
           aria-label="Voice input"
           className={`
-            flex h-8 w-8 items-center justify-center rounded-full
+            flex h-9 w-9 items-center justify-center rounded-full
             transition-colors duration-300
             ${
               isListening
@@ -575,7 +602,7 @@ const VinsyaAI = ({ isOpen, onClose }) => {
           disabled={!input.trim() || isLoading}
           aria-label="Send message"
           className="
-            flex h-8 w-8 items-center justify-center rounded-full
+            flex h-9 w-9 items-center justify-center rounded-full
             text-white/60 transition-colors duration-300
             hover:bg-white/[0.06] hover:text-white
             disabled:opacity-30 disabled:hover:bg-transparent
