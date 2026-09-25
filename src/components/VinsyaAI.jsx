@@ -127,6 +127,117 @@ const QUICK_QUESTIONS = [
   'Ceritain tentang hubungan kalian',
 ];
 
+/* ============================================================
+   HELPERS
+============================================================ */
+const formatTime = (date) =>
+  date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+/* ============================================================
+   PRESENTATIONAL SUBCOMPONENTS
+============================================================ */
+
+const ChatHeader = ({ onClose }) => (
+  <header className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5">
+    <div className="flex flex-col">
+      <span className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/90">
+        Vinsya
+      </span>
+      <span className="mt-1.5 text-[10px] tracking-[0.08em] text-white/40">
+        a little guide to You And Me
+      </span>
+    </div>
+    <button
+      onClick={onClose}
+      aria-label="Close chat"
+      className="flex h-8 w-8 items-center justify-center rounded-full text-white/40 transition-colors duration-300 hover:bg-white/[0.06] hover:text-white/80"
+    >
+      <FiX className="h-4 w-4" />
+    </button>
+  </header>
+);
+
+const MessageItem = ({ msg }) => {
+  const isAI = msg.sender === 'ai';
+  return (
+    <div
+      className={`flex flex-col ${isAI ? 'items-start' : 'items-end'}`}
+      style={{ animation: 'vinsyaMsgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)' }}
+    >
+      <span className="mb-2 text-[10px] font-medium uppercase tracking-[0.25em] text-white/35">
+        {isAI ? 'Vinsya' : 'You'}
+      </span>
+
+      {isAI ? (
+        <p className="max-w-[92%] whitespace-pre-wrap text-[14px] leading-[1.8] text-white/80">
+          {msg.text}
+        </p>
+      ) : (
+        <div className="max-w-[85%] rounded-[14px] border border-white/[0.08] bg-white/[0.06] px-4 py-2.5 text-[14px] leading-[1.7] text-white/90">
+          {msg.text}
+        </div>
+      )}
+
+      <span className="mt-2 text-[9px] tracking-[0.15em] text-white/25">
+        {formatTime(msg.timestamp)}
+      </span>
+    </div>
+  );
+};
+
+const LoadingState = () => (
+  <div
+    className="flex flex-col items-start"
+    style={{ animation: 'vinsyaMsgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)' }}
+  >
+    <span className="mb-2 text-[10px] font-medium uppercase tracking-[0.25em] text-white/35">
+      Vinsya
+    </span>
+    <div className="flex items-center gap-2 text-[13px] italic tracking-[0.05em] text-white/40">
+      <span>thinking</span>
+      <span className="flex items-center gap-[3px] pt-[3px]">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="h-[3px] w-[3px] rounded-full bg-white/60"
+            style={{
+              animation: 'vinsyaDot 1.4s ease-in-out infinite',
+              animationDelay: `${i * 0.2}s`,
+            }}
+          />
+        ))}
+      </span>
+    </div>
+  </div>
+);
+
+const QuickQuestions = ({ questions, onSelect }) => (
+  <div className="border-t border-white/[0.06] pt-6">
+    <div className="mb-4 text-[10px] font-medium uppercase tracking-[0.3em] text-white/35">
+      Ask Something
+    </div>
+    <div className="flex flex-col">
+      {questions.map((q, i) => (
+        <button
+          key={q}
+          onClick={() => onSelect(q)}
+          className="group flex items-baseline gap-4 py-2.5 text-left"
+        >
+          <span className="text-[10px] tracking-[0.15em] text-white/30 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:text-white/60">
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          <span className="border-b border-transparent pb-0.5 text-[13px] text-white/50 transition-all duration-300 ease-out group-hover:border-white/20 group-hover:text-white/95">
+            {q}
+          </span>
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+/* ============================================================
+   MAIN COMPONENT
+============================================================ */
 const VinsyaAI = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
     {
@@ -210,7 +321,6 @@ const VinsyaAI = ({ isOpen, onClose }) => {
     const s = PERSONAL_DATA.syafa;
     const h = PERSONAL_DATA.hubungan;
 
-    // Cek pertanyaan tentang ulang tahun / tanggal lahir
     if (lower.includes('ulang') || lower.includes('lahir') || lower.includes('tanggal lahir')) {
       if (lower.includes('syafa')) {
         return s.tanggal_lahir ? `Syafa lahir tanggal ${s.tanggal_lahir}.` : 'Aku belum punya info tanggal lahir Syafa.';
@@ -268,7 +378,6 @@ const VinsyaAI = ({ isOpen, onClose }) => {
       return 'Aku belum punya detail hubungan mereka.';
     }
 
-    // Fallback generik
     return 'Aku belum bisa menjawab itu. Coba tanya tentang Galvin, Syafa, atau website ini ya.';
   };
 
@@ -362,147 +471,165 @@ const VinsyaAI = ({ isOpen, onClose }) => {
     sendMessage(question);
   };
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  };
-
   const hasUserInteracted = messages.some((m) => m.sender === 'user');
 
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed bottom-24 right-6 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/95 backdrop-blur-xl shadow-2xl"
+      className="
+        fixed inset-0 z-[99999999999999] flex flex-col overflow-hidden
+        bg-[#050505]/95 backdrop-blur-xl
+        md:inset-auto md:bottom-6 md:right-6
+        md:h-[min(680px,calc(100vh-100px))]
+        md:w-[min(460px,calc(100vw-32px))]
+        md:rounded-[20px]
+        md:border md:border-white/[0.10]
+      "
       style={{
-        width: 'min(420px, calc(100vw - 2rem))',
-        height: 'min(600px, calc(100vh - 120px))',
-        animation: 'vinsyaFadeIn 0.3s ease-out',
-        zIndex: 99999999999999,
+        animation: 'vinsyaFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        boxShadow: '0 30px 80px rgba(0,0,0,0.45)',
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <div>
-          <h3 className="text-sm font-semibold text-white">Vinsya AI</h3>
-          <p className="text-xs text-zinc-400">Your little guide to YouAndMe</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
-          aria-label="Close chat"
-        >
-          <FiX className="h-4 w-4" />
-        </button>
-      </div>
+      <ChatHeader onClose={onClose} />
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      {/* Messages area */}
+      <div className="vinsya-scroll flex-1 min-h-0 space-y-7 overflow-y-auto px-6 py-7">
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
-          >
-            <span className="mb-1 px-1 text-[10px] font-medium text-zinc-500">
-              {msg.sender === 'ai' ? 'Vinsya AI' : 'You'}
-            </span>
-            <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
-                msg.sender === 'user'
-                  ? 'bg-gradient-to-br from-rose-400 to-pink-500 text-white'
-                  : 'bg-white/5 text-zinc-200'
-              }`}
-            >
-              {msg.text}
-            </div>
-            <span className="mt-1 px-1 text-[9px] text-zinc-600">
-              {formatTime(msg.timestamp)}
-            </span>
-          </div>
+          <MessageItem key={msg.id} msg={msg} />
         ))}
 
-        {isLoading && (
-          <div className="flex items-start gap-2 pl-1">
-            <span className="text-[10px] font-medium text-zinc-500">Vinsya AI</span>
-            <div className="flex items-center gap-1 px-2 py-2">
-              {[0, 1, 2].map((dot) => (
-                <span
-                  key={dot}
-                  className="h-1.5 w-1.5 rounded-full bg-zinc-500 animate-bounce"
-                  style={{ animationDelay: `${dot * 0.15}s` }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        {isLoading && <LoadingState />}
 
         {!hasUserInteracted && !isLoading && (
-          <div className="mt-4 flex flex-wrap gap-2 px-1">
-            {QUICK_QUESTIONS.map((q) => (
-              <button
-                key={q}
-                onClick={() => handleQuickQuestion(q)}
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
+          <QuickQuestions
+            questions={QUICK_QUESTIONS}
+            onSelect={handleQuickQuestion}
+          />
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/10 px-4 py-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage(input);
-          }}
-          className="flex items-center gap-2"
-        >
-          <button
-            type="button"
-            onClick={toggleListening}
-            className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          sendMessage(input);
+        }}
+        className="flex items-center gap-3 border-t border-white/[0.08] px-6 py-4"
+      >
+        {isListening && (
+          <div className="flex items-end gap-[3px] pr-1">
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="w-[2px] rounded-full bg-white/70"
+                style={{
+                  height: '14px',
+                  animation: 'vinsyaBar 1s ease-in-out infinite',
+                  animationDelay: `${i * 0.15}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={isListening ? 'LISTENING...' : 'Ask Vinsya anything...'}
+          disabled={isLoading}
+          className="
+            flex-1 bg-transparent text-[13px] tracking-wide text-white
+            placeholder-white/30 outline-none
+            disabled:opacity-50
+          "
+        />
+
+        <button
+          type="button"
+          onClick={toggleListening}
+          aria-label="Voice input"
+          className={`
+            flex h-8 w-8 items-center justify-center rounded-full
+            transition-colors duration-300
+            ${
               isListening
-                ? 'bg-red-500/20 text-red-400'
-                : 'text-zinc-400 hover:bg-white/10 hover:text-white'
-            }`}
-            aria-label="Voice input"
-          >
-            {isListening ? <FiSquare className="h-4 w-4" /> : <FiMic className="h-4 w-4" />}
-          </button>
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={isListening ? 'Listening...' : 'Ask Vinsya anything...'}
-            disabled={isLoading}
-            className="flex-1 rounded-full bg-white/5 border border-white/10 px-4 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-400/50 focus:ring-1 focus:ring-rose-400/30 disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-pink-500 text-white disabled:opacity-50 hover:opacity-90 transition-opacity"
-            aria-label="Send message"
-          >
-            <FiSend className="h-4 w-4" />
-          </button>
-        </form>
-      </div>
+                ? 'bg-white/[0.10] text-white'
+                : 'text-white/40 hover:bg-white/[0.06] hover:text-white/80'
+            }
+          `}
+        >
+          {isListening ? (
+            <FiSquare className="h-3.5 w-3.5" />
+          ) : (
+            <FiMic className="h-4 w-4" />
+          )}
+        </button>
+
+        <button
+          type="submit"
+          disabled={!input.trim() || isLoading}
+          aria-label="Send message"
+          className="
+            flex h-8 w-8 items-center justify-center rounded-full
+            text-white/60 transition-colors duration-300
+            hover:bg-white/[0.06] hover:text-white
+            disabled:opacity-30 disabled:hover:bg-transparent
+          "
+        >
+          <FiSend className="h-4 w-4" />
+        </button>
+      </form>
 
       <style>{`
         @keyframes vinsyaFadeIn {
           from {
             opacity: 0;
-            transform: translateY(15px) scale(0.96);
+            transform: translateY(20px) scale(0.98);
           }
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
           }
+        }
+        @keyframes vinsyaMsgIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes vinsyaDot {
+          0%, 80%, 100% { opacity: 0.2; }
+          40% { opacity: 1; }
+        }
+        @keyframes vinsyaBar {
+          0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+          50% { transform: scaleY(1); opacity: 1; }
+        }
+        .vinsya-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        .vinsya-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .vinsya-scroll::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.06);
+          border-radius: 2px;
+        }
+        .vinsya-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.12);
+        }
+        .vinsya-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255,255,255,0.08) transparent;
         }
       `}</style>
     </div>
